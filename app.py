@@ -77,7 +77,15 @@ PRICES = {
 def login_required(f):
     @wraps(f)
     def wrapper(*args, **kwargs):
-        if 'user_id' not in session:
+        # A session can survive a database reset/redeployment. Never trust
+        # the presence of user_id alone; make sure the account still exists.
+        uid = session.get('user_id')
+        if not uid:
+            return redirect(url_for('login'))
+        user = db.session.get(User, uid)
+        if user is None:
+            session.clear()
+            flash('Your session has expired. Please sign in again.', 'error')
             return redirect(url_for('login'))
         return f(*args, **kwargs)
     return wrapper
