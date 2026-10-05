@@ -1,5 +1,6 @@
-{% extends 'base.html' %}
-{% block content %}
+<!doctype html>
+<html lang='en'><head><meta charset='utf-8'><meta name='viewport' content='width=device-width,initial-scale=1'><title>Uganda-Dating — Just a Swipe</title>
+</head><body>
 <style>
 .landing-shell{min-height:calc(100vh - 30px);position:relative;overflow:hidden;border-radius:28px;background:radial-gradient(circle at 15% 20%,rgba(244,180,192,.38),transparent 28%),radial-gradient(circle at 85% 30%,rgba(111,28,57,.28),transparent 32%),linear-gradient(135deg,#fff7f5 0%,#f8e2e4 48%,#ead0d5 100%);color:#32151f}
 .landing-nav{position:absolute;left:0;right:0;top:0;z-index:10;display:flex;align-items:center;justify-content:space-between;padding:24px 34px}
@@ -12,4 +13,4 @@ h1{font-family:Georgia,'Times New Roman',serif;font-size:clamp(64px,8vw,112px);l
 @media(max-width:850px){.landing-nav{padding:18px}.hero{grid-template-columns:1fr;padding:100px 25px 50px;text-align:center}.copy{margin:auto}.actions{justify-content:center}.lead{margin:auto}.visual{min-height:430px}.phone{transform:rotate(2deg) scale(.82)}h1{font-size:70px;letter-spacing:-3px}.brand{font-size:20px}.nav-left{gap:6px}.nav-btn{padding:9px 12px;font-size:13px}}
 </style>
 <section class="landing-shell"><nav class="landing-nav"><div class="nav-left"><details class="product-menu"><summary class="nav-btn">☰ Products</summary><div class="products"><a href="{{ url_for('discover') }}">❤️ Discover</a><a href="{{ url_for('likes') }}">💗 See Who Likes You</a><a href="{{ url_for('encounters') }}">✨ Encounters</a><a href="{{ url_for('chats') }}">💬 Chats</a><a href="{{ url_for('profile') }}">👤 Your Profile</a><a href="{{ url_for('swipe') }}">↔ Swipe</a><a href="#download">📱 Download App</a></div></details><a class="nav-btn" href="{{ url_for('login') }}">Login</a></div><div class="brand">Uganda<span>-Dating</span> ❤️</div></nav><div class="hero"><div class="copy"><div class="eyebrow">🇺🇬 Made for connections in Uganda</div><h1>Just a <em>Swipe.</em></h1><p class="lead">Meet genuine people nearby, discover meaningful connections and find someone who matches what you’re looking for.</p><div class="actions"><a class="cta cta-primary" href="#download">📱 Get the App</a><a class="cta cta-secondary" href="{{ url_for('register') }}">❤️ Create a Free Account</a></div><div id="download" class="download-note">Available for mobile • Discover people by distance • Your exact location stays private</div></div><div class="visual"><div class="orb"></div><div class="phone"><div class="phone-inner"><div class="phone-top">Uganda-Dating ❤️</div><div class="profile-card"><div class="card-copy"><strong>Meet someone special</strong><small>Nearby • Verified • Compatible</small></div></div><div class="phone-actions"><div class="round">✕</div><div class="round">♥</div><div class="round">★</div></div></div></div></div></div></section>
-{% endblock %}
+</body></html>
