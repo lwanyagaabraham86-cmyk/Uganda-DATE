@@ -150,6 +150,54 @@ def like(user_id):
     mutual = Like.query.filter_by(from_id=user_id, to_id=me.id).first()
     return jsonify({'ok': True, 'match': bool(mutual)})
 
+@app.route('/likes')
+@login_required
+def likes():
+    me = current_user()
+    incoming = Like.query.filter_by(to_id=me.id).order_by(Like.created_at.desc()).all()
+    liked_users = []
+    seen = set()
+    for item in incoming:
+        if item.from_id in seen:
+            continue
+        user = db.session.get(User, item.from_id)
+        if user:
+            liked_users.append((user, item.kind))
+            seen.add(item.from_id)
+    return render_template('likes.html', liked_users=liked_users)
+
+@app.route('/encounters')
+@login_required
+def encounters():
+    me = current_user()
+    liked_ids = {x.to_id for x in Like.query.filter_by(from_id=me.id).all()}
+    profiles = User.query.filter(User.id != me.id).filter(User.id.notin_(liked_ids) if liked_ids else True).order_by(User.created_at.desc()).limit(30).all()
+    return render_template('encounters.html', profiles=profiles)
+
+@app.route('/chats')
+@login_required
+def chats():
+    me = current_user()
+    rows = Message.query.filter((Message.sender_id == me.id) | (Message.receiver_id == me.id)).order_by(Message.created_at.desc()).all()
+    other_ids = []
+    for row in rows:
+        other_id = row.receiver_id if row.sender_id == me.id else row.sender_id
+        if other_id not in other_ids:
+            other_ids.append(other_id)
+    conversations = []
+    for other_id in other_ids:
+        other = db.session.get(User, other_id)
+        if not other:
+            continue
+        last = Message.query.filter(((Message.sender_id == me.id) & (Message.receiver_id == other.id)) | ((Message.sender_id == other.id) & (Message.receiver_id == me.id))).order_by(Message.created_at.desc()).first()
+        conversations.append((other, last))
+    return render_template('chats.html', conversations=conversations)
+
+@app.route('/swipe')
+@login_required
+def swipe():
+    return redirect(url_for('discover'))
+
 @app.route('/matches')
 @login_required
 def matches():
