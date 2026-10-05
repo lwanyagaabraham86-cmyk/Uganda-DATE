@@ -401,16 +401,35 @@ with app.app_context():
     # Lightweight migration for deployments that already have the original User table.
     # This keeps the new MTN MoMo entitlement fields from breaking an existing database.
     user_columns = {c['name'] for c in db.session.execute(db.text("PRAGMA table_info(user)")).mappings()} if db.engine.dialect.name == 'sqlite' else {r[0] for r in db.session.execute(db.text("SELECT column_name FROM information_schema.columns WHERE table_name='user'")).all()}
-    new_columns = {
-        'likes_until': 'DATETIME', 'unlimited_until': 'DATETIME', 'boost_until': 'DATETIME',
-        'featured_until': 'DATETIME', 'super_likes': 'INTEGER DEFAULT 0',
-        'latitude': 'FLOAT', 'longitude': 'FLOAT', 'search_radius_km': 'FLOAT DEFAULT 25'
-    }
-    for column, sql_type in new_columns.items():
-        if column not in user_columns:
-            if db.engine.dialect.name == 'postgresql':
+    # Use database-specific SQL types here. PostgreSQL does not have DATETIME/FLOAT
+    # type names, while SQLite accepts a much smaller set of type affinities.
+    if db.engine.dialect.name == 'postgresql':
+        new_columns = {
+            'likes_until': 'TIMESTAMP',
+            'unlimited_until': 'TIMESTAMP',
+            'boost_until': 'TIMESTAMP',
+            'featured_until': 'TIMESTAMP',
+            'super_likes': 'INTEGER DEFAULT 0',
+            'latitude': 'DOUBLE PRECISION',
+            'longitude': 'DOUBLE PRECISION',
+            'search_radius_km': 'DOUBLE PRECISION DEFAULT 25'
+        }
+        for column, sql_type in new_columns.items():
+            if column not in user_columns:
                 db.session.execute(db.text(f'ALTER TABLE "user" ADD COLUMN IF NOT EXISTS {column} {sql_type}'))
-            else:
+    else:
+        new_columns = {
+            'likes_until': 'DATETIME',
+            'unlimited_until': 'DATETIME',
+            'boost_until': 'DATETIME',
+            'featured_until': 'DATETIME',
+            'super_likes': 'INTEGER DEFAULT 0',
+            'latitude': 'FLOAT',
+            'longitude': 'FLOAT',
+            'search_radius_km': 'FLOAT DEFAULT 25'
+        }
+        for column, sql_type in new_columns.items():
+            if column not in user_columns:
                 db.session.execute(db.text(f'ALTER TABLE user ADD COLUMN {column} {sql_type}'))
     db.session.commit()
     if User.query.count() == 0:
