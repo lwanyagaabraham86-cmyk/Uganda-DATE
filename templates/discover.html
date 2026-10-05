@@ -3,7 +3,7 @@
 {% block content %}
 <main class="container">
   <div class="section-title">
-    <div><div class="eyebrow">Nearby connections</div><h1>Discover</h1><p class="muted">Meet genuine people close to you 💕</p></div>
+    <div><div class="eyebrow">Nearby connections</div><h1>Discover</h1><p class="muted">Only people who match your gender preference, their preference for you, and your distance range are shown. 💕</p></div>
     <a class="btn secondary" href="{{ url_for('premium') }}">✨ Go Premium</a>
   </div>
 
@@ -11,8 +11,8 @@
     <div class="nearby-copy">
       <div class="nearby-icon">⌖</div>
       <div>
-        <strong>People near you</strong>
-        <p class="muted small">Show profiles within your chosen distance. Your exact location is never shown to other users.</p>
+        <strong>People near you who are interested in you</strong>
+        <p class="muted small">Only compatible profiles are shown: they fit your gender preference and their preference includes you. Your exact location is never shown.</p>
         <span id="locationStatus" class="location-status">{% if has_location %}✓ Location saved{% else %}Location not shared yet{% endif %}</span>
       </div>
     </div>
@@ -38,7 +38,7 @@
   <div class="cards">
     {% for p, distance in nearby %}
     <article class="profile-card">
-      <img class="profile-img" src="{{ p.photo }}" alt="{{ p.name }}">
+      <img class="profile-img" src="{{ p.photo }}" alt="{{ p.name }}" loading="lazy">
       <div class="profile-body">
         <div class="name">{{ p.name }}, {{ p.age }} {% if p.verified %}<span class="verified">●</span>{% endif %}</div>
         <div class="distance-line">📍 {% if distance is not none %}{{ '%.1f'|format(distance) }} km away{% else %}{{ p.city }} · nearby{% endif %}</div>

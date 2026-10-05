@@ -103,12 +103,38 @@ def distance_km(lat1, lon1, lat2, lon2):
     a = sin(dp / 2) ** 2 + cos(p1) * cos(p2) * sin(dl / 2) ** 2
     return r * 2 * atan2(sqrt(a), sqrt(1 - a))
 
-def nearby_profiles(me, exclude_ids=None, limit=30):
+def preference_matches(me, user):
+    """Return True when both people are interested in each other's gender."""
+    my_choice = (me.interested_in or 'Everyone').strip().lower()
+    their_choice = (user.interested_in or 'Everyone').strip().lower()
+    their_gender = (user.gender or '').strip().lower()
+    my_gender = (me.gender or '').strip().lower()
+
+    def accepts(choice, gender):
+        if choice in ('everyone', 'anyone', 'all'):
+            return True
+        if choice in ('women', 'woman'):
+            return gender in ('woman', 'women')
+        if choice in ('men', 'man'):
+            return gender in ('man', 'men')
+        if choice in ('non-binary', 'nonbinary'):
+            return gender in ('non-binary', 'nonbinary')
+        return choice == gender
+
+    return accepts(my_choice, their_gender) and accepts(their_choice, my_gender)
+
+
+def nearby_profiles(me, exclude_ids=None, limit=50):
+    # IMPORTANT: compatibility is checked before a profile is returned to the
+    # template. This means an incompatible profile photo is never rendered in
+    # the Discover/Encounters HTML, even for a moment while the page loads.
     exclude_ids = set(exclude_ids or ()) | {me.id}
     candidates = User.query.filter(~User.id.in_(exclude_ids)).all()
     results = []
     radius = max(1.0, min(float(me.search_radius_km or 25), 500.0))
     for user in candidates:
+        if not preference_matches(me, user):
+            continue
         if me.latitude is not None and me.longitude is not None and user.latitude is not None and user.longitude is not None:
             distance = distance_km(me.latitude, me.longitude, user.latitude, user.longitude)
             if distance <= radius:
@@ -172,8 +198,10 @@ def logout():
 @login_required
 def discover():
     me = current_user()
-    liked_ids = {x.to_id for x in Like.query.filter_by(from_id=me.id).all()}
-    nearby = nearby_profiles(me, liked_ids, 30)
+    # Discover shows compatible nearby people based on BOTH users' gender preferences.
+    # We intentionally do not remove people you have already liked here, so the
+    # discovery page can show the full compatible nearby pool.
+    nearby = nearby_profiles(me, limit=50)
     return render_template('discover.html', nearby=nearby, radius=me.search_radius_km or 25, has_location=me.latitude is not None and me.longitude is not None)
 
 @app.post('/location')
@@ -292,6 +320,8 @@ def profile():
     me = current_user()
     if request.method == 'POST':
         me.name = request.form['name'].strip(); me.city = request.form.get('city','Kampala')
+        me.gender = request.form.get('gender', me.gender)
+        me.interested_in = request.form.get('interested_in', me.interested_in)
         me.bio = request.form.get('bio','').strip(); me.photo = request.form.get('photo','').strip() or me.photo
         try:
             me.search_radius_km = max(1, min(float(request.form.get('search_radius_km', me.search_radius_km or 25)), 500))
