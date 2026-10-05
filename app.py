@@ -1,5 +1,6 @@
 import os
 from datetime import datetime, timedelta
+from math import radians, sin, cos, sqrt, atan2
 from functools import wraps
 from flask import Flask, render_template, request, redirect, url_for, session, flash, jsonify
 from werkzeug.security import generate_password_hash, check_password_hash
@@ -20,6 +21,9 @@ class User(db.Model):
     gender = db.Column(db.String(30), nullable=False)
     interested_in = db.Column(db.String(30), nullable=False)
     city = db.Column(db.String(80), default='Kampala')
+    latitude = db.Column(db.Float, nullable=True)
+    longitude = db.Column(db.Float, nullable=True)
+    search_radius_km = db.Column(db.Float, default=25.0, nullable=False)
     bio = db.Column(db.Text, default='')
     photo = db.Column(db.String(500), default='https://images.unsplash.com/photo-1531123897727-8f129e1688ce?w=700')
     verified = db.Column(db.Boolean, default=False)
@@ -82,6 +86,32 @@ def current_user():
     uid = session.get('user_id')
     return db.session.get(User, uid) if uid else None
 
+def distance_km(lat1, lon1, lat2, lon2):
+    """Great-circle distance between two coordinates in kilometres."""
+    r = 6371.0
+    p1, p2 = radians(lat1), radians(lat2)
+    dp = radians(lat2 - lat1)
+    dl = radians(lon2 - lon1)
+    a = sin(dp / 2) ** 2 + cos(p1) * cos(p2) * sin(dl / 2) ** 2
+    return r * 2 * atan2(sqrt(a), sqrt(1 - a))
+
+def nearby_profiles(me, exclude_ids=None, limit=30):
+    exclude_ids = set(exclude_ids or ()) | {me.id}
+    candidates = User.query.filter(~User.id.in_(exclude_ids)).all()
+    results = []
+    radius = max(1.0, min(float(me.search_radius_km or 25), 500.0))
+    for user in candidates:
+        if me.latitude is not None and me.longitude is not None and user.latitude is not None and user.longitude is not None:
+            distance = distance_km(me.latitude, me.longitude, user.latitude, user.longitude)
+            if distance <= radius:
+                results.append((user, distance))
+        elif me.latitude is None or me.longitude is None:
+            # Until the user shares location, keep discovery useful using city matching.
+            if (user.city or '').strip().lower() == (me.city or '').strip().lower():
+                results.append((user, None))
+    results.sort(key=lambda item: item[1] if item[1] is not None else 10**9)
+    return results[:limit]
+
 @app.context_processor
 def inject_globals():
     return {'current_user': current_user(), 'prices': PRICES, 'mtn_momo_number': MTN_MOMO_NUMBER}
@@ -135,8 +165,37 @@ def logout():
 def discover():
     me = current_user()
     liked_ids = {x.to_id for x in Like.query.filter_by(from_id=me.id).all()}
-    profiles = User.query.filter(User.id != me.id).filter(User.id.notin_(liked_ids) if liked_ids else True).limit(30).all()
-    return render_template('discover.html', profiles=profiles)
+    nearby = nearby_profiles(me, liked_ids, 30)
+    return render_template('discover.html', nearby=nearby, radius=me.search_radius_km or 25, has_location=me.latitude is not None and me.longitude is not None)
+
+@app.post('/location')
+@login_required
+def update_location():
+    me = current_user()
+    try:
+        lat = float(request.form.get('latitude', ''))
+        lon = float(request.form.get('longitude', ''))
+        radius = float(request.form.get('search_radius_km', me.search_radius_km or 25))
+    except (TypeError, ValueError):
+        return jsonify({'ok': False, 'error': 'Invalid location or range.'}), 400
+    if not (-90 <= lat <= 90 and -180 <= lon <= 180):
+        return jsonify({'ok': False, 'error': 'Invalid coordinates.'}), 400
+    me.latitude, me.longitude = lat, lon
+    me.search_radius_km = max(1, min(radius, 500))
+    db.session.commit()
+    return jsonify({'ok': True, 'radius': me.search_radius_km})
+
+@app.post('/search-radius')
+@login_required
+def update_search_radius():
+    me = current_user()
+    try:
+        radius = float(request.form.get('search_radius_km', '25'))
+    except ValueError:
+        radius = 25
+    me.search_radius_km = max(1, min(radius, 500))
+    db.session.commit()
+    return redirect(request.form.get('next') or url_for('discover'))
 
 @app.post('/like/<int:user_id>')
 @login_required
@@ -171,8 +230,8 @@ def likes():
 def encounters():
     me = current_user()
     liked_ids = {x.to_id for x in Like.query.filter_by(from_id=me.id).all()}
-    profiles = User.query.filter(User.id != me.id).filter(User.id.notin_(liked_ids) if liked_ids else True).order_by(User.created_at.desc()).limit(30).all()
-    return render_template('encounters.html', profiles=profiles)
+    nearby = nearby_profiles(me, liked_ids, 30)
+    return render_template('encounters.html', nearby=nearby, radius=me.search_radius_km or 25, has_location=me.latitude is not None and me.longitude is not None)
 
 @app.route('/chats')
 @login_required
@@ -226,6 +285,10 @@ def profile():
     if request.method == 'POST':
         me.name = request.form['name'].strip(); me.city = request.form.get('city','Kampala')
         me.bio = request.form.get('bio','').strip(); me.photo = request.form.get('photo','').strip() or me.photo
+        try:
+            me.search_radius_km = max(1, min(float(request.form.get('search_radius_km', me.search_radius_km or 25)), 500))
+        except ValueError:
+            pass
         db.session.commit(); flash('Profile updated.', 'success')
     return render_template('profile.html', user=me)
 
@@ -340,7 +403,8 @@ with app.app_context():
     user_columns = {c['name'] for c in db.session.execute(db.text("PRAGMA table_info(user)")).mappings()} if db.engine.dialect.name == 'sqlite' else {r[0] for r in db.session.execute(db.text("SELECT column_name FROM information_schema.columns WHERE table_name='user'")).all()}
     new_columns = {
         'likes_until': 'DATETIME', 'unlimited_until': 'DATETIME', 'boost_until': 'DATETIME',
-        'featured_until': 'DATETIME', 'super_likes': 'INTEGER DEFAULT 0'
+        'featured_until': 'DATETIME', 'super_likes': 'INTEGER DEFAULT 0',
+        'latitude': 'FLOAT', 'longitude': 'FLOAT', 'search_radius_km': 'FLOAT DEFAULT 25'
     }
     for column, sql_type in new_columns.items():
         if column not in user_columns:
@@ -356,7 +420,7 @@ with app.app_context():
             ('Sarah', 'sarah@demo.ug', 26, 'Woman', 'Men', 'Entebbe', 'Coffee, music and weekend adventures. Here for a genuine connection.', 'https://images.unsplash.com/photo-1494790108377-be9c29b29330?w=700'),
         ]
         for n,e,a,g,i,c,b,p in demo:
-            db.session.add(User(name=n,email=e,password_hash=generate_password_hash('demo123'),age=a,gender=g,interested_in=i,city=c,bio=b,photo=p,verified=True))
+            db.session.add(User(name=n,email=e,password_hash=generate_password_hash('demo123'),age=a,gender=g,interested_in=i,city=c,bio=b,photo=p,verified=True,latitude={'Kampala':0.3476,'Entebbe':0.0512}.get(c),longitude={'Kampala':32.5825,'Entebbe':32.4637}.get(c)))
         db.session.commit()
 
 if __name__ == '__main__':
