@@ -58,7 +58,7 @@ class Message(db.Model):
     created_at = db.Column(db.DateTime, default=datetime.utcnow)
 
 MTN_MOMO_NUMBER = os.environ.get('MTN_MOMO_NUMBER', '65616659')
-ADMIN_EMAIL = os.environ.get('ADMIN_EMAIL', 'admin@ugandadate.app')
+ADMIN_EMAIL = os.environ.get('ADMIN_EMAIL', 'admin@ugandadating.app')
 ADMIN_PASSWORD = os.environ.get('ADMIN_PASSWORD', 'change-me-now')
 
 PRICES = {
@@ -103,14 +103,14 @@ def register():
         interested_in = request.form['interested_in']
         city = request.form.get('city', 'Kampala')
         if age < 18:
-            flash('Uganda Date is for adults 18+ only.', 'error')
+            flash('Uganda Dating is for adults 18+ only.', 'error')
             return render_template('register.html')
         if User.query.filter_by(email=email).first():
             flash('An account with that email already exists.', 'error')
             return render_template('register.html')
         user = User(name=name, email=email, password_hash=generate_password_hash(password), age=age,
                     gender=gender, interested_in=interested_in, city=city,
-                    bio='New on Uganda Date. Looking forward to meeting someone genuine!')
+                    bio='New on Uganda Dating. Looking forward to meeting someone genuine!')
         db.session.add(user); db.session.commit()
         session['user_id'] = user.id
         return redirect(url_for('discover'))

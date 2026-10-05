@@ -1,6 +1,6 @@
 services:
   - type: web
-    name: uganda-date
+    name: uganda-dating
     runtime: python
     buildCommand: pip install -r requirements.txt
     startCommand: gunicorn app:app

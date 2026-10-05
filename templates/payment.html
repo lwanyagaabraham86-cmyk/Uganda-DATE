@@ -1,7 +1,7 @@
-{% extends 'base.html' %}{% block title %}Pay with MTN MoMo — Uganda Date{% endblock %}{% block content %}
+{% extends 'base.html' %}{% block title %}Pay with MTN MoMo — Uganda Dating{% endblock %}{% block content %}
 <main class="container"><div class="auth payment-card">
 <div class="pill" style="display:inline-block">🇺🇬 MTN MoMo</div><h1>Pay for {{ product.name }}</h1>
 <p class="muted">Amount: <strong>UGX {{ '{:,}'.format(product.price) }}</strong></p>
 <div class="momo-box"><strong>MTN MoMo merchant number</strong><div class="momo-number">{{ mtn_momo_number }}</div><p class="small">Send exactly <strong>UGX {{ '{:,}'.format(product.price) }}</strong>, then enter the MTN transaction ID below. Your feature is activated after verification.</p></div>
 <form method="post"><div class="field"><label>MTN number used for payment</label><input name="payer_phone" placeholder="e.g. 0772 123456" required></div><div class="field"><label>MTN transaction ID</label><input name="transaction_id" placeholder="Enter the transaction/reference ID" required></div><button class="btn full">Submit Payment for Verification</button></form>
-<p class="small muted" style="margin-top:15px">Never share your MTN MoMo PIN with Uganda Date or anyone else.</p></div></main>{% endblock %}
+<p class="small muted" style="margin-top:15px">Never share your MTN MoMo PIN with Uganda Dating or anyone else.</p></div></main>{% endblock %}

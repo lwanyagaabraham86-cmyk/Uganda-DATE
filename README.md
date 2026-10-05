@@ -1,10 +1,10 @@
-# Uganda Date 🇺🇬 ❤️
+# Uganda Dating 🇺🇬 ❤️
 
 A mobile-friendly Flask dating app MVP for Uganda with discovery, likes, matches, chat, profiles, premium products and MTN Mobile Money payment verification.
 
 ## MTN MoMo payment flow
 
-The app uses the Uganda Date merchant number configured as `MTN_MOMO_NUMBER` (default: `65616659`). A customer:
+The app uses the Uganda Dating merchant number configured as `MTN_MOMO_NUMBER` (default: `65616659`). A customer:
 
 1. Chooses a paid feature.
 2. Sees the MTN MoMo merchant number and exact UGX amount.
