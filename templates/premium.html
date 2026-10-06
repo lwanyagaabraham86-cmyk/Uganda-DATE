@@ -1,1 +1,74 @@
-{% extends 'base.html' %}{% block title %}Premium — Uganda Dating{% endblock %}{% block content %}<main class="container"><div style="text-align:center;max-width:700px;margin:20px auto 35px"><div class="pill" style="display:inline-block">✨ Uganda Dating Premium</div><h1 style="font-size:45px">Get more matches. <span class="gradient">Meet more people.</span></h1><p class="muted">Simple prices designed for Uganda. Pay securely through MTN Mobile Money. Your feature activates after transaction verification.</p></div><div class="price-grid">{% for key,p in prices.items() %}<div class="price {% if key=='premium' %}featured{% endif %}"><h2>{{p.name}}</h2><div class="amount">UGX {{'{:,}'.format(p.price)}}</div><div class="muted">{{p.period}}</div><ul><li>Works on your Uganda Dating account</li><li>Secure checkout ready</li><li>Instant feature activation after payment</li></ul><button class="btn full" onclick="window.location.href='{{ url_for('payment', plan=key) }}'">Choose {{p.name}}</button></div>{% endfor %}</div></main>{% endblock %}
+{% extends 'base.html' %}
+{% block title %}Premium — Uganda Dating{% endblock %}
+{% block content %}
+<main class="container premium-page">
+  <section class="premium-hero">
+    <div class="premium-heart">♥</div>
+    <div class="eyebrow">Uganda Dating Premium</div>
+    <h1>More love. More visibility. <span class="gradient">More chances.</span></h1>
+    <p class="muted">Choose the experience that fits you. Pay in UGX with MTN Mobile Money.</p>
+    {% if active_plan != 'free' %}
+    <div class="current-plan">Current plan: <strong>{{ active_plan|title }}</strong>{% if current_user.premium_until %} · active until {{ current_user.premium_until.strftime('%d %b %Y') }}{% endif %}</div>
+    {% endif %}
+  </section>
+
+  <section class="plan-section">
+    <div class="premium-section-head">
+      <div><div class="eyebrow">Subscriptions</div><h2>Choose your level</h2></div>
+      <span class="credit-pill">💎 {{ credits_balance }} credits</span>
+    </div>
+    <div class="premium-plan-grid">
+      {% for key in ['plus','gold','platinum'] %}
+      {% set p=prices[key] %}
+      <article class="premium-plan {% if key=='gold' %}popular{% endif %}">
+        {% if key=='gold' %}<div class="plan-ribbon">MOST POPULAR</div>{% endif %}
+        <div class="plan-icon">{{ '♡' if key=='plus' else '♥' if key=='gold' else '✦' }}</div>
+        <div class="plan-badge">{{ p.badge }}</div>
+        <h3>{{ p.name }}</h3>
+        <div class="plan-price">UGX {{ '{:,}'.format(p.price) }} <small>/ month</small></div>
+        <ul>
+          {% for feature in p.features %}<li>✓ {{ feature }}</li>{% endfor %}
+        </ul>
+        <a class="btn full" href="{{ url_for('payment', plan=key) }}">Choose {{ p.name }}</a>
+      </article>
+      {% endfor %}
+    </div>
+  </section>
+
+  <section class="plan-section">
+    <div class="premium-section-head">
+      <div><div class="eyebrow">One-time extras</div><h2>Stand out</h2></div>
+    </div>
+    <div class="premium-addon-grid">
+      {% for key in ['boost','superlike','featured'] %}
+      {% set p=prices[key] %}
+      <article class="premium-addon">
+        <div class="addon-icon">{{ '⚡' if key=='boost' else '♥' if key=='superlike' else '✨' }}</div>
+        <div><div class="plan-badge">{{ p.badge }}</div><h3>{{ p.name }}</h3><p class="muted small">{{ p.features[0] }}</p></div>
+        <strong>UGX {{ '{:,}'.format(p.price) }}</strong>
+        <a class="btn secondary full" href="{{ url_for('payment', plan=key) }}">Get it</a>
+      </article>
+      {% endfor %}
+    </div>
+  </section>
+
+  <section class="plan-section">
+    <div class="premium-section-head">
+      <div><div class="eyebrow">Dating credits</div><h2>Keep the fun going</h2></div>
+    </div>
+    <div class="premium-addon-grid credits-grid">
+      {% for key in ['credits10','credits25','credits60'] %}
+      {% set p=prices[key] %}
+      <article class="premium-addon credit-card">
+        <div class="addon-icon">💎</div>
+        <div><h3>{{ p.name }}</h3><p class="muted small">{{ p.features[0] }}</p></div>
+        <strong>UGX {{ '{:,}'.format(p.price) }}</strong>
+        <a class="btn secondary full" href="{{ url_for('payment', plan=key) }}">Buy credits</a>
+      </article>
+      {% endfor %}
+    </div>
+  </section>
+
+  <p class="payment-note">🇺🇬 Pay with MTN Mobile Money. Never share your MoMo PIN with anyone.</p>
+</main>
+{% endblock %}
