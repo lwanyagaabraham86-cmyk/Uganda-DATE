@@ -1,8 +1,11 @@
 import os
+import base64
+import uuid
 from datetime import datetime, timedelta
 from math import radians, sin, cos, sqrt, atan2
 from functools import wraps
-from flask import Flask, render_template, request, redirect, url_for, session, flash, jsonify
+import requests
+from flask import Flask, render_template, request, redirect, url_for, session, flash, jsonify, send_from_directory
 from werkzeug.security import generate_password_hash, check_password_hash
 from flask_sqlalchemy import SQLAlchemy
 
@@ -34,6 +37,8 @@ class User(db.Model):
     boost_until = db.Column(db.DateTime, nullable=True)
     featured_until = db.Column(db.DateTime, nullable=True)
     super_likes = db.Column(db.Integer, default=0)
+    subscription_plan = db.Column(db.String(20), default='free')
+    credits = db.Column(db.Integer, default=0)
 
 class Like(db.Model):
     id = db.Column(db.Integer, primary_key=True)
@@ -62,17 +67,163 @@ class Message(db.Model):
     created_at = db.Column(db.DateTime, default=datetime.utcnow)
 
 MTN_MOMO_NUMBER = os.environ.get('MTN_MOMO_NUMBER', '65616659')
+MTN_MOMO_MODE = os.environ.get('MTN_MOMO_MODE', 'manual').lower()
+MTN_MOMO_BASE_URL = os.environ.get(
+    'MTN_MOMO_BASE_URL',
+    'https://proxy.momoapi.mtn.com' if MTN_MOMO_MODE == 'live'
+    else 'https://sandbox.momodeveloper.mtn.com'
+)
+MTN_MOMO_TARGET_ENV = os.environ.get(
+    'MTN_MOMO_TARGET_ENV',
+    'mtnuganda' if MTN_MOMO_MODE == 'live' else 'sandbox'
+)
+MTN_MOMO_SUBSCRIPTION_KEY = os.environ.get('MTN_MOMO_SUBSCRIPTION_KEY', '')
+MTN_MOMO_API_USER = os.environ.get('MTN_MOMO_API_USER', '')
+MTN_MOMO_API_KEY = os.environ.get('MTN_MOMO_API_KEY', '')
+MTN_MOMO_CALLBACK_URL = os.environ.get(
+    'MTN_MOMO_CALLBACK_URL',
+    'https://uganda-date.onrender.com/momo/callback'
+)
+
 ADMIN_EMAIL = os.environ.get('ADMIN_EMAIL', 'admin@ugandadating.app')
 ADMIN_PASSWORD = os.environ.get('ADMIN_PASSWORD', 'change-me-now')
 
 PRICES = {
-    'premium': {'name': 'Premium', 'price': 10000, 'period': 'month'},
-    'likes': {'name': 'See who liked you', 'price': 2000, 'period': 'week'},
-    'unlimited': {'name': 'Unlimited Likes', 'price': 3000, 'period': 'week'},
-    'boost': {'name': 'Profile Boost', 'price': 2000, 'period': 'one boost'},
-    'superlike': {'name': 'Super Like', 'price': 500, 'period': 'each'},
-    'featured': {'name': 'Featured Profile', 'price': 5000, 'period': 'week'},
+    'plus': {
+        'name': 'Plus', 'price': 10000, 'period': 'month', 'type': 'subscription',
+        'badge': 'Explore more',
+        'features': ['Unlimited Likes', 'Unlimited Rewinds', 'Ad-free browsing', 'Private browsing']
+    },
+    'gold': {
+        'name': 'Gold', 'price': 20000, 'period': 'month', 'type': 'subscription',
+        'badge': 'Most popular',
+        'features': ['Everything in Plus', 'See Who Likes You', '5 Special Likes', '10 bonus credits']
+    },
+    'platinum': {
+        'name': 'Platinum', 'price': 30000, 'period': 'month', 'type': 'subscription',
+        'badge': 'Best visibility',
+        'features': ['Everything in Gold', 'Priority Likes', '10 Special Likes', '20 bonus credits']
+    },
+    'boost': {
+        'name': 'Profile Boost', 'price': 2000, 'period': '30 minutes', 'type': 'addon',
+        'badge': 'Get noticed',
+        'features': ['Higher placement in Discover', 'Higher placement in Encounters']
+    },
+    'superlike': {
+        'name': 'Special Like', 'price': 500, 'period': 'each', 'type': 'addon',
+        'badge': 'Stand out',
+        'features': ['Send a highlighted Special Like']
+    },
+    'featured': {
+        'name': 'Featured Profile', 'price': 5000, 'period': '7 days', 'type': 'addon',
+        'badge': 'Be seen',
+        'features': ['Featured placement', 'More visibility in nearby discovery']
+    },
+    'credits10': {
+        'name': '10 Credits', 'price': 2000, 'period': 'one-time', 'type': 'credits', 'credits': 10,
+        'badge': 'Starter pack', 'features': ['Use for boosts and special interactions']
+    },
+    'credits25': {
+        'name': '25 Credits', 'price': 5000, 'period': 'one-time', 'type': 'credits', 'credits': 25,
+        'badge': 'Popular pack', 'features': ['Use for boosts and special interactions']
+    },
+    'credits60': {
+        'name': '60 Credits', 'price': 10000, 'period': 'one-time', 'type': 'credits', 'credits': 60,
+        'badge': 'Best value', 'features': ['Use for boosts and special interactions']
+    },
+    'premium': {'name': 'Premium', 'price': 10000, 'period': 'month', 'type': 'legacy'},
+    'likes': {'name': 'See who liked you', 'price': 2000, 'period': 'week', 'type': 'legacy'},
+    'unlimited': {'name': 'Unlimited Likes', 'price': 3000, 'period': 'week', 'type': 'legacy'},
 }
+
+PLAN_RANK = {'free': 0, 'plus': 1, 'gold': 2, 'platinum': 3}
+
+def active_plan(user):
+    if not user:
+        return 'free'
+    until = user.premium_until
+    if until and until > datetime.utcnow():
+        return (user.subscription_plan or 'premium').lower()
+    return 'free'
+
+def has_plan(user, required):
+    return PLAN_RANK.get(active_plan(user), 0) >= PLAN_RANK.get(required, 0)
+
+def normalize_mtn_msisdn(phone):
+    digits = ''.join(ch for ch in (phone or '') if ch.isdigit())
+    if digits.startswith('00'):
+        digits = digits[2:]
+    if digits.startswith('0'):
+        digits = '256' + digits[1:]
+    return digits
+
+def momo_configured():
+    return MTN_MOMO_MODE == 'live' and all([
+        MTN_MOMO_SUBSCRIPTION_KEY,
+        MTN_MOMO_API_USER,
+        MTN_MOMO_API_KEY
+    ])
+
+def momo_access_token():
+    auth = base64.b64encode(
+        f'{MTN_MOMO_API_USER}:{MTN_MOMO_API_KEY}'.encode('utf-8')
+    ).decode('ascii')
+    response = requests.post(
+        f'{MTN_MOMO_BASE_URL}/collection/token/',
+        headers={
+            'Authorization': f'Basic {auth}',
+            'Ocp-Apim-Subscription-Key': MTN_MOMO_SUBSCRIPTION_KEY,
+        },
+        timeout=20,
+    )
+    response.raise_for_status()
+    return response.json()['access_token']
+
+def momo_request_to_pay(amount, payer_phone, reference_id, product_name):
+    token = momo_access_token()
+    phone = normalize_mtn_msisdn(payer_phone)
+    if not (phone.isdigit() and len(phone) == 12 and phone.startswith('256')):
+        raise ValueError('Enter a valid Uganda MTN number.')
+    payload = {
+        'amount': str(int(amount)),
+        'currency': 'UGX',
+        'externalId': reference_id,
+        'payer': {'partyIdType': 'MSISDN', 'partyId': phone},
+        'payerMessage': f'Uganda Dating - {product_name}',
+        'payeeNote': f'Uganda Dating - {product_name}',
+    }
+    headers = {
+        'Authorization': f'Bearer {token}',
+        'Ocp-Apim-Subscription-Key': MTN_MOMO_SUBSCRIPTION_KEY,
+        'X-Target-Environment': MTN_MOMO_TARGET_ENV,
+        'X-Reference-Id': reference_id,
+        'Content-Type': 'application/json',
+        'Cache-Control': 'no-cache',
+    }
+    if MTN_MOMO_CALLBACK_URL:
+        headers['X-Callback-Url'] = MTN_MOMO_CALLBACK_URL
+    response = requests.post(
+        f'{MTN_MOMO_BASE_URL}/collection/v1_0/requesttopay',
+        json=payload, headers=headers, timeout=20
+    )
+    if response.status_code not in (200, 202):
+        raise RuntimeError(f'MTN MoMo request failed ({response.status_code}).')
+    return True
+
+def momo_payment_status(reference_id):
+    token = momo_access_token()
+    response = requests.get(
+        f'{MTN_MOMO_BASE_URL}/collection/v1_0/requesttopay/{reference_id}',
+        headers={
+            'Authorization': f'Bearer {token}',
+            'Ocp-Apim-Subscription-Key': MTN_MOMO_SUBSCRIPTION_KEY,
+            'X-Target-Environment': MTN_MOMO_TARGET_ENV,
+            'Cache-Control': 'no-cache',
+        },
+        timeout=20
+    )
+    response.raise_for_status()
+    return response.json()
 
 def login_required(f):
     @wraps(f)
@@ -166,12 +317,26 @@ def nearby_profiles(me, exclude_ids=None, limit=200):
         if my_area and area_group(user.city) == my_area:
             results.append((user, None))
 
-    results.sort(key=lambda item: (item[1] is None, item[1] if item[1] is not None else 999999))
+    def visibility_key(item):
+        user, distance = item
+        now = datetime.utcnow()
+        featured = 0 if user.featured_until and user.featured_until > now else 1
+        boosted = 0 if user.boost_until and user.boost_until > now else 1
+        return (featured, boosted, distance is None, distance if distance is not None else 999999)
+    results.sort(key=visibility_key)
     return results[:limit]
 
 @app.context_processor
 def inject_globals():
-    return {'current_user': current_user(), 'prices': PRICES, 'mtn_momo_number': MTN_MOMO_NUMBER}
+    user = current_user()
+    return {
+        'current_user': user,
+        'prices': PRICES,
+        'mtn_momo_number': MTN_MOMO_NUMBER,
+        'active_plan': active_plan(user),
+        'credits_balance': user.credits if user else 0,
+        'momo_auto_enabled': momo_configured(),
+    }
 
 @app.route('/')
 def home():
@@ -261,9 +426,17 @@ def update_search_radius():
 def like(user_id):
     me = current_user()
     if me.id == user_id: return jsonify({'ok': False})
+    kind = request.form.get('kind','like')
+    if kind == 'superlike':
+        if (me.super_likes or 0) > 0:
+            me.super_likes -= 1
+        elif (me.credits or 0) >= 3:
+            me.credits -= 3
+        else:
+            return jsonify({'ok': False, 'error': 'You need a Special Like or 3 credits.', 'upgrade': url_for('premium')}), 402
     existing = Like.query.filter_by(from_id=me.id, to_id=user_id).first()
     if not existing:
-        db.session.add(Like(from_id=me.id, to_id=user_id, kind=request.form.get('kind','like')))
+        db.session.add(Like(from_id=me.id, to_id=user_id, kind=kind))
         db.session.commit()
     mutual = Like.query.filter_by(from_id=user_id, to_id=me.id).first()
     return jsonify({'ok': True, 'match': bool(mutual)})
@@ -273,6 +446,8 @@ def like(user_id):
 def likes():
     me = current_user()
     incoming = Like.query.filter_by(to_id=me.id).order_by(Like.created_at.desc()).all()
+    if not has_plan(me, 'gold'):
+        return render_template('likes.html', liked_users=[], locked=True, like_count=len(incoming))
     liked_users = []
     seen = set()
     for item in incoming:
@@ -366,18 +541,98 @@ def payment(plan):
     product = PRICES[plan]
     if request.method == 'POST':
         phone = request.form.get('payer_phone','').strip()
+        if not phone:
+            flash('Enter the MTN number that will authorize this payment.', 'error')
+            return render_template('payment.html', plan=plan, product=product, auto_payment=momo_configured())
+
+        if momo_configured():
+            reference = str(uuid.uuid4())
+            pay = Payment(
+                user_id=current_user().id,
+                plan=plan,
+                amount=product['price'],
+                payer_phone=normalize_mtn_msisdn(phone),
+                transaction_id=reference,
+                status='pending'
+            )
+            db.session.add(pay)
+            db.session.commit()
+            try:
+                momo_request_to_pay(product['price'], phone, reference, product['name'])
+                return render_template(
+                    'payment.html',
+                    plan=plan,
+                    product=product,
+                    momo_reference=reference,
+                    auto_payment=True
+                )
+            except Exception:
+                db.session.delete(pay)
+                db.session.commit()
+                flash('We could not start the MTN Mobile Money request. Please try again.', 'error')
+                return render_template('payment.html', plan=plan, product=product, auto_payment=True)
+
         txid = request.form.get('transaction_id','').strip()
-        if not phone or not txid:
-            flash('Enter the MTN number used and your MTN transaction ID.', 'error')
-            return render_template('payment.html', plan=plan, product=product)
+        if not txid:
+            flash('Enter your MTN transaction ID after completing the payment.', 'error')
+            return render_template('payment.html', plan=plan, product=product, auto_payment=False)
         if Payment.query.filter_by(transaction_id=txid).first():
             flash('That transaction ID has already been submitted.', 'error')
-            return render_template('payment.html', plan=plan, product=product)
-        pay = Payment(user_id=current_user().id, plan=plan, amount=product['price'], payer_phone=phone, transaction_id=txid)
-        db.session.add(pay); db.session.commit()
-        flash('Payment submitted. Your purchase will activate after MTN payment verification.', 'success')
+            return render_template('payment.html', plan=plan, product=product, auto_payment=False)
+        pay = Payment(
+            user_id=current_user().id,
+            plan=plan,
+            amount=product['price'],
+            payer_phone=normalize_mtn_msisdn(phone),
+            transaction_id=txid
+        )
+        db.session.add(pay)
+        db.session.commit()
+        flash('Payment submitted. Your purchase will activate after verification.', 'success')
         return redirect(url_for('premium'))
-    return render_template('payment.html', plan=plan, product=product)
+    return render_template('payment.html', plan=plan, product=product, auto_payment=momo_configured())
+
+@app.get('/momo/status/<reference>')
+@login_required
+def momo_status(reference):
+    payment = Payment.query.filter_by(transaction_id=reference, user_id=current_user().id).first()
+    if not payment:
+        return jsonify({'ok': False, 'error': 'Payment not found.'}), 404
+    if payment.status != 'verified' and momo_configured():
+        try:
+            result = momo_payment_status(reference)
+            status = str(result.get('status', '')).upper()
+            if status in ('SUCCESSFUL', 'SUCCESS'):
+                payment.status = 'verified'
+                payment.verified_at = datetime.utcnow()
+                activate_purchase(current_user(), payment.plan)
+                db.session.commit()
+            elif status in ('FAILED', 'REJECTED', 'CANCELLED', 'TIMEOUT'):
+                payment.status = 'rejected'
+                db.session.commit()
+                return jsonify({'ok': True, 'status': 'failed'})
+        except Exception:
+            pass
+    return jsonify({'ok': True, 'status': payment.status})
+
+@app.post('/momo/callback')
+def momo_callback():
+    data = request.get_json(silent=True) or {}
+    reference = request.headers.get('X-Reference-Id') or data.get('externalId') or data.get('referenceId')
+    status = str(data.get('status', '')).upper()
+    if reference:
+        payment = Payment.query.filter_by(transaction_id=reference).first()
+        if payment and status in ('SUCCESSFUL', 'SUCCESS'):
+            payment.status = 'verified'
+            payment.verified_at = datetime.utcnow()
+            user = db.session.get(User, payment.user_id)
+            if user:
+                activate_purchase(user, payment.plan)
+            db.session.commit()
+        elif payment and status in ('FAILED', 'REJECTED', 'CANCELLED', 'TIMEOUT'):
+            payment.status = 'rejected'
+            db.session.commit()
+    return '', 204
 
 @app.route('/checkout/<plan>', methods=['GET','POST'])
 @login_required
@@ -408,18 +663,35 @@ def admin_logout():
 
 def activate_purchase(user, plan):
     now = datetime.utcnow()
-    if plan == 'premium':
-        user.premium_until = max(user.premium_until or now, now) + timedelta(days=30)
+    base_until = max(user.premium_until or now, now)
+    if plan in ('plus', 'gold', 'platinum', 'premium'):
+        user.subscription_plan = {'premium': 'gold'}.get(plan, plan)
+        user.premium_until = base_until + timedelta(days=30)
+        user.unlimited_until = user.premium_until
+        if plan in ('gold', 'platinum', 'premium'):
+            user.likes_until = user.premium_until
+        if plan in ('gold', 'premium'):
+            user.super_likes = (user.super_likes or 0) + 5
+            user.credits = (user.credits or 0) + 10
+        elif plan == 'platinum':
+            user.super_likes = (user.super_likes or 0) + 10
+            user.credits = (user.credits or 0) + 20
     elif plan == 'likes':
         user.likes_until = max(user.likes_until or now, now) + timedelta(days=7)
     elif plan == 'unlimited':
         user.unlimited_until = max(user.unlimited_until or now, now) + timedelta(days=7)
     elif plan == 'boost':
-        user.boost_until = max(user.boost_until or now, now) + timedelta(hours=24)
+        user.boost_until = max(user.boost_until or now, now) + timedelta(minutes=30)
     elif plan == 'featured':
         user.featured_until = max(user.featured_until or now, now) + timedelta(days=7)
     elif plan == 'superlike':
         user.super_likes = (user.super_likes or 0) + 1
+    elif plan == 'credits10':
+        user.credits = (user.credits or 0) + 10
+    elif plan == 'credits25':
+        user.credits = (user.credits or 0) + 25
+    elif plan == 'credits60':
+        user.credits = (user.credits or 0) + 60
 
 @app.route('/admin/payments')
 @admin_required
@@ -473,7 +745,9 @@ with app.app_context():
             'super_likes': 'INTEGER DEFAULT 0',
             'latitude': 'DOUBLE PRECISION',
             'longitude': 'DOUBLE PRECISION',
-            'search_radius_km': 'DOUBLE PRECISION DEFAULT 25'
+            'search_radius_km': 'DOUBLE PRECISION DEFAULT 25',
+            'subscription_plan': "VARCHAR(20) DEFAULT 'free'",
+            'credits': 'INTEGER DEFAULT 0'
         }
         for column, sql_type in new_columns.items():
             if column not in user_columns:
@@ -487,7 +761,9 @@ with app.app_context():
             'super_likes': 'INTEGER DEFAULT 0',
             'latitude': 'FLOAT',
             'longitude': 'FLOAT',
-            'search_radius_km': 'FLOAT DEFAULT 25'
+            'search_radius_km': 'FLOAT DEFAULT 25',
+            'subscription_plan': "VARCHAR(20) DEFAULT 'free'",
+            'credits': 'INTEGER DEFAULT 0'
         }
         for column, sql_type in new_columns.items():
             if column not in user_columns:
