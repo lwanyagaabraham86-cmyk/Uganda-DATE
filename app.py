@@ -1174,7 +1174,13 @@ with app.app_context():
             'subscription_plan': "VARCHAR(20) DEFAULT 'free'",
             'credits': 'INTEGER DEFAULT 0',
             'photo1_data': 'TEXT',
-            'photo2_data': 'TEXT'
+            'photo2_data': 'TEXT',
+            'photo3_data': 'TEXT',
+            'photo4_data': 'TEXT',
+            'photo5_data': 'TEXT',
+            'photo6_data': 'TEXT',
+            'referral_code': 'VARCHAR(24)',
+            'referred_by_id': 'INTEGER'
         }
         for column, sql_type in new_columns.items():
             if column not in user_columns:
