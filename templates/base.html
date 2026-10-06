@@ -1,4 +1,4 @@
-<!doctype html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><meta name="theme-color" content="#8f214f"><link rel="icon" href="{{ url_for('static', filename='img/icon.svg') }}"><title>{% block title %}Uganda Dating{% endblock %}</title><link rel="stylesheet" href="{{ url_for('static', filename='css/style.css', v='20261006') }}">
+<!doctype html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><meta name="theme-color" content="#d84f7f"><meta name="mobile-web-app-capable" content="yes"><meta name="apple-mobile-web-app-capable" content="yes"><meta name="apple-mobile-web-app-status-bar-style" content="default"><link rel="manifest" href="{{ url_for('manifest_webmanifest') }}"><link rel="icon" href="{{ url_for('static', filename='img/icon.svg') }}"><title>{% block title %}Uganda Dating{% endblock %}</title><link rel="stylesheet" href="{{ url_for('static', filename='css/style.css', v='20261006') }}">
 <style id="uganda-dating-navigation-v3">
 /* Uganda Dating navigation: authoritative rules. */
 .ud-main-nav{position:sticky!important;top:0!important;z-index:10000!important;display:flex!important;align-items:center!important;justify-content:space-between!important;gap:16px!important;width:100%!important;box-sizing:border-box!important;padding:10px 22px!important;background:rgba(255,250,248,.97)!important;border-bottom:1px solid #ead8df!important;backdrop-filter:blur(18px)!important}
@@ -35,7 +35,7 @@
     <a class="nav-item {% if request.endpoint in ['chats','messages'] %}active{% endif %}" href="{{ url_for('chats') }}"><span>♡</span><b>Chats</b></a>
     <a class="nav-item {% if request.endpoint=='profile' %}active{% endif %}" href="{{ url_for('profile') }}"><span>◉</span><b>Profile</b></a>
   </div>
-  <div class="nav-actions">
+  <div class="nav-actions"><span class="nav-credit-status" title="Your account plan and credits">{{ active_plan|title }} · 💎 {{ credits_balance }}</span>
     <a class="premium-link" href="{{ url_for('premium') }}">✨ Premium</a>
     <a class="pill" href="{{ url_for('logout') }}">Log out</a>
   </div>
@@ -44,7 +44,18 @@
   {% endif %}
 </nav>
 {% with messages=get_flashed_messages(with_categories=true) %}{% if messages %}<div class="container" style="padding-bottom:0">{% for category,message in messages %}<div class="alert {{ 'success' if category=='success' else '' }}">{{ message }}</div>{% endfor %}</div>{% endif %}{% endwith %}
-{% block content %}{% endblock %}
+<div id="installAppBanner" class="install-app-banner" hidden><div><strong>Uganda Dating ❤️</strong><small>Install the app on your phone</small></div><button id="installAppButton" type="button">Install App</button></div>
+<script>
+(function(){
+  const banner=document.getElementById('installAppBanner'),btn=document.getElementById('installAppButton');
+  let deferred=null;
+  const standalone=window.matchMedia('(display-mode:standalone)').matches || window.navigator.standalone===true;
+  window.addEventListener('beforeinstallprompt',e=>{e.preventDefault();deferred=e;if(!standalone)banner.hidden=false;});
+  btn&&btn.addEventListener('click',async()=>{if(!deferred){alert('On Android Chrome, open ⋮ and choose Install app. On iPhone Safari, use Share → Add to Home Screen.');return;}deferred.prompt();await deferred.userChoice;deferred=null;banner.hidden=true;});
+  if('serviceWorker' in navigator) navigator.serviceWorker.register('/sw.js').catch(()=>{});
+})();
+</script>
+<style>.install-app-banner{position:fixed;left:50%;transform:translateX(-50%);bottom:88px;z-index:200000;display:flex;align-items:center;gap:14px;padding:12px 15px 12px 16px;border:1px solid #efd9e3;border-radius:18px;background:linear-gradient(135deg,#fffafd,#fff0f5);box-shadow:0 18px 45px rgba(125,60,91,.18)}.install-app-banner[hidden]{display:none}.install-app-banner strong{display:block;color:#6b2748}.install-app-banner small{display:block;color:#8b7480;margin-top:2px}.install-app-banner button{border:0;border-radius:999px;padding:10px 14px;color:#fff;font-weight:900;background:linear-gradient(135deg,#c64072,#e96a98)}@media(max-width:600px){.install-app-banner{left:10px;right:10px;transform:none;justify-content:space-between}.install-app-banner button{white-space:nowrap}}</style>{% block content %}{% endblock %}
 {% if current_user %}
 <nav class="mobile-bottom-nav ud-mobile-nav" aria-label="Main navigation">
   <a class="bottom-item {% if request.endpoint=='discover' %}active{% endif %}" href="{{ url_for('discover') }}"><span>⌂</span><small>Discover</small></a>
