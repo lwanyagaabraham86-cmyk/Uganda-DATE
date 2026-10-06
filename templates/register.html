@@ -95,6 +95,13 @@
 
 <main class="registration-page">
   <div class="registration-wrap">
+    {% if request.args.get('ref') %}
+    <div class="referral-welcome">
+      <strong>💌 You were invited to Uganda Dating</strong>
+      <span>Create your free 18+ account through your friend's link and receive <b>2 bonus credits</b> after joining.</span>
+    </div>
+    {% endif %}
+
     <header class="registration-header">
       <div class="registration-badge">💗 🇺🇬 MADE FOR LOVE, CONNECTION & GOOD CONVERSATIONS</div>
       <h1>Create your profile <span class="love">♥</span></h1>
@@ -108,6 +115,7 @@
       </div>
 
       <form method="post" id="registrationForm">
+        {% if request.args.get('ref') %}<input type="hidden" name="ref" value="{{ request.args.get('ref') }}">{% endif %}
         <section class="photo-onboarding">
           <div class="photo-onboarding-head">
             <div><h2>Add your photos</h2><p class="muted small">Choose at least 2 clear photos from your gallery. You can add up to 6.</p></div>
@@ -238,3 +246,7 @@
 })();
 </script>
 {% endblock %}
+<style>
+.referral-welcome{margin:0 auto 16px;padding:14px 16px;border:1px solid #eed5df;border-radius:17px;background:linear-gradient(135deg,#fff5f8,#fff);color:#67304a;display:flex;flex-direction:column;gap:3px;box-shadow:0 9px 25px rgba(101,29,67,.07)}
+.referral-welcome span{font-size:13px;color:#806b75;line-height:1.5}
+</style>
