@@ -1,7 +1,61 @@
-{% extends 'base.html' %}{% block title %}Pay with MTN MoMo — Uganda Dating{% endblock %}{% block content %}
-<main class="container"><div class="auth payment-card">
-<div class="pill" style="display:inline-block">🇺🇬 MTN MoMo</div><h1>Pay for {{ product.name }}</h1>
-<p class="muted">Amount: <strong>UGX {{ '{:,}'.format(product.price) }}</strong></p>
-<div class="momo-box"><strong>MTN MoMo merchant number</strong><div class="momo-number">{{ mtn_momo_number }}</div><p class="small">Send exactly <strong>UGX {{ '{:,}'.format(product.price) }}</strong>, then enter the MTN transaction ID below. Your feature is activated after verification.</p></div>
-<form method="post"><div class="field"><label>MTN number used for payment</label><input name="payer_phone" placeholder="e.g. 0772 123456" required></div><div class="field"><label>MTN transaction ID</label><input name="transaction_id" placeholder="Enter the transaction/reference ID" required></div><button class="btn full">Submit Payment for Verification</button></form>
-<p class="small muted" style="margin-top:15px">Never share your MTN MoMo PIN with Uganda Dating or anyone else.</p></div></main>{% endblock %}
+{% extends 'base.html' %}
+{% block title %}Pay with MTN MoMo — Uganda Dating{% endblock %}
+{% block content %}
+<main class="container">
+  <div class="auth payment-card momo-payment-page">
+    <div class="pill payment-brand">🇺🇬 MTN Mobile Money</div>
+    <div class="eyebrow">Secure checkout</div>
+    <h1>{{ product.name }}</h1>
+    <div class="checkout-amount">UGX {{ '{:,}'.format(product.price) }}</div>
+    <p class="muted">{{ product.period }}</p>
+
+    {% if auto_payment %}
+      <div class="momo-box">
+        <strong>Approve the MTN Mobile Money request</strong>
+        <p class="small muted">Enter your MTN number below. Uganda Dating will send a secure payment prompt to your phone.</p>
+      </div>
+      <form method="post" id="autoMomoForm">
+        <div class="field"><label>MTN number</label><input name="payer_phone" inputmode="tel" placeholder="0772 123456" required></div>
+        <button class="btn full">Send payment request to my phone</button>
+      </form>
+    {% elif momo_reference %}
+      <div class="momo-box">
+        <strong>Payment request sent ❤️</strong>
+        <p class="small muted">Approve the MTN prompt on your phone. We will check the payment automatically.</p>
+      </div>
+      <div class="payment-status" id="paymentStatus">Waiting for payment approval…</div>
+      <script>
+      (function(){
+        const ref={{ momo_reference|tojson }};
+        const box=document.getElementById('paymentStatus');
+        let tries=0;
+        const check=async()=>{
+          tries++;
+          try{
+            const r=await fetch('/momo/status/'+ref);
+            const d=await r.json();
+            if(d.status==='verified'){box.textContent='✅ Payment confirmed. Your feature is now active.';setTimeout(()=>location.href='{{ url_for("premium") }}',800);return;}
+            if(d.status==='failed'){box.textContent='Payment was not completed. Please try again.';return;}
+          }catch(e){}
+          if(tries<30)setTimeout(check,4000);
+          else box.textContent='Still waiting. You can return to Premium and check your plan later.';
+        };
+        check();
+      })();
+      </script>
+    {% else %}
+      <div class="momo-box">
+        <strong>Pay to {{ mtn_momo_number }}</strong>
+        <div class="momo-number">{{ mtn_momo_number }}</div>
+        <p class="small">Send exactly <strong>UGX {{ '{:,}'.format(product.price) }}</strong> from your MTN number, then enter the transaction ID below.</p>
+      </div>
+      <form method="post">
+        <div class="field"><label>MTN number used</label><input name="payer_phone" inputmode="tel" placeholder="0772 123456" required></div>
+        <div class="field"><label>MTN transaction ID</label><input name="transaction_id" placeholder="Transaction/reference ID" required></div>
+        <button class="btn full">Submit payment</button>
+      </form>
+    {% endif %}
+    <p class="small muted" style="margin-top:15px">Your MTN PIN is private. Uganda Dating will never ask for it.</p>
+  </div>
+</main>
+{% endblock %}
