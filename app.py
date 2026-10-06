@@ -291,7 +291,9 @@ def chats():
 @app.route('/swipe')
 @login_required
 def swipe():
-    return redirect(url_for('discover'))
+    me = current_user()
+    nearby = nearby_profiles(me, limit=50)
+    return render_template('swipe.html', nearby=nearby, radius=me.search_radius_km or 25)
 
 @app.route('/matches')
 @login_required

@@ -34,3 +34,54 @@
 /* Swipe choice controls */
 .swipe-actions{display:flex;align-items:flex-end;justify-content:center;gap:12px;margin-top:20px;padding-top:4px}.swipe-choice{width:31%;min-height:66px;border:1px solid #ead8df;border-radius:18px;background:#fff;cursor:pointer;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:3px;font-family:inherit;transition:transform .18s,box-shadow .18s,background .18s}.swipe-choice span{font-size:27px;font-weight:900;line-height:1}.swipe-choice small{font-size:10px;font-weight:800;color:#7a6871}.swipe-choice:hover{transform:translateY(-3px);box-shadow:0 10px 22px rgba(74,24,48,.12)}.dislike-choice{color:#9c3558}.dislike-choice:hover{background:#fff0f4}.super-choice{min-height:76px;transform:translateY(-4px);background:linear-gradient(145deg,#fff6df,#f7e7c4);border-color:#ead39e;color:#a67524;box-shadow:0 9px 22px rgba(166,117,36,.16)}.super-choice span{font-size:25px;letter-spacing:-3px}.super-choice small{color:#8a6a31}.super-choice:hover{transform:translateY(-7px)}.like-choice{color:var(--rose);background:#fff0f4;border-color:#f0cbd7}.like-choice:hover{background:#fbdde7}.swipe-choice:active{transform:scale(.96)}.super-choice:active{transform:translateY(-2px) scale(.96)}
 @media(max-width:600px){.swipe-actions{gap:8px}.swipe-choice{min-height:62px;border-radius:16px}.super-choice{min-height:70px}.swipe-choice span{font-size:24px}.swipe-choice small{font-size:9px}}
+
+/* Real swipe page */
+.swipe-page{max-width:760px;margin:0 auto;padding:32px 20px 125px}
+.swipe-heading{display:flex;align-items:end;justify-content:space-between;gap:18px;margin-bottom:20px}
+.swipe-heading h1{font-family:'Playfair Display',serif;font-size:42px;margin:2px 0 4px}
+.swipe-deck{display:flex;justify-content:center}
+.swipe-card{width:min(100%,620px);background:rgba(255,255,255,.94);border:1px solid #ead8df;border-radius:32px;overflow:hidden;box-shadow:0 24px 65px rgba(74,24,48,.16);transition:transform .26s,opacity .26s}
+.swipe-photo-wrap{position:relative;height:min(66vh,650px);min-height:430px;background:#32121f;overflow:hidden}
+.swipe-photo{width:100%;height:100%;object-fit:cover;display:block}
+.swipe-photo-shade{position:absolute;inset:30% 0 0;background:linear-gradient(to bottom,transparent 0,rgba(20,4,12,.2) 20%,rgba(20,4,12,.9) 100%)}
+.swipe-profile-info{position:absolute;left:25px;right:25px;bottom:24px;color:white;text-shadow:0 2px 10px rgba(0,0,0,.35)}
+.swipe-name{font-size:32px;font-weight:900;letter-spacing:-.7px}
+.swipe-distance{margin-top:6px;font-weight:700}
+.swipe-tags{display:flex;gap:7px;margin-top:12px;flex-wrap:wrap}
+.swipe-tags .tag{background:rgba(255,255,255,.18);color:#fff;border:1px solid rgba(255,255,255,.28);backdrop-filter:blur(8px)}
+.swipe-profile-info p{margin:10px 0 0;line-height:1.45;color:rgba(255,255,255,.92)}
+.swipe-choice-row{display:flex;align-items:center;justify-content:center;gap:16px;padding:22px 18px 25px;background:linear-gradient(180deg,#fff,#fff8fa)}
+.swipe-choice-button{flex:1;max-width:180px;min-height:82px;border:1px solid #ead8df;border-radius:22px;background:#fff;cursor:pointer;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:5px;font-family:inherit;box-shadow:0 8px 24px rgba(74,24,48,.08);transition:transform .16s,box-shadow .16s,background .16s}
+.swipe-choice-button strong{font-size:12px}
+.swipe-choice-button:hover{transform:translateY(-4px);box-shadow:0 14px 30px rgba(74,24,48,.14)}
+.swipe-choice-button:active,.swipe-choice-button.pressed{transform:scale(.95)}
+.swipe-choice-button.dislike{color:#b52c55;background:#fff5f7}
+.swipe-choice-button.like{color:#c41f58;background:#fff0f5}
+.choice-icon{font-size:42px;line-height:.8;font-weight:900}
+.x-icon{font-family:Arial,sans-serif}
+.heart-icon{font-size:36px}
+.swipe-choice-button.super{min-height:98px;color:#8e5b16;background:linear-gradient(145deg,#fff8e7,#ffe6f0);border:2px solid #e8a6bc;box-shadow:0 12px 30px rgba(181,31,85,.16);transform:translateY(-5px)}
+.swipe-choice-button.super:hover{transform:translateY(-9px)}
+.pierced-heart{position:relative;width:50px;height:50px;display:block}
+.heart-shape{position:absolute;inset:1px 0 0;font-size:46px;line-height:1;color:#e5225d;text-shadow:0 3px 7px rgba(181,31,85,.25)}
+.arrow-shaft{position:absolute;width:5px;height:59px;background:linear-gradient(#d18b2f,#9d6115);left:23px;top:-6px;transform:rotate(38deg);border-radius:5px;box-shadow:0 1px 3px rgba(80,45,5,.3)}
+.arrow-head{position:absolute;width:0;height:0;border-left:8px solid transparent;border-right:8px solid transparent;border-top:14px solid #b9761d;left:39px;top:38px;transform:rotate(38deg);filter:drop-shadow(0 1px 1px rgba(80,45,5,.3))}
+.swipe-out-left{transform:translateX(-120%) rotate(-12deg);opacity:0}
+.swipe-out-right{transform:translateX(120%) rotate(12deg);opacity:0}
+.swipe-empty{text-align:center;background:#fff;border:1px solid #ead8df;border-radius:28px;padding:60px 25px;box-shadow:0 15px 40px rgba(74,24,48,.08)}
+@media(max-width:600px){
+ .swipe-page{padding:20px 12px 120px}
+ .swipe-heading{align-items:center}
+ .swipe-heading h1{font-size:34px}
+ .swipe-heading .btn{padding:10px 12px;font-size:12px}
+ .swipe-card{border-radius:25px}
+ .swipe-photo-wrap{height:60vh;min-height:410px}
+ .swipe-profile-info{left:18px;right:18px;bottom:18px}
+ .swipe-name{font-size:27px}
+ .swipe-choice-row{gap:8px;padding:16px 10px 19px}
+ .swipe-choice-button{min-height:72px;border-radius:18px}
+ .swipe-choice-button.super{min-height:84px}
+ .choice-icon{font-size:35px}
+ .pierced-heart{transform:scale(.85)}
+ .swipe-choice-button strong{font-size:10px}
+}
