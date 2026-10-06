@@ -1,1 +1,70 @@
-{% extends 'base.html' %}{% block title %}Join Uganda Dating{% endblock %}{% block content %}<div class="auth"><h1>Create your profile ❤️</h1><p class="muted">Free to join. You must be 18 or older.</p><form method="post"><div class="field"><label>Name</label><input name="name" required></div><div class="field"><label>Email</label><input type="email" name="email" required></div><div class="field"><label>Password</label><input type="password" name="password" minlength="6" required></div><div class="field"><label>Age</label><input type="number" name="age" min="18" max="100" required></div><div class="field"><label>I am</label><select name="gender"><option>Woman</option><option>Man</option><option>Non-binary</option></select></div><div class="field"><label>Interested in</label><select name="interested_in"><option>Women</option><option>Men</option><option>Everyone</option></select></div><div class="field"><label>City</label><select name="city"><option>Kampala</option><option>Entebbe</option><option>Jinja</option><option>Mbarara</option><option>Gulu</option><option>Mbale</option><option>Wakiso</option><option>Other</option></select></div><button class="btn full">Create free account</button></form></div>{% endblock %}
+{% extends 'base.html' %}
+{% block title %}Join Uganda Dating{% endblock %}
+{% block content %}
+<main class="container">
+  <div class="auth registration-card">
+    <div class="eyebrow">🇺🇬 Made for genuine connections</div>
+    <h1>Create your profile ❤️</h1>
+    <p class="muted">Free to join. You must be 18 or older.</p>
+    <form method="post" id="registrationForm">
+      <section class="photo-onboarding">
+        <div class="photo-onboarding-head"><div><h2>Add your photos</h2><p class="muted small">Choose at least 2 clear photos from your gallery. You can add up to 6.</p></div><span id="photoCount" class="photo-count">0/6</span></div>
+        <div class="photo-grid onboarding-photo-grid">
+          {% for slot in range(1,7) %}
+          <button type="button" class="photo-slot {% if slot <= 2 %}required-slot{% endif %}" id="photoSlot{{slot}}" onclick="pickPhoto({{slot}})">
+            <span class="photo-slot-plus" id="plus{{slot}}">＋</span><img id="preview{{slot}}" alt="Photo {{slot}}" hidden>
+            <span class="photo-slot-label">{% if slot <= 2 %}Photo {{slot}} · required{% else %}Add photo{% endif %}</span>
+            <span class="photo-slot-remove" id="remove{{slot}}" hidden onclick="event.stopPropagation();removePhoto({{slot}})">×</span>
+          </button>
+          <input type="file" id="file{{slot}}" accept="image/jpeg,image/png,image/webp" hidden>
+          <input type="hidden" name="photo{{slot}}_data" id="data{{slot}}">
+          {% endfor %}
+        </div>
+        <input type="file" id="galleryPicker" accept="image/jpeg,image/png,image/webp" multiple hidden>
+        <button type="button" class="btn secondary gallery-button" onclick="document.getElementById('galleryPicker').click()">📷 Choose from gallery</button>
+        <div id="photoHint" class="muted small photo-hint">Add 2 or more photos to continue.</div>
+      </section>
+      <div class="field"><label>Name</label><input name="name" autocomplete="name" required></div>
+      <div class="field"><label>Email</label><input type="email" name="email" autocomplete="email" required></div>
+      <div class="field"><label>Password</label><input type="password" name="password" minlength="6" autocomplete="new-password" required></div>
+      <div class="field"><label>Age</label><input type="number" name="age" min="18" max="100" required></div>
+      <div class="field"><label>I am</label><select name="gender"><option>Woman</option><option>Man</option><option>Non-binary</option></select></div>
+      <div class="field"><label>Interested in</label><select name="interested_in"><option>Women</option><option>Men</option><option>Everyone</option></select></div>
+      <div class="field"><label>City / Area</label><select name="city"><option>Kampala</option><option>Entebbe</option><option>Jinja</option><option>Mbarara</option><option>Gulu</option><option>Mbale</option><option>Wakiso</option><option>Other</option></select></div>
+      <section class="preference-panel">
+        <div class="preference-title"><div><h2>Who would you like to meet?</h2><p class="muted small">Set the age range you expect matches to be in.</p></div><strong id="ageSummary">18–60</strong></div>
+        <div class="age-range"><label>Minimum age <input id="minAge" type="range" name="min_age" min="18" max="100" value="18"></label><label>Maximum age <input id="maxAge" type="range" name="max_age" min="18" max="100" value="60"></label></div>
+      </section>
+      <button class="btn full" id="createAccountButton">Create free account</button>
+      <p class="muted small form-note">Two photos are required. Photos are compressed on your phone before upload for faster registration.</p>
+    </form>
+  </div>
+</main>
+<script>
+(function(){
+  const MAX=6,MIN=2,MAX_BYTES=180*1024,slots=Array.from({length:MAX},(_,i)=>i+1),form=document.getElementById('registrationForm'),btn=document.getElementById('createAccountButton'),count=document.getElementById('photoCount'),hint=document.getElementById('photoHint'),picker=document.getElementById('galleryPicker');
+  const photoCount=()=>slots.filter(i=>document.getElementById('data'+i).value).length;
+  function sync(){const n=photoCount();count.textContent=n+'/'+MAX;hint.textContent=n<MIN?'Add at least 2 clear photos to continue.':n+' photo'+(n===1?'':'s')+' ready.';btn.disabled=n<MIN;btn.style.opacity=n<MIN?.62:1}
+  async function compress(file){
+    let bitmap=window.createImageBitmap?await createImageBitmap(file,{imageOrientation:'from-image'}).catch(()=>null):null,img=bitmap;
+    if(!img) img=await new Promise((ok,no)=>{const r=new FileReader();r.onload=()=>{const i=new Image();i.onload=()=>ok(i);i.onerror=no;i.src=r.result};r.onerror=no;r.readAsDataURL(file)});
+    let w=img.width,h=img.height,s=Math.min(1,1280/Math.max(w,h));w=Math.max(1,Math.round(w*s));h=Math.max(1,Math.round(h*s));
+    const c=document.createElement('canvas');c.width=w;c.height=h;c.getContext('2d',{alpha:false}).drawImage(img,0,0,w,h);if(bitmap&&bitmap.close)bitmap.close();
+    let q=.8,blob=null;for(let i=0;i<7;i++){blob=await new Promise(r=>c.toBlob(r,'image/jpeg',q));if(blob&&blob.size<=MAX_BYTES)break;q-=.08}
+    if(!blob)throw new Error('Could not process this photo.');
+    return await new Promise((ok,no)=>{const r=new FileReader();r.onload=()=>ok(r.result);r.onerror=no;r.readAsDataURL(blob)});
+  }
+  async function setPhoto(slot,file){
+    try{const data=await compress(file);document.getElementById('data'+slot).value=data;const img=document.getElementById('preview'+slot);img.src=data;img.hidden=false;document.getElementById('plus'+slot).hidden=true;document.getElementById('remove'+slot).hidden=false;document.getElementById('photoSlot'+slot).classList.add('filled');}catch(e){alert(e.message||'Could not add this photo.')}sync()
+  }
+  const firstEmpty=()=>slots.find(i=>!document.getElementById('data'+i).value);
+  window.pickPhoto=s=>document.getElementById('file'+s).click();
+  window.removePhoto=s=>{document.getElementById('data'+s).value='';const img=document.getElementById('preview'+s);img.hidden=true;img.removeAttribute('src');document.getElementById('plus'+s).hidden=false;document.getElementById('remove'+s).hidden=true;document.getElementById('photoSlot'+s).classList.remove('filled');sync()};
+  slots.forEach(s=>document.getElementById('file'+s).addEventListener('change',e=>{const f=e.target.files[0];if(f)setPhoto(s,f);e.target.value=''}));
+  picker.addEventListener('change',async e=>{for(const f of Array.from(e.target.files||[]).slice(0,MAX)){const s=firstEmpty();if(!s)break;await setPhoto(s,f)}picker.value=''});
+  const min=document.getElementById('minAge'),max=document.getElementById('maxAge'),sum=document.getElementById('ageSummary');
+  function age(){if(+min.value>+max.value)min.value=max.value;sum.textContent=min.value+'–'+max.value}min.oninput=age;max.oninput=age;
+  form.onsubmit=e=>{if(photoCount()<MIN){e.preventDefault();hint.textContent='Please add at least 2 photos before creating your account.'}};sync();age();
+})();
+</script>
+{% endblock %}
