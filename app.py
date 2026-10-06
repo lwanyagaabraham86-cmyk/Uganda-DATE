@@ -75,6 +75,8 @@ class User(db.Model):
     super_likes = db.Column(db.Integer, default=0)
     subscription_plan = db.Column(db.String(20), default='free')
     credits = db.Column(db.Integer, default=0)
+    referral_code = db.Column(db.String(24), unique=True, nullable=True)
+    referred_by_id = db.Column(db.Integer, nullable=True)
 
 class Like(db.Model):
     id = db.Column(db.Integer, primary_key=True)
@@ -317,6 +319,17 @@ def profile_photos(user):
         photos.append(user.photo)
     return photos
 
+
+def ensure_referral_code(user):
+    if user.referral_code:
+        return user.referral_code
+    code = uuid.uuid4().hex[:10].upper()
+    while User.query.filter_by(referral_code=code).first():
+        code = uuid.uuid4().hex[:10].upper()
+    user.referral_code = code
+    db.session.commit()
+    return code
+
 @app.get('/user/<int:user_id>/photo/<int:slot>')
 def user_photo(user_id, slot):
     if slot not in range(1, 7):
@@ -496,6 +509,7 @@ def inject_globals():
         'momo_auto_enabled': momo_configured(),
         'photo_url': photo_url,
         'profile_photos': profile_photos,
+        'ensure_referral_code': ensure_referral_code,
     }
 
 @app.route('/')
@@ -503,6 +517,14 @@ def home():
     if session.get('user_id'):
         return redirect(url_for('discover'))
     return render_template('landing.html')
+
+@app.get('/invite')
+@login_required
+def invite_friends():
+    me = current_user()
+    code = ensure_referral_code(me)
+    referral_url = url_for('register', ref=code, _external=True)
+    return render_template('invite.html', referral_url=referral_url, referral_code=code)
 
 @app.route('/register', methods=['GET','POST'])
 def register():
@@ -512,6 +534,7 @@ def register():
             email = request.form['email'].strip().lower()
             password = request.form['password']
             age = int(request.form['age'])
+            referral_code = (request.form.get('ref') or request.args.get('ref') or '').strip().upper()[:24]
             min_age = max(18, min(100, int(request.form.get('min_age', 18))))
             max_age = max(18, min(100, int(request.form.get('max_age', 60))))
         except (KeyError, ValueError):
@@ -539,13 +562,19 @@ def register():
             flash('Please add at least two clear photos of yourself from your gallery.', 'error')
             return render_template('register.html')
 
+        referrer = User.query.filter_by(referral_code=referral_code).first() if referral_code else None
+        if referrer and referrer.id == getattr(current_user(), 'id', None):
+            referrer = None
+
         data = {
             'name': name, 'email': email,
             'password_hash': generate_password_hash(password),
             'age': age, 'gender': gender, 'interested_in': interested_in,
             'city': city, 'min_age': min_age, 'max_age': max_age,
             'photo1_data': photos[0], 'photo2_data': photos[1],
-            'bio': 'New on Uganda Dating. Looking forward to meeting someone genuine!'
+            'bio': 'New on Uganda Dating. Looking forward to meeting someone genuine!',
+            'referred_by_id': referrer.id if referrer else None,
+            'referral_code': uuid.uuid4().hex[:10].upper()
         }
         for slot, photo in enumerate(photos[2:6], start=3):
             data[f'photo{slot}_data'] = photo
@@ -553,6 +582,9 @@ def register():
         db.session.add(user)
         db.session.commit()
         user.photo = url_for('user_photo', user_id=user.id, slot=1)
+        if referrer:
+            referrer.credits = (referrer.credits or 0) + 5
+            user.credits = (user.credits or 0) + 2
         db.session.commit()
         session['user_id'] = user.id
         return redirect(url_for('discover'))
@@ -1109,7 +1141,9 @@ with app.app_context():
             'photo3_data': 'TEXT',
             'photo4_data': 'TEXT',
             'photo5_data': 'TEXT',
-            'photo6_data': 'TEXT'
+            'photo6_data': 'TEXT',
+            'referral_code': 'VARCHAR(24)',
+            'referred_by_id': 'INTEGER'
         }
         for column, sql_type in new_columns.items():
             if column not in user_columns:
