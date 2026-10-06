@@ -780,3 +780,195 @@ body:after{
 .footer{
   color:#9a7f8d!important;
 }
+
+
+/* UGANDA DATING — DEEP ROMANCE PALETTE */
+:root{
+  --love-rose:#ef6f9f;
+  --love-pink:#f7aac3;
+  --love-blush:#fde2ec;
+  --love-lilac:#e7d8ee;
+  --love-mauve:#b7829c;
+  --love-plum:#7a3d5d;
+  --love-wine:#5a2140;
+  --love-peach:#f8d8cc;
+  --love-champagne:#f4dfbd;
+  --love-cream:#fff9fb;
+}
+
+body{
+  background:
+    radial-gradient(circle at 10% 8%,rgba(255,173,205,.38),transparent 21%),
+    radial-gradient(circle at 90% 9%,rgba(225,200,236,.34),transparent 23%),
+    radial-gradient(circle at 80% 84%,rgba(249,213,199,.35),transparent 24%),
+    radial-gradient(circle at 25% 90%,rgba(253,225,239,.32),transparent 24%),
+    linear-gradient(135deg,#fffefe 0%,#fff6fa 38%,#fbf2f8 68%,#fff7f2 100%);
+}
+
+.ud-main-nav{
+  background:linear-gradient(180deg,rgba(255,254,254,.97),rgba(255,247,250,.94))!important;
+}
+
+.logo-icon{
+  background:linear-gradient(145deg,#7a3458,#e35d8c 68%,#f0a08e)!important;
+  box-shadow:0 10px 30px rgba(227,93,140,.27)!important;
+}
+
+.brand{
+  color:var(--love-wine)!important;
+}
+.brand span{
+  color:var(--love-rose)!important;
+}
+
+.ud-desktop-nav .nav-item.active,
+.ud-desktop-nav .nav-item:hover{
+  background:linear-gradient(135deg,#fff0f5,#f7ebf8)!important;
+  color:#c64978!important;
+}
+
+.pill,.btn{
+  background:linear-gradient(135deg,#8a4263 0%,#d84f7f 55%,#f27aa3 100%)!important;
+  box-shadow:0 13px 30px rgba(216,79,127,.22)!important;
+}
+
+.btn.secondary{
+  background:linear-gradient(135deg,#fff1f6,#f8eef9)!important;
+  color:#8d4668!important;
+}
+
+.section-title h1,
+.encounters-header h1{
+  color:#75334f!important;
+}
+
+.eyebrow{
+  color:#d34e7c!important;
+}
+
+.section-title h1:after,
+.encounters-header h1:after{
+  background:linear-gradient(90deg,#ed6697,#cf9db8,#efbe94)!important;
+  box-shadow:0 4px 14px rgba(237,102,151,.18);
+}
+
+.nearby-controls,
+.auth,
+.chat-preview,
+.price,
+.empty,
+.no-encounters,
+.match{
+  background:linear-gradient(145deg,rgba(255,255,255,.98),rgba(255,240,247,.93))!important;
+  border-color:#f0d8e2!important;
+  box-shadow:0 22px 58px rgba(142,70,105,.12)!important;
+}
+
+.location-note{
+  background:linear-gradient(135deg,#fff5ef,#fff0f6)!important;
+  border-color:#f1dfd4!important;
+}
+
+.profile-card{
+  background:linear-gradient(180deg,#fffefe,#fff7fa)!important;
+  border-color:#efd8e2!important;
+  box-shadow:0 18px 44px rgba(139,63,100,.11)!important;
+}
+
+.profile-card:hover{
+  box-shadow:0 27px 62px rgba(139,63,100,.17)!important;
+}
+
+.tag{
+  background:linear-gradient(135deg,#fff0f5,#f4ebf8)!important;
+  color:#94506d!important;
+  border-color:#efdce5!important;
+}
+
+.action{
+  background:linear-gradient(135deg,#fffafb,#fff0f6)!important;
+  border-color:#efdde5!important;
+}
+.action.like{
+  background:linear-gradient(135deg,#ffdbe8,#ffeef4)!important;
+  color:#dc4b7d!important;
+}
+.action.super{
+  background:linear-gradient(135deg,#fff1dc,#fff9ef)!important;
+  color:#b78943!important;
+}
+
+.encounters-page{
+  background:
+    radial-gradient(circle at 50% 0%,rgba(255,177,207,.37),transparent 25%),
+    radial-gradient(circle at 4% 72%,rgba(231,216,238,.32),transparent 23%),
+    radial-gradient(circle at 96% 70%,rgba(250,215,201,.34),transparent 23%),
+    linear-gradient(135deg,#fffefe,#fff3f8 52%,#faf2f8)!important;
+}
+
+.encounter-card{
+  background:linear-gradient(180deg,#fffefe,#fff7fb)!important;
+  border-color:#efd6e1!important;
+  box-shadow:0 30px 74px rgba(128,53,94,.20)!important;
+}
+
+.encounter-info{
+  background:linear-gradient(180deg,#fffefe,#fff0f6)!important;
+}
+
+.encounter-pass{
+  color:#bf6285!important;
+  background:#fff!important;
+}
+
+.encounter-super{
+  background:linear-gradient(135deg,#fff1f7,#ffe4ef)!important;
+  border-color:#df6790!important;
+  color:#c43f73!important;
+}
+
+.encounter-like{
+  background:linear-gradient(135deg,#a33e68,#e76393,#f07ea5)!important;
+  border-color:#d85b89!important;
+}
+
+.encounter-badge{
+  background:rgba(96,43,69,.53)!important;
+}
+
+.chat .messages{
+  background:
+    radial-gradient(circle at 12% 12%,rgba(255,182,211,.27),transparent 24%),
+    radial-gradient(circle at 88% 78%,rgba(224,205,234,.24),transparent 23%),
+    linear-gradient(180deg,#fffafd,#fff4f8)!important;
+}
+
+.mine{
+  background:linear-gradient(135deg,#ad416d,#dc5c8b,#ef78a1)!important;
+}
+
+.price.featured{
+  border-color:#e56b96!important;
+  background:linear-gradient(145deg,#fff,#ffeff5)!important;
+  box-shadow:0 25px 62px rgba(222,88,139,.18)!important;
+}
+
+.momo-box{
+  background:linear-gradient(135deg,#fff1f6,#fff8ee)!important;
+  border-color:#f0dbe4!important;
+}
+
+.ud-mobile-nav{
+  background:rgba(255,249,252,.98)!important;
+  border-color:#f0dce6!important;
+  box-shadow:0 20px 54px rgba(125,60,91,.18)!important;
+}
+
+.ud-mobile-nav .bottom-item.active{
+  background:linear-gradient(135deg,#ffeaf2,#f6edf8)!important;
+  color:#ca4a79!important;
+}
+
+.footer{
+  color:#a28291!important;
+}
