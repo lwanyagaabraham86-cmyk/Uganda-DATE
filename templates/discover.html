@@ -10,6 +10,11 @@
     </div>
   </div>
 
+  <section class="invite-strip">
+    <div><strong>💌 Know someone single?</strong><span>Invite friends and build a bigger Uganda Dating community. You get 5 bonus credits when a friend joins through your link.</span></div>
+    <a class="btn" href="{{ url_for('invite_friends') }}">Invite friends →</a>
+  </section>
+
   <section class="filter-panel" id="filterPanel" hidden>
     <div class="filter-panel-backdrop" onclick="toggleFilters()"></div>
     <div class="filter-drawer" role="dialog" aria-modal="true" aria-labelledby="discoveryTitle">
@@ -200,4 +205,9 @@ document.addEventListener('keydown',e=>{if(document.getElementById('profileGalle
 @media(max-width:430px){
   .filter-drawer{height:92vh}.filter-head h2{font-size:22px}.filter-section-head h3{font-size:13px}
 }
+</style>
+<style>
+.invite-strip{display:flex;align-items:center;justify-content:space-between;gap:16px;margin:18px 0;padding:16px 18px;border:1px solid #efd6e1;border-radius:20px;background:linear-gradient(135deg,#fff5f8,#fff);box-shadow:0 10px 28px rgba(100,28,65,.07)}
+.invite-strip strong{display:block;color:#64213f}.invite-strip span{display:block;margin-top:4px;color:#7d6872;font-size:13px;line-height:1.45}.invite-strip .btn{white-space:nowrap}
+@media(max-width:700px){.invite-strip{align-items:stretch;flex-direction:column}.invite-strip .btn{width:100%}}
 </style>
