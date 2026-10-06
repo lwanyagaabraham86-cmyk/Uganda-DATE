@@ -56,7 +56,7 @@
             <button type="button" class="encounter-action encounter-like" aria-label="Like" title="Like" onclick="chooseEncounter('like')"><span>♥</span></button>
           </div>
 
-          <button type="button" class="encounter-profile-link" onclick="showEncounterInfo()">View profile details</button>
+          <a class="encounter-profile-link" href="{{ url_for('view_member_profile', user_id=p.id) }}">View full profile</a>
         </div>
       </article>
       {% endfor %}
@@ -164,21 +164,6 @@
 
   window.chooseEncounter=function(kind){ finishCard(kind); };
 
-  window.showEncounterInfo=function(){
-    const card=topCard();
-    if(!card) return;
-    const photo=card.dataset.photo || '';
-    const name=card.dataset.name || 'Profile';
-    document.getElementById('infoContent').innerHTML =
-      '<img class="info-photo" src="'+photo+'" alt="">' +
-      '<div class="eyebrow">Profile preview</div>' +
-      '<h2>'+name+'</h2>' +
-      '<p class="muted">This profile is compatible with your current preferences and discovery settings.</p>' +
-      '<button class="btn full" type="button" onclick="closeInfo()">Back to encounters</button>';
-    document.getElementById('infoOverlay').hidden=false;
-  };
-
-  window.closeInfo=function(){ document.getElementById('infoOverlay').hidden=true; };
   window.closeMatch=function(){ document.getElementById('matchOverlay').hidden=true; };
 
   cards.forEach(function(card){

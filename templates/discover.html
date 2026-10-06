@@ -41,13 +41,13 @@
   <div class="cards">
     {% for p, distance in nearby %}
     <article class="profile-card">
-      <button type="button" class="profile-gallery-trigger" data-gallery='{{ profile_photos(p)|tojson|forceescape }}' data-name="{{ p.name }}" data-age="{{ p.age }}" data-city="{{ p.city }}" onclick="openProfileGallery(this)">
+      <a class="profile-gallery-trigger profile-view-link" href="{{ url_for('view_member_profile', user_id=p.id) }}" aria-label="View {{ p.name }}'s full profile">
         <img class="profile-img" src="{{ photo_url(p,1) }}" alt="{{ p.name }}" loading="lazy" decoding="async">
         <span class="gallery-count">📷 {{ profile_photos(p)|length }}</span>
-        <span class="gallery-open-label">View photos</span>
-      </button>
+        <span class="gallery-open-label">View full profile</span>
+      </a>
       <div class="profile-body">
-        <div class="name">{{ p.name }}, {{ p.age }} {% if p.verified %}<span class="verified">●</span>{% endif %}</div>
+        <a class="profile-name-link" href="{{ url_for('view_member_profile', user_id=p.id) }}"><div class="name">{{ p.name }}, {{ p.age }} {% if p.verified %}<span class="verified">●</span>{% endif %}</div></a>
         <div class="distance-line">📍 {% if distance is not none %}{{ '%.1f'|format(distance) }} km away{% else %}{{ p.city }} · nearby{% endif %}</div>
         <div class="tags"><span class="tag">{{ p.gender }}</span>{% if p.last_seen and p.last_seen.strftime('%Y-%m-%d') == p.last_seen.strftime('%Y-%m-%d') %}{% endif %}{% if p.verified %}<span class="tag">✓ Verified</span>{% endif %}{% if profile_photos(p)|length >= 2 %}<span class="tag">📷 {{ profile_photos(p)|length }} photos</span>{% endif %}</div>
         <div class="muted small">{{ p.bio }}</div>

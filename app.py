@@ -553,6 +553,24 @@ def discover():
     nearby = nearby_profiles(me, limit=200)
     return render_template('discover.html', nearby=nearby, radius=me.search_radius_km or 25, has_location=me.latitude is not None and me.longitude is not None)
 
+@app.route('/member/<int:user_id>')
+@login_required
+def view_member_profile(user_id):
+    me = current_user()
+    member = db.session.get(User, user_id)
+    if not member or member.id == me.id:
+        flash('That profile is not available.', 'error')
+        return redirect(url_for('discover'))
+    me.last_seen = datetime.utcnow()
+    db.session.commit()
+    distance = None
+    if me.latitude is not None and me.longitude is not None and member.latitude is not None and member.longitude is not None:
+        distance = distance_km(me.latitude, me.longitude, member.latitude, member.longitude)
+    online = bool(member.last_seen and member.last_seen >= datetime.utcnow() - timedelta(minutes=10))
+    liked = Like.query.filter_by(from_id=me.id, to_id=member.id).first() is not None
+    mutual = Like.query.filter_by(from_id=member.id, to_id=me.id).first() is not None
+    return render_template('member_profile.html', member=member, distance=distance, online=online, liked=liked, mutual=mutual)
+
 @app.post('/location')
 @login_required
 def update_location():
