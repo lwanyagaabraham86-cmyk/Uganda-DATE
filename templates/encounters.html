@@ -1,105 +1,15 @@
 {% extends 'base.html' %}
-{% block title %}Swipe — Uganda Dating{% endblock %}
+{% block title %}Encounters — Uganda Dating{% endblock %}
 {% block content %}
-<main class="swipe-page">
-  <div class="swipe-heading">
-    <div>
-      <div class="eyebrow">❤️ Find your connection</div>
-      <h1>Swipe</h1>
-      <p class="muted">Choose how you feel about each profile.</p>
+<main class="container">
+  <div class="section-title"><div><div class="eyebrow">Nearby encounters</div><h1>Encounters</h1><p class="muted">Fresh people within {{ radius|round|int }} km of your chosen range.</p></div></div>
+  <section class="nearby-controls">
+    <div class="nearby-copy"><div class="nearby-icon">✦</div><div><strong>Your search range</strong><p class="muted small">Choose how far you want to look from your location.</p></div></div>
+    <div class="nearby-actions">
+      <form method="post" action="{{ url_for('update_search_radius') }}" class="radius-form"><input type="hidden" name="next" value="{{ request.path }}"><label for="radius">Within</label><select id="radius" name="search_radius_km" onchange="this.form.submit()">{% for value in [1,2,5,10,15,25,50,100,250,500] %}<option value="{{ value }}" {% if (radius|float) == value %}selected{% endif %}>{{ value }} km</option>{% endfor %}</select></form><a class="btn location-btn" href="{{ url_for('discover') }}">Update location</a>
     </div>
-    <a class="btn secondary" href="{{ url_for('profile') }}">⚙ Range: {{ radius|round|int }} km</a>
-  </div>
-
-  {% if nearby %}
-  <div class="swipe-deck" id="swipeDeck">
-    {% for p, distance in nearby %}
-    <article class="swipe-card" data-user-id="{{ p.id }}">
-      <div class="swipe-photo-wrap">
-        <img class="swipe-photo" src="{{ p.photo }}" alt="{{ p.name }}" loading="{% if loop.first %}eager{% else %}lazy{% endif %}">
-        <div class="swipe-photo-shade"></div>
-        <div class="swipe-profile-info">
-          <div class="swipe-name">{{ p.name }}, {{ p.age }} {% if p.verified %}<span class="verified">●</span>{% endif %}</div>
-          <div class="swipe-distance">📍 {% if distance is not none %}{{ '%.1f'|format(distance) }} km away{% else %}{{ p.city }} · nearby{% endif %}</div>
-          <div class="swipe-tags">
-            <span class="tag">{{ p.gender }}</span>
-            {% if p.verified %}<span class="tag">✓ Verified</span>{% endif %}
-          </div>
-          <p>{{ p.bio }}</p>
-        </div>
-      </div>
-
-      <div class="swipe-choice-row" aria-label="Choose an action">
-        <button type="button" class="swipe-choice-button dislike" onclick="chooseSwipe('pass', this)" aria-label="Don't like" title="Don't like">
-          <span class="choice-icon x-icon">×</span>
-          <strong>Don't like</strong>
-        </button>
-
-        <button type="button" class="swipe-choice-button super" onclick="chooseSwipe('superlike', this)" aria-label="Super Like" title="Super Like">
-          <span class="pierced-heart" aria-hidden="true">
-            <span class="heart-shape">♥</span>
-          </span>
-          <strong>Super Like</strong>
-        </button>
-
-        <button type="button" class="swipe-choice-button like" onclick="chooseSwipe('like', this)" aria-label="Like" title="Like">
-          <span class="choice-icon heart-icon">♥</span>
-          <strong>Like</strong>
-        </button>
-      </div>
-    </article>
-    {% endfor %}
-  </div>
-  {% else %}
-  <div class="swipe-empty">
-    <div class="empty-heart">♥</div>
-    <h2>No one to swipe on right now</h2>
-    <p class="muted">Try increasing your search range or update your location.</p>
-    <a class="btn" href="{{ url_for('discover') }}">Discover people</a>
-  </div>
-  {% endif %}
+  </section>
+  {% if nearby %}<div class="cards">{% for p,distance in nearby %}<article class="profile-card"><img class="profile-img" src="{{ p.photo }}" alt="{{ p.name }}" loading="lazy"><div class="profile-body"><div class="name">{{ p.name }}, {{ p.age }} {% if p.verified %}<span class="verified">●</span>{% endif %}</div><div class="distance-line">📍 {% if distance is not none %}{{ '%.1f'|format(distance) }} km away{% else %}{{ p.city }} · nearby{% endif %}</div><div class="tags"><span class="tag">{{ p.gender }}</span>{% if p.verified %}<span class="tag">✓ Verified</span>{% endif %}</div><div class="muted small">{{ p.bio }}</div><div class="swipe-actions" aria-label="Choose an action"><button type="button" class="swipe-choice dislike-choice" aria-label="Don't like" title="Don't like" onclick="act({{p.id}},'pass',this)"><span>✕</span><small>Don't like</small></button><button type="button" class="swipe-choice super-choice" aria-label="Special like" title="Special like" onclick="act({{p.id}},'superlike',this)"><span>♥</span><small>Special like</small></button><button type="button" class="swipe-choice like-choice" aria-label="Like" title="Like" onclick="act({{p.id}},'like',this)"><span>♥</span><small>Like</small></button></div></div></article>{% endfor %}</div>{% else %}<div class="empty"><div class="empty-heart">✦</div><h2>No encounters within {{ radius|round|int }} km</h2><p class="muted">Increase your range to meet more people.</p></div>{% endif %}
 </main>
-
-<script>
-async function chooseSwipe(kind, button) {
-  const card = button.closest('.swipe-card');
-  if (!card) return;
-  const id = card.dataset.userId;
-
-  if (kind === 'pass') {
-    removeCard(card, 'left');
-    return;
-  }
-
-  button.classList.add('pressed');
-  const form = new FormData();
-  form.append('kind', kind);
-
-  try {
-    const response = await fetch('/like/' + id, { method: 'POST', body: form });
-    const data = await response.json();
-
-    if (data.match) {
-      alert("It's a match! ❤️");
-      window.location.href = '/matches';
-      return;
-    }
-    removeCard(card, 'right');
-  } catch (error) {
-    button.classList.remove('pressed');
-    alert('Something went wrong. Please try again.');
-  }
-}
-
-function removeCard(card, direction) {
-  card.classList.add(direction === 'left' ? 'swipe-out-left' : 'swipe-out-right');
-  setTimeout(() => {
-    card.remove();
-    if (!document.querySelectorAll('.swipe-card').length) {
-      document.getElementById('swipeDeck').innerHTML =
-        '<div class="swipe-empty"><div class="empty-heart">♥</div><h2>You are all caught up!</h2><p class="muted">Come back later for more connections.</p></div>';
-    }
-  }, 260);
-}
-</script>
+<script>async function act(id,kind,el){if(kind==='pass'){el.closest('.profile-card').remove();return}const f=new FormData();f.append('kind',kind);const r=await fetch('/like/'+id,{method:'POST',body:f});const d=await r.json();if(d.match){alert("It's a match! ❤️");location.href='/matches'}else{el.closest('.profile-card').remove()}}</script>
 {% endblock %}

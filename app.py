@@ -124,48 +124,54 @@ def preference_matches(me, user):
     return accepts(my_choice, their_gender) and accepts(their_choice, my_gender)
 
 
-def nearby_profiles(me, limit=200):
-    """Return compatible nearby people using GPS when available and city as fallback."""
-    radius = float(getattr(me, "search_radius_km", None) or 25)
-    candidates = User.query.filter(User.id != me.id).all()
-    out = []
+def nearby_profiles(me, exclude_ids=None, limit=200):
+    """Return compatible nearby people using GPS when possible and area fallback when GPS is missing."""
+    exclude_ids = set(exclude_ids or ()) | {me.id}
+    candidates = User.query.filter(~User.id.in_(exclude_ids)).all()
+    results = []
+    radius = max(1.0, min(float(me.search_radius_km or 25), 500.0))
 
-    for p in candidates:
-        if not preference_matches(me, p):
+    def area_group(city):
+        c = (city or '').strip().lower()
+        kampala_areas = {
+            'kampala', 'central kampala', 'makindye', 'muyenga', 'bukoto',
+            'ntinda', 'kololo', 'nakawa', 'rubaga', 'kawempe', 'najjera',
+            'kibuye', 'munyonyo', 'buziga', 'kabalagala', 'nsambya',
+            'kisugu', 'namuwongo', 'bugolobi', 'kiwafu', 'katwe',
+            'namirembe', 'makerere', 'mengo', 'kansanga'
+        }
+        if c in kampala_areas or 'kampala' in c:
+            return 'kampala'
+        if 'wakiso' in c or 'kira' in c or 'kajjansi' in c:
+            return 'wakiso'
+        return c
+
+    my_area = area_group(me.city)
+
+    for user in candidates:
+        if not preference_matches(me, user):
             continue
 
-        distance = None
+        # Exact GPS wins whenever both profiles have coordinates.
         if (me.latitude is not None and me.longitude is not None and
-                p.latitude is not None and p.longitude is not None):
-            distance = distance_km(me.latitude, me.longitude, p.latitude, p.longitude)
-            if distance > radius:
-                continue
-        elif me.city and p.city:
-            # Location fallback: treat Kampala neighbourhoods/areas as Kampala.
-            # This is only a fallback for missing GPS; exact GPS still wins.
-            def area_group(city):
-                c = (city or '').strip().lower()
-                kampala_areas = {
-                    'kampala','makindye','muyenga','bukoto','ntinda','kololo',
-                    'nakawa','rubaga','kawempe','central kampala','najjera',
-                    'kibuye','munyonyo','buziga','kabalagala','nsambya',
-                    'kisugu','namuwongo','bugolobi','kiwafu','katwe',
-                    'namirembe','makerere','mengo','kansanga'
-                }
-                if c in kampala_areas or 'kampala' in c:
-                    return 'kampala'
-                if 'wakiso' in c or 'kira' in c or 'kajjansi' in c:
-                    return 'wakiso'
-                return c
-            if area_group(me.city) == area_group(p.city):
-                distance = None
-            else:
-                continue
+                user.latitude is not None and user.longitude is not None):
+            distance = distance_km(me.latitude, me.longitude, user.latitude, user.longitude)
+            if distance <= radius:
+                results.append((user, distance))
+            continue
 
-        out.append((p, distance))
+        # If either profile lacks GPS, use the city/neighborhood fallback.
+        # This prevents Kampala users from disappearing simply because a
+        # profile has not shared browser location yet.
+        if my_area and area_group(user.city) == my_area:
+            results.append((user, None))
 
-    out.sort(key=lambda x: (x[1] is None, x[1] if x[1] is not None else 999999))
-    return out[:limit]
+    results.sort(key=lambda item: (item[1] is None, item[1] if item[1] is not None else 999999))
+    return results[:limit]
+
+@app.context_processor
+def inject_globals():
+    return {'current_user': current_user(), 'prices': PRICES, 'mtn_momo_number': MTN_MOMO_NUMBER}
 
 @app.route('/')
 def home():
@@ -219,7 +225,7 @@ def discover():
     # We intentionally do not remove people you have already liked here, so the
     # discovery page can show the full compatible nearby pool.
     nearby = nearby_profiles(me, limit=200)
-    return render_template('discover.html', nearby=nearby, nearby_count=len(nearby), radius=me.search_radius_km or 25, has_location=me.latitude is not None and me.longitude is not None)
+    return render_template('discover.html', nearby=nearby, radius=me.search_radius_km or 25, has_location=me.latitude is not None and me.longitude is not None)
 
 @app.post('/location')
 @login_required
@@ -282,8 +288,9 @@ def likes():
 @login_required
 def encounters():
     me = current_user()
-    nearby = nearby_profiles(me, limit=50)
-    return render_template('swipe.html', nearby=nearby, radius=me.search_radius_km or 25)
+    liked_ids = {x.to_id for x in Like.query.filter_by(from_id=me.id).all()}
+    nearby = nearby_profiles(me, liked_ids, 30)
+    return render_template('encounters.html', nearby=nearby, radius=me.search_radius_km or 25, has_location=me.latitude is not None and me.longitude is not None)
 
 @app.route('/chats')
 @login_required
@@ -304,6 +311,10 @@ def chats():
         conversations.append((other, last))
     return render_template('chats.html', conversations=conversations)
 
+@app.route('/swipe')
+@login_required
+def swipe():
+    return redirect(url_for('discover'))
 
 @app.route('/matches')
 @login_required
