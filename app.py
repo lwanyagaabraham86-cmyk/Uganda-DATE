@@ -4,8 +4,9 @@ import uuid
 from datetime import datetime, timedelta
 from math import radians, sin, cos, sqrt, atan2
 from functools import wraps
+from io import BytesIO
 import requests
-from flask import Flask, render_template, request, redirect, url_for, session, flash, jsonify, send_from_directory
+from flask import Flask, render_template, request, redirect, url_for, session, flash, jsonify, send_from_directory, Response
 from werkzeug.security import generate_password_hash, check_password_hash
 from flask_sqlalchemy import SQLAlchemy
 
@@ -13,6 +14,7 @@ app = Flask(__name__)
 app.config['SECRET_KEY'] = os.environ.get('SECRET_KEY', 'change-this-secret-key')
 app.config['SQLALCHEMY_DATABASE_URI'] = os.environ.get('DATABASE_URL', 'sqlite:///uganda_date.db').replace('postgres://', 'postgresql://', 1)
 app.config['SQLALCHEMY_TRACK_MODIFICATIONS'] = False
+app.config['MAX_CONTENT_LENGTH'] = 4 * 1024 * 1024
 @app.get('/manifest.webmanifest')
 def manifest_webmanifest():
     return send_from_directory(os.path.join(app.root_path, 'static'), 'manifest.webmanifest', mimetype='application/manifest+json')
@@ -45,6 +47,8 @@ class User(db.Model):
     search_radius_km = db.Column(db.Float, default=25.0, nullable=False)
     bio = db.Column(db.Text, default='')
     photo = db.Column(db.String(500), default='https://images.unsplash.com/photo-1531123897727-8f129e1688ce?w=700')
+    photo1_data = db.Column(db.Text, nullable=True)
+    photo2_data = db.Column(db.Text, nullable=True)
     verified = db.Column(db.Boolean, default=False)
     premium_until = db.Column(db.DateTime, nullable=True)
     created_at = db.Column(db.DateTime, default=datetime.utcnow)
@@ -241,6 +245,54 @@ def momo_payment_status(reference_id):
     response.raise_for_status()
     return response.json()
 
+MAX_PROFILE_IMAGE_BYTES = 350 * 1024
+ALLOWED_PROFILE_IMAGE_MIMES = {'image/jpeg', 'image/png', 'image/webp'}
+
+def clean_profile_photo(data_url):
+    """Validate a browser-compressed image data URL before storing it."""
+    if not data_url or ',' not in data_url:
+        return None
+    header, payload = data_url.split(',', 1)
+    if not header.startswith('data:'):
+        return None
+    mime = header[5:].split(';', 1)[0].strip().lower()
+    if mime not in ALLOWED_PROFILE_IMAGE_MIMES:
+        return None
+    try:
+        raw = base64.b64decode(payload, validate=True)
+    except Exception:
+        return None
+    if not raw or len(raw) > MAX_PROFILE_IMAGE_BYTES:
+        return None
+    normalized = base64.b64encode(raw).decode('ascii')
+    return f'data:{mime};base64,{normalized}'
+
+def photo_url(user, slot=1):
+    data = user.photo1_data if slot == 1 else user.photo2_data
+    if data:
+        return url_for('user_photo', user_id=user.id, slot=slot)
+    return user.photo
+
+@app.get('/user/<int:user_id>/photo/<int:slot>')
+def user_photo(user_id, slot):
+    if slot not in (1, 2):
+        return '', 404
+    user = db.session.get(User, user_id)
+    if not user:
+        return '', 404
+    data = user.photo1_data if slot == 1 else user.photo2_data
+    if not data or ',' not in data:
+        return '', 404
+    header, payload = data.split(',', 1)
+    mime = header[5:].split(';', 1)[0].strip().lower() if header.startswith('data:') else 'image/jpeg'
+    if mime not in ALLOWED_PROFILE_IMAGE_MIMES:
+        return '', 404
+    try:
+        raw = base64.b64decode(payload, validate=True)
+    except Exception:
+        return '', 404
+    return Response(raw, mimetype=mime, headers={'Cache-Control': 'public, max-age=86400'})
+
 def login_required(f):
     @wraps(f)
     def wrapper(*args, **kwargs):
@@ -352,6 +404,7 @@ def inject_globals():
         'active_plan': active_plan(user),
         'credits_balance': user.credits if user else 0,
         'momo_auto_enabled': momo_configured(),
+        'photo_url': photo_url,
     }
 
 @app.route('/')
@@ -363,21 +416,31 @@ def home():
 @app.route('/register', methods=['GET','POST'])
 def register():
     if request.method == 'POST':
-        name = request.form['name'].strip()
-        email = request.form['email'].strip().lower()
-        password = request.form['password']
-        age = int(request.form['age'])
+        try:
+            name = request.form['name'].strip()
+            email = request.form['email'].strip().lower()
+            password = request.form['password']
+            age = int(request.form['age'])
+        except (KeyError, ValueError):
+            flash('Please complete all required fields.', 'error')
+            return render_template('register.html')
         gender = request.form['gender']
         interested_in = request.form['interested_in']
         city = request.form.get('city', 'Kampala')
+        photo1 = clean_profile_photo(request.form.get('photo1_data', ''))
+        photo2 = clean_profile_photo(request.form.get('photo2_data', ''))
         if age < 18:
             flash('Uganda Dating is for adults 18+ only.', 'error')
             return render_template('register.html')
         if User.query.filter_by(email=email).first():
             flash('An account with that email already exists.', 'error')
             return render_template('register.html')
+        if not photo1 or not photo2:
+            flash('Please add two clear photos of yourself from your gallery before creating your account.', 'error')
+            return render_template('register.html')
         user = User(name=name, email=email, password_hash=generate_password_hash(password), age=age,
                     gender=gender, interested_in=interested_in, city=city,
+                    photo1_data=photo1, photo2_data=photo2,
                     bio='New on Uganda Dating. Looking forward to meeting someone genuine!')
         db.session.add(user); db.session.commit()
         session['user_id'] = user.id
@@ -763,7 +826,9 @@ with app.app_context():
             'longitude': 'DOUBLE PRECISION',
             'search_radius_km': 'DOUBLE PRECISION DEFAULT 25',
             'subscription_plan': "VARCHAR(20) DEFAULT 'free'",
-            'credits': 'INTEGER DEFAULT 0'
+            'credits': 'INTEGER DEFAULT 0',
+            'photo1_data': 'TEXT',
+            'photo2_data': 'TEXT'
         }
         for column, sql_type in new_columns.items():
             if column not in user_columns:
@@ -779,7 +844,9 @@ with app.app_context():
             'longitude': 'FLOAT',
             'search_radius_km': 'FLOAT DEFAULT 25',
             'subscription_plan': "VARCHAR(20) DEFAULT 'free'",
-            'credits': 'INTEGER DEFAULT 0'
+            'credits': 'INTEGER DEFAULT 0',
+            'photo1_data': 'TEXT',
+            'photo2_data': 'TEXT'
         }
         for column, sql_type in new_columns.items():
             if column not in user_columns:
