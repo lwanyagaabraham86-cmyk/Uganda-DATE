@@ -548,6 +548,8 @@ def discover():
     # Discover shows compatible nearby people based on BOTH users' gender preferences.
     # We intentionally do not remove people you have already liked here, so the
     # discovery page can show the full compatible nearby pool.
+    me.last_seen = datetime.utcnow()
+    db.session.commit()
     nearby = nearby_profiles(me, limit=200)
     return render_template('discover.html', nearby=nearby, radius=me.search_radius_km or 25, has_location=me.latitude is not None and me.longitude is not None)
 
@@ -627,6 +629,8 @@ def likes():
 def encounters():
     me = current_user()
     liked_ids = {x.to_id for x in Like.query.filter_by(from_id=me.id).all()}
+    me.last_seen = datetime.utcnow()
+    db.session.commit()
     nearby = nearby_profiles(me, liked_ids, 30)
     return render_template('encounters.html', nearby=nearby, radius=me.search_radius_km or 25, has_location=me.latitude is not None and me.longitude is not None)
 
