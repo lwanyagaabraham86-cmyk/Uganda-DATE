@@ -1,0 +1,13 @@
+{
+  "name":"Uganda Dating",
+  "short_name":"Uganda Dating",
+  "start_url":"/",
+  "scope":"/",
+  "display":"standalone",
+  "orientation":"portrait-primary",
+  "theme_color":"#d84f7f",
+  "background_color":"#fff9fb",
+  "lang":"en-UG",
+  "categories":["social","lifestyle"],
+  "icons":[{"src":"/static/img/icon.svg","sizes":"any","type":"image/svg+xml","purpose":"any"}]
+}
