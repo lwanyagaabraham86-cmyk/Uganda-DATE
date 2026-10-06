@@ -1,15 +1,233 @@
 {% extends 'base.html' %}
 {% block title %}Encounters — Uganda Dating{% endblock %}
 {% block content %}
-<main class="container">
-  <div class="section-title"><div><div class="eyebrow">Nearby encounters</div><h1>Encounters</h1><p class="muted">Fresh people within {{ radius|round|int }} km of your chosen range.</p></div></div>
-  <section class="nearby-controls">
-    <div class="nearby-copy"><div class="nearby-icon">✦</div><div><strong>Your search range</strong><p class="muted small">Choose how far you want to look from your location.</p></div></div>
-    <div class="nearby-actions">
-      <form method="post" action="{{ url_for('update_search_radius') }}" class="radius-form"><input type="hidden" name="next" value="{{ request.path }}"><label for="radius">Within</label><select id="radius" name="search_radius_km" onchange="this.form.submit()">{% for value in [1,2,5,10,15,25,50,100,250,500] %}<option value="{{ value }}" {% if (radius|float) == value %}selected{% endif %}>{{ value }} km</option>{% endfor %}</select></form><a class="btn location-btn" href="{{ url_for('discover') }}">Update location</a>
+<main class="encounters-page">
+  <section class="encounters-header">
+    <div>
+      <div class="eyebrow">Your next connection</div>
+      <h1>Encounters</h1>
+      <p class="muted">Swipe through compatible people nearby. Your exact location stays private.</p>
+    </div>
+    <div class="encounter-range">
+      <form method="post" action="{{ url_for('update_search_radius') }}">
+        <input type="hidden" name="next" value="{{ request.path }}">
+        <label for="radius">Within</label>
+        <select id="radius" name="search_radius_km" onchange="this.form.submit()">
+          {% for value in [1,2,5,10,15,25,50,100,250,500] %}
+          <option value="{{ value }}" {% if (radius|float) == value %}selected{% endif %}>{{ value }} km</option>
+          {% endfor %}
+        </select>
+      </form>
+      <a class="encounter-location-link" href="{{ url_for('discover') }}">📍 Location settings</a>
     </div>
   </section>
-  {% if nearby %}<div class="cards">{% for p,distance in nearby %}<article class="profile-card"><img class="profile-img" src="{{ p.photo }}" alt="{{ p.name }}" loading="lazy"><div class="profile-body"><div class="name">{{ p.name }}, {{ p.age }} {% if p.verified %}<span class="verified">●</span>{% endif %}</div><div class="distance-line">📍 {% if distance is not none %}{{ '%.1f'|format(distance) }} km away{% else %}{{ p.city }} · nearby{% endif %}</div><div class="tags"><span class="tag">{{ p.gender }}</span>{% if p.verified %}<span class="tag">✓ Verified</span>{% endif %}</div><div class="muted small">{{ p.bio }}</div><div class="swipe-actions" aria-label="Choose an action"><button type="button" class="swipe-choice dislike-choice" aria-label="Don't like" title="Don't like" onclick="act({{p.id}},'pass',this)"><span>✕</span><small>Don't like</small></button><button type="button" class="swipe-choice super-choice" aria-label="Special like" title="Special like" onclick="act({{p.id}},'superlike',this)"><span>♥</span><small>Special like</small></button><button type="button" class="swipe-choice like-choice" aria-label="Like" title="Like" onclick="act({{p.id}},'like',this)"><span>♥</span><small>Like</small></button></div></div></article>{% endfor %}</div>{% else %}<div class="empty"><div class="empty-heart">✦</div><h2>No encounters within {{ radius|round|int }} km</h2><p class="muted">Increase your range to meet more people.</p></div>{% endif %}
+
+  {% if nearby %}
+  <section class="swipe-stage" aria-label="Dating encounters">
+    <div class="swipe-counter"><strong id="swipeCurrent">1</strong><span> / {{ nearby|length }}</span></div>
+
+    <div class="encounter-deck" id="encounterDeck">
+      {% for p,distance in nearby %}
+      <article class="encounter-card" data-id="{{ p.id }}" data-name="{{ p.name }}" data-photo="{{ p.photo }}">
+        <div class="encounter-photo-wrap">
+          <img class="encounter-photo" src="{{ p.photo }}" alt="{{ p.name }}, {{ p.age }}" draggable="false">
+          <div class="encounter-photo-shade"></div>
+          <div class="encounter-photo-badges">
+            {% if p.verified %}<span class="encounter-badge verified-badge">✓ Verified</span>{% endif %}
+            <span class="encounter-badge">18+</span>
+          </div>
+          <div class="swipe-stamp swipe-stamp-no">NOPE</div>
+          <div class="swipe-stamp swipe-stamp-like">LIKE</div>
+        </div>
+
+        <div class="encounter-info">
+          <div class="encounter-name-row">
+            <div>
+              <h2>{{ p.name }}, {{ p.age }}{% if p.verified %}<span class="profile-check">✓</span>{% endif %}</h2>
+              <div class="encounter-distance">📍 {% if distance is not none %}{{ '%.1f'|format(distance) }} km away{% else %}{{ p.city }} · nearby{% endif %}</div>
+            </div>
+          </div>
+
+          <p class="encounter-bio">{{ p.bio or 'Looking forward to meeting someone genuine.' }}</p>
+
+          <div class="encounter-actions" aria-label="Choose an action">
+            <button type="button" class="encounter-action encounter-pass" aria-label="Don't like" title="Don't like" onclick="chooseEncounter('pass')"><span>✕</span></button>
+            <button type="button" class="encounter-action encounter-super" aria-label="Special like" title="Special like" onclick="chooseEncounter('superlike')"><span>♥</span></button>
+            <button type="button" class="encounter-action encounter-like" aria-label="Like" title="Like" onclick="chooseEncounter('like')"><span>♥</span></button>
+          </div>
+
+          <button type="button" class="encounter-profile-link" onclick="showEncounterInfo()">View profile details</button>
+        </div>
+      </article>
+      {% endfor %}
+    </div>
+
+    <p class="swipe-hint">← Swipe left to pass &nbsp; • &nbsp; Swipe right to like →</p>
+  </section>
+
+  <div id="matchOverlay" class="match-overlay" hidden>
+    <div class="match-modal">
+      <div class="match-sparkle">♥</div>
+      <div class="eyebrow">It's a match!</div>
+      <h2>You both liked each other.</h2>
+      <p class="muted">Start the conversation and see where it goes. ❤️</p>
+      <div class="match-modal-actions">
+        <a class="btn" href="{{ url_for('matches') }}">See my matches</a>
+        <button class="btn secondary" type="button" onclick="closeMatch()">Keep discovering</button>
+      </div>
+    </div>
+  </div>
+
+  <div id="infoOverlay" class="info-overlay" hidden>
+    <div class="info-modal">
+      <button class="info-close" type="button" onclick="closeInfo()" aria-label="Close">×</button>
+      <div id="infoContent"></div>
+    </div>
+  </div>
+
+  {% else %}
+  <section class="no-encounters">
+    <div class="empty-heart">✦</div>
+    <div class="eyebrow">You're all caught up</div>
+    <h2>No more encounters within {{ radius|round|int }} km.</h2>
+    <p class="muted">Increase your range or check back later when new people join.</p>
+    <a class="btn" href="{{ url_for('discover') }}">Explore Discover</a>
+  </section>
+  {% endif %}
 </main>
-<script>async function act(id,kind,el){if(kind==='pass'){el.closest('.profile-card').remove();return}const f=new FormData();f.append('kind',kind);const r=await fetch('/like/'+id,{method:'POST',body:f});const d=await r.json();if(d.match){alert("It's a match! ❤️");location.href='/matches'}else{el.closest('.profile-card').remove()}}</script>
+
+{% if nearby %}
+<script>
+(function(){
+  const deck = document.getElementById('encounterDeck');
+  const cards = Array.from(deck.querySelectorAll('.encounter-card'));
+  let activeIndex = 0;
+  let pointerStartX = null;
+  let pointerStartY = null;
+  let pointerId = null;
+  let moved = false;
+
+  function topCard(){ return cards[activeIndex]; }
+
+  function updateCounter(){
+    const el = document.getElementById('swipeCurrent');
+    if(el) el.textContent = Math.min(activeIndex + 1, cards.length);
+  }
+
+  function refreshDeck(){
+    cards.forEach(function(card,i){
+      const offset=i-activeIndex;
+      card.style.display = offset >= 0 && offset < 3 ? '' : 'none';
+      card.style.zIndex = String(cards.length-offset);
+      if(offset===0){
+        card.style.transform='translate3d(0,0,0) scale(1)';
+      }else{
+        card.style.transform='translate3d(0,'+Math.min(offset*10,20)+'px,0) scale('+Math.max(.88,1-offset*.035)+')';
+      }
+      card.style.opacity = offset===0 ? '1' : String(Math.max(.18,1-offset*.28));
+    });
+    updateCounter();
+  }
+
+  function finishCard(kind){
+    const card=topCard();
+    if(!card) return;
+    const id=card.dataset.id;
+
+    if(kind==='pass'){
+      card.style.transition='transform .35s ease, opacity .35s ease';
+      card.style.transform='translate3d(-130%,0,0) rotate(-18deg)';
+      card.style.opacity='0';
+      setTimeout(function(){ activeIndex++; refreshDeck(); },220);
+      return;
+    }
+
+    card.style.transition='transform .35s ease, opacity .35s ease';
+    if(kind==='like'){
+      card.style.transform='translate3d(130%,0,0) rotate(18deg)';
+    }else{
+      card.style.transform='translate3d(0,-130%,0) rotate(0deg)';
+    }
+    card.style.opacity='0';
+
+    const f=new FormData();
+    f.append('kind',kind);
+    fetch('/like/'+id,{method:'POST',body:f})
+      .then(function(r){ return r.json(); })
+      .then(function(d){
+        if(d.match){ document.getElementById('matchOverlay').hidden=false; }
+        setTimeout(function(){ activeIndex++; refreshDeck(); },220);
+      })
+      .catch(function(){ setTimeout(function(){ activeIndex++; refreshDeck(); },220); });
+  }
+
+  window.chooseEncounter=function(kind){ finishCard(kind); };
+
+  window.showEncounterInfo=function(){
+    const card=topCard();
+    if(!card) return;
+    const photo=card.dataset.photo || '';
+    const name=card.dataset.name || 'Profile';
+    document.getElementById('infoContent').innerHTML =
+      '<img class="info-photo" src="'+photo+'" alt="">' +
+      '<div class="eyebrow">Profile preview</div>' +
+      '<h2>'+name+'</h2>' +
+      '<p class="muted">This profile is compatible with your current preferences and discovery settings.</p>' +
+      '<button class="btn full" type="button" onclick="closeInfo()">Back to encounters</button>';
+    document.getElementById('infoOverlay').hidden=false;
+  };
+
+  window.closeInfo=function(){ document.getElementById('infoOverlay').hidden=true; };
+  window.closeMatch=function(){ document.getElementById('matchOverlay').hidden=true; };
+
+  cards.forEach(function(card){
+    card.addEventListener('pointerdown',function(e){
+      if(e.target.closest('button,a')) return;
+      pointerId=e.pointerId;
+      pointerStartX=e.clientX;
+      pointerStartY=e.clientY;
+      moved=false;
+      card.setPointerCapture(pointerId);
+    });
+
+    card.addEventListener('pointermove',function(e){
+      if(pointerId!==e.pointerId || pointerStartX===null || card!==topCard()) return;
+      const dx=e.clientX-pointerStartX;
+      const dy=e.clientY-pointerStartY;
+      if(Math.abs(dx)>8 || Math.abs(dy)>8) moved=true;
+      if(!moved) return;
+      const rotate=Math.max(-18,Math.min(18,dx/12));
+      const likeOpacity=Math.max(0,Math.min(1,dx/90));
+      const nopeOpacity=Math.max(0,Math.min(1,-dx/90));
+      card.style.transition='none';
+      card.style.transform='translate3d('+dx+'px,'+(dy*.35)+'px,0) rotate('+rotate+'deg)';
+      card.querySelector('.swipe-stamp-like').style.opacity=likeOpacity;
+      card.querySelector('.swipe-stamp-no').style.opacity=nopeOpacity;
+    });
+
+    card.addEventListener('pointerup',function(e){
+      if(pointerId!==e.pointerId || card!==topCard()) return;
+      const dx=e.clientX-pointerStartX;
+      card.releasePointerCapture(pointerId);
+      pointerId=null;
+      pointerStartX=null;
+      pointerStartY=null;
+      card.querySelector('.swipe-stamp-like').style.opacity=0;
+      card.querySelector('.swipe-stamp-no').style.opacity=0;
+      if(Math.abs(dx)>90){
+        finishCard(dx>0?'like':'pass');
+      }else{
+        refreshDeck();
+      }
+    });
+
+    card.addEventListener('pointercancel',function(){
+      pointerId=null; pointerStartX=null; pointerStartY=null; refreshDeck();
+    });
+  });
+
+  refreshDeck();
+})();
+</script>
+{% endif %}
 {% endblock %}
