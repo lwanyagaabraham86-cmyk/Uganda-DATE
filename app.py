@@ -98,7 +98,7 @@ MTN_MOMO_API_USER = os.environ.get('MTN_MOMO_API_USER', '')
 MTN_MOMO_API_KEY = os.environ.get('MTN_MOMO_API_KEY', '')
 MTN_MOMO_CALLBACK_URL = os.environ.get(
     'MTN_MOMO_CALLBACK_URL',
-    'https://uganda-date.onrender.com/momo/callback'
+    'https://ugandadating.co.ug/momo/callback'
 )
 
 ADMIN_EMAIL = os.environ.get('ADMIN_EMAIL', 'admin@ugandadating.app')
