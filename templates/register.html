@@ -44,7 +44,7 @@
 (function(){
   const MAX=6,MIN=2,MAX_BYTES=180*1024,slots=Array.from({length:MAX},(_,i)=>i+1),form=document.getElementById('registrationForm'),btn=document.getElementById('createAccountButton'),count=document.getElementById('photoCount'),hint=document.getElementById('photoHint'),picker=document.getElementById('galleryPicker');
   const photoCount=()=>slots.filter(i=>document.getElementById('data'+i).value).length;
-  function sync(){const n=photoCount();count.textContent=n+'/'+MAX;hint.textContent=n<MIN?'Add at least 2 clear photos to continue.':n+' photo'+(n===1?'':'s')+' ready.';btn.disabled=n<MIN;btn.style.opacity=n<MIN?.62:1}
+  function sync(){const n=photoCount();count.textContent=n+'/'+MAX;hint.textContent=n<MIN?'Add at least 2 clear photos to continue.':n+' photo'+(n===1?'':'s')+' ready.';btn.disabled=false;btn.style.opacity=1}
   async function compress(file){
     let bitmap=window.createImageBitmap?await createImageBitmap(file,{imageOrientation:'from-image'}).catch(()=>null):null,img=bitmap;
     if(!img) img=await new Promise((ok,no)=>{const r=new FileReader();r.onload=()=>{const i=new Image();i.onload=()=>ok(i);i.onerror=no;i.src=r.result};r.onerror=no;r.readAsDataURL(file)});
@@ -64,7 +64,7 @@
   picker.addEventListener('change',async e=>{for(const f of Array.from(e.target.files||[]).slice(0,MAX)){const s=firstEmpty();if(!s)break;await setPhoto(s,f)}picker.value=''});
   const min=document.getElementById('minAge'),max=document.getElementById('maxAge'),sum=document.getElementById('ageSummary');
   function age(){if(+min.value>+max.value)min.value=max.value;sum.textContent=min.value+'–'+max.value}min.oninput=age;max.oninput=age;
-  form.onsubmit=e=>{if(photoCount()<MIN){e.preventDefault();hint.textContent='Please add at least 2 photos before creating your account.'}};sync();age();
+  form.onsubmit=e=>{if(photoCount()<MIN){e.preventDefault();hint.textContent='Please add at least 2 photos before creating your account.';document.getElementById('photoGrid').scrollIntoView({behavior:'smooth',block:'center'});return;}btn.textContent='Creating your account…';btn.disabled=true;}sync();age();
 })();
 </script>
 {% endblock %}
