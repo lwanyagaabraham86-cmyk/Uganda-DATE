@@ -566,6 +566,10 @@ def register():
         if referrer and referrer.id == getattr(current_user(), 'id', None):
             referrer = None
 
+        new_referral_code = uuid.uuid4().hex[:10].upper()
+        while User.query.filter_by(referral_code=new_referral_code).first():
+            new_referral_code = uuid.uuid4().hex[:10].upper()
+
         data = {
             'name': name, 'email': email,
             'password_hash': generate_password_hash(password),
@@ -574,7 +578,7 @@ def register():
             'photo1_data': photos[0], 'photo2_data': photos[1],
             'bio': 'New on Uganda Dating. Looking forward to meeting someone genuine!',
             'referred_by_id': referrer.id if referrer else None,
-            'referral_code': uuid.uuid4().hex[:10].upper()
+            'referral_code': new_referral_code
         }
         for slot, photo in enumerate(photos[2:6], start=3):
             data[f'photo{slot}_data'] = photo
