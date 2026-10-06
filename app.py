@@ -383,6 +383,14 @@ def nearby_profiles(me, exclude_ids=None, limit=200):
     elif gender_filter in ('non-binary','nonbinary'):
         candidates = [u for u in candidates if u.gender == 'Non-binary']
 
+    location_filter = (request.args.get('location') or 'Any').strip().lower()
+    online_only = request.args.get('online') == '1'
+    verified_only = request.args.get('verified') == '1'
+    photos_only = request.args.get('photos') == '1'
+    new_only = request.args.get('new') == '1'
+    online_cutoff = datetime.utcnow() - timedelta(minutes=10)
+    recent_cutoff = datetime.utcnow() - timedelta(days=7)
+
     results = []
     has_my_gps = me.latitude is not None and me.longitude is not None
 
@@ -412,6 +420,16 @@ def nearby_profiles(me, exclude_ids=None, limit=200):
     my_area = area_group(me.city)
 
     for user in candidates:
+        if verified_only and not user.verified:
+            continue
+        if online_only and (not user.last_seen or user.last_seen < online_cutoff):
+            continue
+        if photos_only and len(profile_photos(user)) < 2:
+            continue
+        if new_only and (not user.created_at or user.created_at < recent_cutoff):
+            continue
+        if location_filter not in ('', 'any', 'all') and location_filter not in (user.city or '').lower():
+            continue
         if not preference_matches(me, user):
             continue
         if has_my_gps and user.latitude is not None and user.longitude is not None:
