@@ -45,10 +45,16 @@ class User(db.Model):
     latitude = db.Column(db.Float, nullable=True)
     longitude = db.Column(db.Float, nullable=True)
     search_radius_km = db.Column(db.Float, default=25.0, nullable=False)
+    min_age = db.Column(db.Integer, default=18, nullable=False)
+    max_age = db.Column(db.Integer, default=60, nullable=False)
     bio = db.Column(db.Text, default='')
     photo = db.Column(db.String(500), default='https://images.unsplash.com/photo-1531123897727-8f129e1688ce?w=700')
     photo1_data = db.Column(db.Text, nullable=True)
     photo2_data = db.Column(db.Text, nullable=True)
+    photo3_data = db.Column(db.Text, nullable=True)
+    photo4_data = db.Column(db.Text, nullable=True)
+    photo5_data = db.Column(db.Text, nullable=True)
+    photo6_data = db.Column(db.Text, nullable=True)
     verified = db.Column(db.Boolean, default=False)
     premium_until = db.Column(db.DateTime, nullable=True)
     created_at = db.Column(db.DateTime, default=datetime.utcnow)
@@ -245,7 +251,7 @@ def momo_payment_status(reference_id):
     response.raise_for_status()
     return response.json()
 
-MAX_PROFILE_IMAGE_BYTES = 350 * 1024
+MAX_PROFILE_IMAGE_BYTES = 180 * 1024
 ALLOWED_PROFILE_IMAGE_MIMES = {'image/jpeg', 'image/png', 'image/webp'}
 
 def clean_profile_photo(data_url):
@@ -268,19 +274,31 @@ def clean_profile_photo(data_url):
     return f'data:{mime};base64,{normalized}'
 
 def photo_url(user, slot=1):
-    data = user.photo1_data if slot == 1 else user.photo2_data
+    if slot < 1 or slot > 6:
+        return user.photo
+    data = getattr(user, f'photo{slot}_data', None)
     if data:
         return url_for('user_photo', user_id=user.id, slot=slot)
     return user.photo
 
+def profile_photos(user):
+    photos = []
+    for slot in range(1, 7):
+        data = getattr(user, f'photo{slot}_data', None)
+        if data:
+            photos.append(url_for('user_photo', user_id=user.id, slot=slot))
+    if not photos and user.photo:
+        photos.append(user.photo)
+    return photos
+
 @app.get('/user/<int:user_id>/photo/<int:slot>')
 def user_photo(user_id, slot):
-    if slot not in (1, 2):
+    if slot not in range(1, 7):
         return '', 404
     user = db.session.get(User, user_id)
     if not user:
         return '', 404
-    data = user.photo1_data if slot == 1 else user.photo2_data
+    data = getattr(user, f'photo{slot}_data', None)
     if not data or ',' not in data:
         return '', 404
     header, payload = data.split(',', 1)
@@ -340,7 +358,9 @@ def preference_matches(me, user):
             return gender in ('non-binary', 'nonbinary')
         return choice == gender
 
-    return accepts(my_choice, their_gender) and accepts(their_choice, my_gender)
+    age_ok_for_me = (me.min_age or 18) <= user.age <= (me.max_age or 60)
+    age_ok_for_them = (user.min_age or 18) <= me.age <= (user.max_age or 60)
+    return accepts(my_choice, their_gender) and accepts(their_choice, my_gender) and age_ok_for_me and age_ok_for_them
 
 
 def nearby_profiles(me, exclude_ids=None, limit=200):
@@ -405,6 +425,7 @@ def inject_globals():
         'credits_balance': user.credits if user else 0,
         'momo_auto_enabled': momo_configured(),
         'photo_url': photo_url,
+        'profile_photos': profile_photos,
     }
 
 @app.route('/')
