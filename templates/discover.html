@@ -3,7 +3,7 @@
 {% block content %}
 <main class="container">
   <div class="section-title">
-    <div><div class="eyebrow">Nearby connections</div><h1>Discover</h1><p class="muted">Only people who match your gender preference, their preference for you, and your distance range are shown. 💕</p></div>
+    <div><div class="eyebrow">Nearby connections</div><h1>Discover</h1><p class="muted">Everyone compatible within your selected range is shown below. 💕</p></div>
     <a class="btn secondary" href="{{ url_for('premium') }}">✨ Go Premium</a>
   </div>
 
@@ -35,10 +35,11 @@
   {% endif %}
 
   {% if nearby %}
-  <div class="cards">
+  <div class="discover-summary"><strong>{{ nearby_count }} compatible {{ "person" if nearby_count == 1 else "people" }}</strong><span>within {{ radius|round|int }} km</span></div>
+  <div class="cards discover-grid">
     {% for p, distance in nearby %}
     <article class="profile-card">
-      <img class="profile-img" src="{{ p.photo }}" alt="{{ p.name }}" loading="lazy">
+      <img class="profile-img" src="{{ p.photo }}" alt="{{ p.name }}" loading="{% if loop.index <= 6 %}eager{% else %}lazy{% endif %}">
       <div class="profile-body">
         <div class="name">{{ p.name }}, {{ p.age }} {% if p.verified %}<span class="verified">●</span>{% endif %}</div>
         <div class="distance-line">📍 {% if distance is not none %}{{ '%.1f'|format(distance) }} km away{% else %}{{ p.city }} · nearby{% endif %}</div>

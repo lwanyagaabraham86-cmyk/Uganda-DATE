@@ -201,8 +201,8 @@ def discover():
     # Discover shows compatible nearby people based on BOTH users' gender preferences.
     # We intentionally do not remove people you have already liked here, so the
     # discovery page can show the full compatible nearby pool.
-    nearby = nearby_profiles(me, limit=50)
-    return render_template('discover.html', nearby=nearby, radius=me.search_radius_km or 25, has_location=me.latitude is not None and me.longitude is not None)
+    nearby = nearby_profiles(me, limit=200)
+    return render_template('discover.html', nearby=nearby, nearby_count=len(nearby), radius=me.search_radius_km or 25, has_location=me.latitude is not None and me.longitude is not None)
 
 @app.post('/location')
 @login_required

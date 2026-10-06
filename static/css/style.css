@@ -85,3 +85,27 @@
  .pierced-heart{transform:scale(.85)}
  .swipe-choice-button strong{font-size:10px}
 }
+
+/* Discover: show the complete nearby pool as a responsive photo grid */
+.discover-summary{display:flex;align-items:center;justify-content:space-between;gap:12px;margin:8px 0 18px;padding:14px 18px;border:1px solid var(--line);border-radius:18px;background:rgba(255,255,255,.78);box-shadow:0 8px 24px rgba(74,24,48,.05)}
+.discover-summary strong{font-size:15px;color:var(--ink)}
+.discover-summary span{font-size:13px;color:var(--muted)}
+.cards.discover-grid{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:22px;align-items:start}
+.cards.discover-grid .profile-card{min-width:0}
+.cards.discover-grid .profile-img{width:100%;height:300px;object-fit:cover;display:block;background:#f3e6eb}
+.cards.discover-grid .profile-body{padding:16px}
+.cards.discover-grid .name{font-size:20px}
+.cards.discover-grid .actions{display:flex;gap:8px;margin-top:14px}
+.cards.discover-grid .action{flex:1}
+@media(max-width:1000px){
+  .cards.discover-grid{grid-template-columns:repeat(3,minmax(0,1fr))}
+}
+@media(max-width:700px){
+  .cards.discover-grid{grid-template-columns:repeat(2,minmax(0,1fr));gap:14px}
+  .cards.discover-grid .profile-img{height:250px}
+  .discover-summary{padding:12px 14px}
+}
+@media(max-width:480px){
+  .cards.discover-grid{grid-template-columns:1fr;gap:16px}
+  .cards.discover-grid .profile-img{height:360px}
+}
