@@ -557,3 +557,226 @@ main.container:before{
     border-radius:26px!important;
   }
 }
+
+
+/* UGANDA DATING — LOVELY ROMANCE COLOR PASS */
+:root{
+  --rose:#e85d8c;
+  --rose-deep:#c83f70;
+  --wine:#6b2748;
+  --mauve:#9a7187;
+  --lavender:#d9c7dc;
+  --blush:#fbe5ee;
+  --blush-2:#fff1f6;
+  --peach:#f7d8cf;
+  --champagne:#f4dfbf;
+  --cream:#fffaf8;
+  --ink:#321f2a;
+  --muted:#8b747f;
+  --line:#eedbe3;
+  --shadow-romantic:0 20px 60px rgba(173,82,119,.13);
+}
+
+body{
+  background:
+    radial-gradient(circle at 8% 10%,rgba(255,192,215,.34),transparent 22%),
+    radial-gradient(circle at 92% 12%,rgba(225,205,229,.28),transparent 24%),
+    radial-gradient(circle at 78% 78%,rgba(248,218,203,.30),transparent 22%),
+    linear-gradient(135deg,#fffdfd 0%,#fff7fa 42%,#fbf2f7 72%,#fff8f4 100%);
+}
+
+body:before{
+  content:"♡";
+  left:-18px;
+  bottom:90px;
+  font-size:180px;
+  color:rgba(232,93,140,.035);
+}
+body:after{
+  content:"♡";
+  right:-18px;
+  top:110px;
+  font-size:170px;
+  color:rgba(154,113,135,.035);
+}
+
+.ud-main-nav{
+  background:linear-gradient(180deg,rgba(255,252,252,.96),rgba(255,247,249,.92))!important;
+  border-bottom-color:#f0dfe6!important;
+  box-shadow:0 10px 30px rgba(126,69,93,.07)!important;
+}
+
+.ud-desktop-nav{
+  background:rgba(255,255,255,.91)!important;
+  border-color:#f0dfe6!important;
+}
+
+.ud-desktop-nav .nav-item.active,
+.ud-desktop-nav .nav-item:hover{
+  background:linear-gradient(135deg,#fff0f5,#f9e8f0)!important;
+  color:#c83f70!important;
+}
+
+.pill,.btn{
+  background:linear-gradient(135deg,#bf4777 0%,#e35f8d 54%,#ef769f 100%)!important;
+  box-shadow:0 12px 28px rgba(224,86,133,.20)!important;
+}
+
+.btn.secondary{
+  background:linear-gradient(135deg,#fff0f5,#f8edf4)!important;
+  color:#9b496a!important;
+  border:1px solid #efdce4!important;
+}
+
+.section-title h1,
+.encounters-header h1{
+  color:#71304f!important;
+}
+
+.section-title h1:after,
+.encounters-header h1:after{
+  background:linear-gradient(90deg,#e85d8c,#d6a7bf,#efc18f)!important;
+  height:4px;
+  box-shadow:0 3px 10px rgba(232,93,140,.16);
+}
+
+.nearby-controls,
+.location-note,
+.auth,
+.chat-preview,
+.price,
+.empty,
+.no-encounters,
+.match{
+  background:linear-gradient(145deg,rgba(255,255,255,.97),rgba(255,243,247,.91))!important;
+  border-color:#f0dce5!important;
+  box-shadow:var(--shadow-romantic)!important;
+}
+
+.profile-card{
+  background:linear-gradient(180deg,#fffefe 0%,#fff8fb 100%)!important;
+  border-color:#f0dce5!important;
+  box-shadow:0 16px 42px rgba(151,74,104,.10)!important;
+}
+
+.profile-card:hover{
+  box-shadow:0 24px 56px rgba(151,74,104,.15)!important;
+}
+
+.tag{
+  background:linear-gradient(135deg,#fff0f5,#f8edf5)!important;
+  color:#98566f!important;
+  border-color:#f0dbe4!important;
+}
+
+.action{
+  background:linear-gradient(135deg,#fffafb,#fff1f5)!important;
+  border-color:#eedce4!important;
+}
+
+.action.like{
+  background:linear-gradient(135deg,#ffdce8,#ffeaf1)!important;
+  color:#d34c79!important;
+}
+
+.action.super{
+  background:linear-gradient(135deg,#fff4df,#fff9ee)!important;
+  color:#b9893f!important;
+}
+
+.encounters-page{
+  background:
+    radial-gradient(circle at 50% 0%,rgba(255,192,214,.34),transparent 24%),
+    radial-gradient(circle at 8% 72%,rgba(240,214,232,.32),transparent 24%),
+    radial-gradient(circle at 92% 65%,rgba(249,219,202,.32),transparent 24%),
+    linear-gradient(135deg,#fffdfd,#fff3f7 52%,#fbf3f7)!important;
+}
+
+.encounter-card{
+  background:linear-gradient(180deg,#fff,#fff8fb)!important;
+  border-color:#f0d9e3!important;
+  box-shadow:0 28px 70px rgba(148,72,104,.18)!important;
+}
+
+.encounter-info{
+  background:linear-gradient(180deg,#fffdfd,#fff2f6)!important;
+}
+
+.encounter-action{
+  border-color:#eedbe4!important;
+  box-shadow:0 10px 26px rgba(155,76,108,.10)!important;
+}
+
+.encounter-pass{
+  color:#bd6684!important;
+  background:#fff!important;
+}
+
+.encounter-super{
+  color:#c23f70!important;
+  border-color:#d95d86!important;
+  background:linear-gradient(135deg,#fff2f7,#ffe7ef)!important;
+}
+
+.encounter-like{
+  background:linear-gradient(135deg,#c64072,#ea6b98)!important;
+  border-color:#d75883!important;
+}
+
+.encounter-badge{
+  background:rgba(101,43,69,.56)!important;
+}
+.verified-badge{
+  background:rgba(102,166,203,.88)!important;
+}
+
+.chat .messages{
+  background:
+    radial-gradient(circle at 15% 12%,rgba(255,196,217,.26),transparent 25%),
+    radial-gradient(circle at 85% 78%,rgba(225,205,230,.20),transparent 24%),
+    linear-gradient(180deg,#fffafb,#fff5f8)!important;
+}
+
+.mine{
+  background:linear-gradient(135deg,#b94273,#e46795)!important;
+}
+
+.theirs{
+  background:#fff!important;
+  border-color:#efdee5!important;
+}
+
+.price.featured{
+  border-color:#e36a95!important;
+  background:linear-gradient(145deg,#fff,#fff0f5)!important;
+  box-shadow:0 24px 58px rgba(224,92,140,.17)!important;
+}
+
+.momo-box{
+  background:linear-gradient(135deg,#fff1f5,#fff8ee)!important;
+  border-color:#f0dfe4!important;
+}
+
+.install-app-banner{
+  background:linear-gradient(135deg,#fffafd,#fff0f5)!important;
+  border-color:#efd9e3!important;
+}
+
+.install-app-banner button{
+  background:linear-gradient(135deg,#c64072,#e96a98)!important;
+}
+
+.ud-mobile-nav{
+  background:rgba(255,249,251,.97)!important;
+  border-color:#efdde5!important;
+  box-shadow:0 18px 50px rgba(125,62,91,.16)!important;
+}
+
+.ud-mobile-nav .bottom-item.active{
+  background:linear-gradient(135deg,#ffebf2,#f8edf6)!important;
+  color:#c33f70!important;
+}
+
+.footer{
+  color:#9a7f8d!important;
+}
