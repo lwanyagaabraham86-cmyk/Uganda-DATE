@@ -53,7 +53,7 @@
     <a class="nav-item {% if request.endpoint in ['chats','messages'] %}active{% endif %}" href="{{ url_for('chats') }}"><span>♡</span><b>Chats</b></a>
     <a class="nav-item {% if request.endpoint=='profile' %}active{% endif %}" href="{{ url_for('profile') }}"><span>◉</span><b>Profile</b></a>
   </div>
-  <div class="nav-actions"><span class="nav-credit-status" title="Your account plan and credits">{{ active_plan|title }} · 💎 {{ credits_balance }}</span><a class="premium-link" href="{{ url_for('premium') }}">✨ Premium</a><a class="pill" href="{{ url_for('logout') }}">Log out</a></div>
+  <div class="nav-actions"><span class="nav-credit-status" title="Your account plan and credits">{{ active_plan|title }} · 💎 {{ credits_balance }}</span><a class="premium-link" href="{{ url_for('invite_friends') }}">💌 Invite friends</a><a class="premium-link" href="{{ url_for('premium') }}">✨ Premium</a><a class="pill" href="{{ url_for('logout') }}">Log out</a></div>
   {% else %}
   <div class="navlinks"><a href="{{ url_for('login') }}">Log in</a><a class="pill" href="{{ url_for('register') }}">Join free</a></div>
   {% endif %}
