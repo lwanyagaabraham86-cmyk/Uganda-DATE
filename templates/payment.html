@@ -9,7 +9,7 @@
     <div class="checkout-amount">UGX {{ '{:,}'.format(product.price) }}</div>
     <p class="muted">{{ product.period }}</p>
 
-    {% if auto_payment %}
+    {% if momo_reference %}
       <div class="momo-box">
         <strong>Approve the MTN Mobile Money request</strong>
         <p class="small muted">Enter your MTN number below. Uganda Dating will send a secure payment prompt to your phone.</p>
@@ -18,7 +18,7 @@
         <div class="field"><label>MTN number</label><input name="payer_phone" inputmode="tel" placeholder="0772 123456" required></div>
         <button class="btn full">Send payment request to my phone</button>
       </form>
-    {% elif momo_reference %}
+    {% elif auto_payment %}
       <div class="momo-box">
         <strong>Payment request sent ❤️</strong>
         <p class="small muted">Approve the MTN prompt on your phone. We will check the payment automatically.</p>
