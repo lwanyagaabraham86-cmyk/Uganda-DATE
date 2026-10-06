@@ -1,4 +1,27 @@
-<!doctype html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><meta name="theme-color" content="#8f214f"><link rel="icon" href="{{ url_for('static', filename='img/icon.svg') }}"><title>{% block title %}Uganda Dating{% endblock %}</title><link rel="stylesheet" href="{{ url_for('static', filename='css/style.css') }}"></head><body>
+<!doctype html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><meta name="theme-color" content="#8f214f"><link rel="icon" href="{{ url_for('static', filename='img/icon.svg') }}"><title>{% block title %}Uganda Dating{% endblock %}</title><link rel="stylesheet" href="{{ url_for('static', filename='css/style.css') }}?v=20261006-navfix2">
+<style id="bulletproof-navigation">
+/* BULLETPROOF NAVIGATION: kept in the template so it cannot be lost to stale/overridden CSS. */
+.nav{display:flex!important;align-items:center!important;justify-content:space-between!important;position:sticky!important;top:0!important;z-index:10000!important;min-height:76px!important;padding:10px 24px!important;background:rgba(255,250,248,.97)!important;border-bottom:1px solid #ead8df!important;box-sizing:border-box!important}
+.desktop-nav{display:flex!important;align-items:center!important;gap:4px!important;padding:6px!important;background:#fff!important;border:1px solid #ead8df!important;border-radius:18px!important;box-shadow:0 8px 24px rgba(74,24,48,.10)!important}
+.desktop-nav .nav-item{display:flex!important;align-items:center!important;gap:6px!important;padding:11px 13px!important;border-radius:13px!important;color:#6e5c65!important;font-size:13px!important;font-weight:800!important;white-space:nowrap!important;visibility:visible!important;opacity:1!important}
+.desktop-nav .nav-item span{display:inline-block!important;visibility:visible!important;font-size:17px!important}
+.desktop-nav .nav-item.active,.desktop-nav .nav-item:hover{background:#f8e8ed!important;color:#8f214f!important}
+.nav-actions{display:flex!important;align-items:center!important;gap:10px!important}
+.mobile-bottom-nav{display:none!important}
+@media(max-width:800px){
+ .nav{min-height:66px!important;height:66px!important;padding:8px 12px!important}
+ .desktop-nav{display:none!important}
+ .nav-actions .premium-link{display:none!important}
+ .mobile-bottom-nav{display:grid!important;grid-template-columns:repeat(5,1fr)!important;position:fixed!important;left:50%!important;transform:translateX(-50%)!important;bottom:8px!important;width:calc(100% - 12px)!important;z-index:99999!important;padding:6px!important;background:rgba(255,250,248,.99)!important;border:1px solid #ead8df!important;border-radius:19px!important;box-shadow:0 10px 30px rgba(74,24,48,.18)!important}
+ .mobile-bottom-nav .bottom-item{display:flex!important;min-width:0!important;flex-direction:column!important;align-items:center!important;justify-content:center!important;gap:3px!important;padding:8px 2px!important;border-radius:14px!important;color:#7a6871!important;font-weight:800!important;visibility:visible!important;opacity:1!important}
+ .mobile-bottom-nav .bottom-item span{display:block!important;font-size:19px!important;line-height:1!important;color:#9a536e!important}
+ .mobile-bottom-nav .bottom-item small{display:block!important;font-size:9px!important;line-height:1.1!important;white-space:nowrap!important}
+ .mobile-bottom-nav .bottom-item.active{background:#f8e8ed!important;color:#8f214f!important}
+ body{padding-bottom:88px!important}
+}
+@media(min-width:801px){.mobile-bottom-nav{display:none!important}}
+</style>
+</head><body>
 <nav class="nav"><a class="brand-wrap" href="{{ url_for('home') }}"><span class="logo-icon">♥</span><span class="brand">Uganda <span>Dating</span>♥</span></a>{% if current_user %}<div class="desktop-nav"><a class="nav-item {% if request.endpoint=='discover' %}active{% endif %}" href="{{ url_for('discover') }}"><span>⌂</span>Discover</a><a class="nav-item {% if request.endpoint=='likes' %}active{% endif %}" href="{{ url_for('likes') }}"><span>♥</span>Likes</a><a class="nav-item {% if request.endpoint=='encounters' %}active{% endif %}" href="{{ url_for('encounters') }}"><span>✦</span>Encounters</a><a class="nav-item {% if request.endpoint in ['chats','messages'] %}active{% endif %}" href="{{ url_for('chats') }}"><span>♡</span>Chats</a><a class="nav-item {% if request.endpoint=='profile' %}active{% endif %}" href="{{ url_for('profile') }}"><span>◉</span>Profile</a></div><div class="nav-actions"><a class="premium-link" href="{{ url_for('premium') }}">✨ Premium</a><a class="pill" href="{{ url_for('logout') }}">Log out</a></div>{% else %}<div class="navlinks"><a href="{{ url_for('login') }}">Log in</a><a class="pill" href="{{ url_for('register') }}">Join free</a></div>{% endif %}</nav>
 {% with messages=get_flashed_messages(with_categories=true) %}{% if messages %}<div class="container" style="padding-bottom:0">{% for category,message in messages %}<div class="alert {{ 'success' if category=='success' else '' }}">{{ message }}</div>{% endfor %}</div>{% endif %}{% endwith %}
 {% block content %}{% endblock %}
