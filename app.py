@@ -375,6 +375,13 @@ def nearby_profiles(me, exclude_ids=None, limit=200):
     query = User.query.filter(~User.id.in_(exclude_ids))
     query = query.filter(User.age >= min_age, User.age <= max_age)
     candidates = query.all()
+    gender_filter = (request.args.get('gender') or 'Everyone').lower()
+    if gender_filter in ('women','woman'):
+        candidates = [u for u in candidates if u.gender == 'Woman']
+    elif gender_filter in ('men','man'):
+        candidates = [u for u in candidates if u.gender == 'Man']
+    elif gender_filter in ('non-binary','nonbinary'):
+        candidates = [u for u in candidates if u.gender == 'Non-binary']
 
     results = []
     has_my_gps = me.latitude is not None and me.longitude is not None
