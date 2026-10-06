@@ -125,41 +125,28 @@ def preference_matches(me, user):
 
 
 def nearby_profiles(me, limit=200):
-    """Return compatible nearby profiles. Uses stored coordinates when available;
-    for Uganda profiles without coordinates, falls back to city/area compatibility
-    so Discover is not empty simply because GPS coordinates were never captured.
-    """
-    prefs = getattr(me, "interested_in", None) or getattr(me, "looking_for", None)
-    query = User.query.filter(User.id != me.id)
-
-    # Mutual preference filtering when those fields exist.
-    if prefs:
-        query = query.filter(User.gender.in_([x.strip() for x in str(prefs).split(",") if x.strip()]))
-    candidates = query.all()
-
+    """Return compatible nearby people using GPS when available and city as fallback."""
+    radius = float(getattr(me, "search_radius_km", None) or 25)
+    candidates = User.query.filter(User.id != me.id).all()
     out = []
+
     for p in candidates:
-        p_pref = getattr(p, "interested_in", None) or getattr(p, "looking_for", None)
-        if p_pref and getattr(me, "gender", None):
-            allowed = [x.strip() for x in str(p_pref).split(",") if x.strip()]
-            if allowed and me.gender not in allowed:
-                continue
-
-        distance = None
-        if getattr(me, "latitude", None) is not None and getattr(me, "longitude", None) is not None and getattr(p, "latitude", None) is not None and getattr(p, "longitude", None) is not None:
-            from math import radians, sin, cos, sqrt, atan2
-            lat1, lon1, lat2, lon2 = map(radians, [me.latitude, me.longitude, p.latitude, p.longitude])
-            dlat, dlon = lat2-lat1, lon2-lon1
-            aa = sin(dlat/2)**2 + cos(lat1)*cos(lat2)*sin(dlon/2)**2
-            distance = 6371 * 2 * atan2(sqrt(aa), sqrt(1-aa))
-
-        # If both users have a location and distance exceeds the range, exclude.
-        radius = float(getattr(me, "search_radius_km", None) or 25)
-        if distance is not None and distance > radius:
+        if not preference_matches(me, p):
             continue
 
-        # If coordinates are missing, retain the profile. This allows Kampala/Makindye
-        # users to discover profiles whose location was entered as an area/city only.
+        distance = None
+        if (me.latitude is not None and me.longitude is not None and
+                p.latitude is not None and p.longitude is not None):
+            distance = distance_km(me.latitude, me.longitude, p.latitude, p.longitude)
+            if distance > radius:
+                continue
+        elif me.city and p.city and me.city.strip().lower() == p.city.strip().lower():
+            # Same-city fallback lets Kampala/Makindye users discover profiles
+            # even when those profiles have not saved GPS coordinates.
+            distance = None
+        else:
+            continue
+
         out.append((p, distance))
 
     out.sort(key=lambda x: (x[1] is None, x[1] if x[1] is not None else 999999))
