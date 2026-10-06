@@ -49,6 +49,15 @@ class User(db.Model):
     min_age = db.Column(db.Integer, default=18, nullable=False)
     max_age = db.Column(db.Integer, default=60, nullable=False)
     bio = db.Column(db.Text, default='')
+    mood = db.Column(db.String(120), default='')
+    relationship_status = db.Column(db.String(60), default='')
+    relationship_goal = db.Column(db.String(80), default='')
+    smoking = db.Column(db.String(40), default='')
+    religion = db.Column(db.String(80), default='')
+    languages = db.Column(db.String(200), default='')
+    work = db.Column(db.String(160), default='')
+    education = db.Column(db.String(160), default='')
+    interests = db.Column(db.String(500), default='')
     photo = db.Column(db.String(500), default='https://images.unsplash.com/photo-1531123897727-8f129e1688ce?w=700')
     photo1_data = db.Column(db.Text, nullable=True)
     photo2_data = db.Column(db.Text, nullable=True)
@@ -780,6 +789,15 @@ def profile():
         me.gender = request.form.get('gender', me.gender)
         me.interested_in = request.form.get('interested_in', me.interested_in)
         me.bio = request.form.get('bio', '').strip()
+        me.mood = request.form.get('mood', '').strip()[:120]
+        me.relationship_status = request.form.get('relationship_status', '').strip()[:60]
+        me.relationship_goal = request.form.get('relationship_goal', '').strip()[:80]
+        me.smoking = request.form.get('smoking', '').strip()[:40]
+        me.religion = request.form.get('religion', '').strip()[:80]
+        me.languages = request.form.get('languages', '').strip()[:200]
+        me.work = request.form.get('work', '').strip()[:160]
+        me.education = request.form.get('education', '').strip()[:160]
+        me.interests = request.form.get('interests', '').strip()[:500]
         try:
             me.search_radius_km = max(1, min(float(request.form.get('search_radius_km', me.search_radius_km or 25)), 500))
         except ValueError:
@@ -1075,6 +1093,15 @@ with app.app_context():
             'last_seen': 'TIMESTAMP',
             'min_age': 'INTEGER DEFAULT 18',
             'max_age': 'INTEGER DEFAULT 60',
+            'mood': 'VARCHAR(120)',
+            'relationship_status': 'VARCHAR(60)',
+            'relationship_goal': 'VARCHAR(80)',
+            'smoking': 'VARCHAR(40)',
+            'religion': 'VARCHAR(80)',
+            'languages': 'VARCHAR(200)',
+            'work': 'VARCHAR(160)',
+            'education': 'VARCHAR(160)',
+            'interests': 'VARCHAR(500)',
             'subscription_plan': "VARCHAR(20) DEFAULT 'free'",
             'credits': 'INTEGER DEFAULT 0',
             'photo1_data': 'TEXT',
@@ -1101,6 +1128,15 @@ with app.app_context():
             'last_seen': 'DATETIME',
             'min_age': 'INTEGER DEFAULT 18',
             'max_age': 'INTEGER DEFAULT 60',
+            'mood': 'VARCHAR(120)',
+            'relationship_status': 'VARCHAR(60)',
+            'relationship_goal': 'VARCHAR(80)',
+            'smoking': 'VARCHAR(40)',
+            'religion': 'VARCHAR(80)',
+            'languages': 'VARCHAR(200)',
+            'work': 'VARCHAR(160)',
+            'education': 'VARCHAR(160)',
+            'interests': 'VARCHAR(500)',
             'subscription_plan': "VARCHAR(20) DEFAULT 'free'",
             'credits': 'INTEGER DEFAULT 0',
             'photo1_data': 'TEXT',
