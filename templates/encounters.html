@@ -28,9 +28,9 @@
 
     <div class="encounter-deck" id="encounterDeck">
       {% for p,distance in nearby %}
-      <article class="encounter-card" data-id="{{ p.id }}" data-name="{{ p.name }}" data-photo="{{ p.photo }}">
+      <article class="encounter-card" data-id="{{ p.id }}" data-name="{{ p.name }}" data-photo="{{ photo_url(p,1) }}">
         <div class="encounter-photo-wrap">
-          <img class="encounter-photo" src="{{ p.photo }}" alt="{{ p.name }}, {{ p.age }}" draggable="false">
+          <img class="encounter-photo" src="{{ photo_url(p,1) }}" alt="{{ p.name }}, {{ p.age }}" draggable="false" loading="eager" decoding="async">
           <div class="encounter-photo-shade"></div>
           <div class="encounter-photo-badges">
             {% if p.verified %}<span class="encounter-badge verified-badge">✓ Verified</span>{% endif %}
@@ -63,6 +63,7 @@
     </div>
 
     <p class="swipe-hint">← Swipe left to pass &nbsp; • &nbsp; Swipe right to like →</p>
+<div class="muted small nearby-accuracy-note">Distance uses GPS coordinates when both profiles have them. Your exact location is never displayed.</div>
   </section>
 
   <div id="matchOverlay" class="match-overlay" hidden>
