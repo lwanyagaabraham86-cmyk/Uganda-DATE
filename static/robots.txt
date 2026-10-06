@@ -1,0 +1,3 @@
+User-agent: *
+Allow: /
+Sitemap: https://uganda-date.onrender.com/sitemap.xml
