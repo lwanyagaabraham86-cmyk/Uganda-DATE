@@ -972,3 +972,35 @@ body{
 .footer{
   color:#a28291!important;
 }
+
+/* Premium store and checkout */
+.premium-page{padding-bottom:130px}
+.premium-hero{text-align:center;max-width:780px;margin:10px auto 38px;padding:38px 20px 30px;background:radial-gradient(circle at 50% 0%,rgba(255,183,211,.30),transparent 38%),linear-gradient(145deg,rgba(255,255,255,.80),rgba(255,240,247,.74));border:1px solid #f0dce5;border-radius:34px;box-shadow:0 18px 55px rgba(147,67,102,.08)}
+.premium-heart{width:74px;height:74px;margin:0 auto 14px;border-radius:50%;display:flex;align-items:center;justify-content:center;background:linear-gradient(135deg,#ffe2ec,#f6e8f6);color:#e35e8d;font-size:34px;box-shadow:0 12px 30px rgba(227,94,141,.16)}
+.premium-hero h1{font-family:'Playfair Display',serif;color:#71304f;font-size:44px;line-height:1.05;margin:6px 0 12px}
+.current-plan{display:inline-block;margin-top:12px;padding:9px 13px;border-radius:99px;background:#fff0f5;color:#98506f;font-size:12px;font-weight:800;border:1px solid #f0d7e1}
+.plan-section{margin:34px 0}
+.premium-section-head{display:flex;align-items:end;justify-content:space-between;gap:15px;margin-bottom:16px}
+.premium-section-head h2{font-family:'Playfair Display',serif;color:#71304f;margin:0;font-size:29px}
+.credit-pill{padding:9px 13px;border-radius:999px;background:linear-gradient(135deg,#fff2d7,#fff9ef);border:1px solid #f0dfc2;color:#9a7336;font-size:12px;font-weight:900}
+.premium-plan-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:18px}
+.premium-plan{position:relative;background:linear-gradient(145deg,#fff,#fff4f8);border:1px solid #efd9e3;border-radius:28px;padding:25px;box-shadow:0 18px 44px rgba(144,68,103,.09)}
+.premium-plan.popular{border:2px solid #e46b98;box-shadow:0 24px 56px rgba(222,91,140,.16);transform:translateY(-5px)}
+.plan-ribbon{position:absolute;right:16px;top:16px;font-size:9px;font-weight:900;letter-spacing:1px;padding:6px 9px;border-radius:99px;background:#fde0ea;color:#c23f72}
+.plan-icon{font-size:31px;color:#dc5b8a}
+.plan-badge{margin-top:8px;font-size:10px;text-transform:uppercase;letter-spacing:1.2px;font-weight:900;color:#c6547d}
+.premium-plan h3,.premium-addon h3{font-family:'Playfair Display',serif;color:#74334f;font-size:25px;margin:8px 0}
+.plan-price{font-size:28px;font-weight:900;color:#5d2743}.plan-price small{font-size:11px;color:#947b86;font-weight:700}
+.premium-plan ul{padding-left:0;list-style:none;line-height:2;color:#745e69;font-size:13px;min-height:120px}
+.premium-addon-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:15px}
+.premium-addon{display:grid;grid-template-columns:auto 1fr auto;gap:12px;align-items:center;background:linear-gradient(145deg,#fff,#fff6f9);border:1px solid #efdce4;border-radius:22px;padding:18px;box-shadow:0 12px 30px rgba(144,68,103,.07)}
+.addon-icon{width:44px;height:44px;border-radius:14px;display:flex;align-items:center;justify-content:center;background:linear-gradient(135deg,#ffe5ee,#f5eafb);font-size:21px;color:#d05280}
+.premium-addon .btn{grid-column:1/-1}
+.premium-addon strong{font-size:14px;color:#6b2b4a;white-space:nowrap}
+.credits-grid .premium-addon{grid-template-columns:auto 1fr auto}
+.payment-note{text-align:center;color:#9a7987;font-size:12px;margin-top:28px}
+.checkout-amount{font-size:38px;font-weight:900;color:#6d2a4a;margin-top:7px}
+.payment-brand{display:inline-block;margin-bottom:10px}
+.payment-status{margin-top:18px;padding:15px;border-radius:16px;background:linear-gradient(135deg,#fff1f6,#f8eff8);border:1px solid #efdbe5;color:#8f4567;font-weight:800;text-align:center}
+.nav-credit-status{font-size:11px;font-weight:800;color:#9b496a;padding:8px 5px;white-space:nowrap}
+@media(max-width:800px){.premium-plan-grid{grid-template-columns:1fr}.premium-plan.popular{transform:none}.premium-addon-grid{grid-template-columns:1fr}.premium-hero h1{font-size:36px}.nav-credit-status{display:none}.premium-section-head{align-items:flex-start;flex-direction:column}}
