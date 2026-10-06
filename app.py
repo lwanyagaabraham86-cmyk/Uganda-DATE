@@ -369,8 +369,11 @@ def nearby_profiles(me, exclude_ids=None, limit=200):
     exclude_ids = set(exclude_ids or ()) | {me.id}
     radius = max(1.0, min(float(request.args.get('distance_km') or me.search_radius_km or 25), 500.0))
 
+    min_age = max(18, min(100, int(request.args.get('min_age') or me.min_age or 18)))
+    max_age = max(18, min(100, int(request.args.get('max_age') or me.max_age or 60)))
+    if min_age > max_age: min_age, max_age = max_age, min_age
     query = User.query.filter(~User.id.in_(exclude_ids))
-    query = query.filter(User.age >= (me.min_age or 18), User.age <= (me.max_age or 60))
+    query = query.filter(User.age >= min_age, User.age <= max_age)
     candidates = query.all()
 
     results = []
