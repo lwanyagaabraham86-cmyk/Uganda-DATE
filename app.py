@@ -45,6 +45,7 @@ class User(db.Model):
     longitude = db.Column(db.Float, nullable=True)
     search_radius_km = db.Column(db.Float, default=25.0, nullable=False)
     location_accuracy_m = db.Column(db.Float, nullable=True)
+    last_seen = db.Column(db.DateTime, nullable=True)
     min_age = db.Column(db.Integer, default=18, nullable=False)
     max_age = db.Column(db.Integer, default=60, nullable=False)
     bio = db.Column(db.Text, default='')
@@ -360,9 +361,7 @@ def preference_matches(me, user):
 
     age_ok_for_me = (me.min_age or 18) <= user.age <= (me.max_age or 60)
     age_ok_for_them = (user.min_age or 18) <= me.age <= (user.max_age or 60)
-    age_ok_for_me = (me.min_age or 18) <= user.age <= (me.max_age or 60)
-    age_ok_for_them = (user.min_age or 18) <= me.age <= (user.max_age or 60)
-    return accepts(my_choice, their_gender) and accepts(their_choice, my_gender) and age_ok_for_me and age_ok_for_them and age_ok_for_me and age_ok_for_them
+    return accepts(my_choice, their_gender) and accepts(their_choice, my_gender) and age_ok_for_me and age_ok_for_them
 
 
 def nearby_profiles(me, exclude_ids=None, limit=200):
