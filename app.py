@@ -367,7 +367,7 @@ def preference_matches(me, user):
 def nearby_profiles(me, exclude_ids=None, limit=200):
     """Return mutually compatible profiles sorted by real GPS distance when coordinates exist."""
     exclude_ids = set(exclude_ids or ()) | {me.id}
-    radius = max(1.0, min(float(me.search_radius_km or 25), 500.0))
+    radius = max(1.0, min(float(request.args.get('distance_km') or me.search_radius_km or 25), 500.0))
 
     query = User.query.filter(~User.id.in_(exclude_ids))
     query = query.filter(User.age >= (me.min_age or 18), User.age <= (me.max_age or 60))
