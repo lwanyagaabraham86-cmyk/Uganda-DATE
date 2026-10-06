@@ -1,6 +1,33 @@
-<!doctype html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover"><meta name="theme-color" content="#d84f7f"><link rel="preconnect" href="https://fonts.googleapis.com"><link rel="preconnect" href="https://fonts.gstatic.com" crossorigin><meta name="mobile-web-app-capable" content="yes"><meta name="apple-mobile-web-app-capable" content="yes"><meta name="apple-mobile-web-app-status-bar-style" content="default"><link rel="manifest" href="{{ url_for('manifest_webmanifest') }}"><link rel="icon" href="{{ url_for('static', filename='img/icon.svg') }}"><title>{% block title %}Uganda Dating{% endblock %}</title><link rel="stylesheet" href="{{ url_for('static', filename='css/style.css', v='20261006-photos-age-gps') }}">
+<!doctype html><html lang="en-UG"><head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+<meta name="theme-color" content="#d84f7f">
+<meta name="description" content="Uganda Dating is a modern dating app for meeting genuine singles in Uganda, with nearby discovery, smart preferences, private location and real conversations.">
+<meta name="robots" content="{% if request.endpoint == 'home' %}index,follow,max-image-preview:large{% else %}noindex,follow{% endif %}">
+<meta name="googlebot" content="{% if request.endpoint == 'home' %}index,follow,max-image-preview:large{% else %}noindex,follow{% endif %}">
+<link rel="canonical" href="https://ugandadating.co.ug{{ request.path }}">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<meta name="mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="default">
+<link rel="manifest" href="{{ url_for('manifest_webmanifest') }}">
+<link rel="icon" href="{{ url_for('static', filename='img/icon.svg') }}">
+<link rel="apple-touch-icon" href="{{ url_for('static', filename='img/icon.svg') }}">
+<meta property="og:type" content="website">
+<meta property="og:site_name" content="Uganda Dating">
+<meta property="og:title" content="{% block og_title %}Uganda Dating — Meet Singles in Uganda{% endblock %}">
+<meta property="og:description" content="{% block og_description %}Meet real people in Uganda, discover compatible singles nearby and start meaningful conversations.{% endblock %}">
+<meta property="og:url" content="https://ugandadating.co.ug{{ request.path }}">
+<meta property="og:image" content="https://ugandadating.co.ug/static/images/uganda-dating-hero.jpg?v=20261006-hero">
+<meta property="og:image:alt" content="Uganda Dating — Just a Swipe">
+<meta name="twitter:card" content="summary_large_image">
+<meta name="twitter:title" content="Uganda Dating — Meet Singles in Uganda">
+<meta name="twitter:description" content="A modern Uganda dating app for nearby discovery, genuine connections and real conversations.">
+<meta name="twitter:image" content="https://ugandadating.co.ug/static/images/uganda-dating-hero.jpg?v=20261006-hero">
+<title>{% block title %}Uganda Dating — Meet Singles in Uganda{% endblock %}</title>
+<link rel="stylesheet" href="{{ url_for('static', filename='css/style.css', v='20261006-photos-age-gps') }}">
 <style id="uganda-dating-navigation-v3">
-/* Uganda Dating navigation: authoritative rules. */
 .ud-main-nav{position:sticky!important;top:0!important;z-index:10000!important;display:flex!important;align-items:center!important;justify-content:space-between!important;gap:16px!important;width:100%!important;box-sizing:border-box!important;padding:10px 22px!important;background:rgba(255,250,248,.97)!important;border-bottom:1px solid #ead8df!important;backdrop-filter:blur(18px)!important}
 .ud-desktop-nav{display:flex!important;visibility:visible!important;opacity:1!important;align-items:center!important;gap:3px!important;padding:5px!important;background:#fff!important;border:1px solid #ead8df!important;border-radius:18px!important;box-shadow:0 8px 24px rgba(74,24,48,.09)!important}
 .ud-desktop-nav .nav-item{display:flex!important;visibility:visible!important;opacity:1!important;align-items:center!important;justify-content:center!important;gap:7px!important;padding:10px 13px!important;border-radius:13px!important;color:#6e5c65!important;text-decoration:none!important;font-size:13px!important;font-weight:800!important;white-space:nowrap!important}
@@ -9,24 +36,15 @@
 .ud-main-nav .nav-actions{display:flex!important;align-items:center!important;gap:9px!important}
 .ud-mobile-nav{display:none!important}
 @media(max-width:800px){
-  .ud-main-nav{height:64px!important;padding:8px 12px!important}
-  .ud-desktop-nav{display:none!important}
-  .ud-main-nav .nav-actions .premium-link{display:none!important}
-  .ud-mobile-nav{display:grid!important;grid-template-columns:repeat(5,1fr)!important;position:fixed!important;left:50%!important;transform:translateX(-50%)!important;bottom:8px!important;width:calc(100% - 12px)!important;z-index:99999!important;padding:6px!important;box-sizing:border-box!important;background:rgba(255,250,248,.98)!important;backdrop-filter:blur(18px)!important;border:1px solid #ead8df!important;border-radius:19px!important;box-shadow:0 10px 30px rgba(74,24,48,.18)!important}
-  .ud-mobile-nav .bottom-item{display:flex!important;visibility:visible!important;opacity:1!important;min-width:0!important;flex-direction:column!important;align-items:center!important;justify-content:center!important;gap:3px!important;padding:7px 2px!important;border-radius:14px!important;color:#7a6871!important;text-decoration:none!important;font-weight:800!important}
-  .ud-mobile-nav .bottom-item span{display:block!important;font-size:19px!important;line-height:1!important;color:#9a536e!important}
-  .ud-mobile-nav .bottom-item small{display:block!important;font-size:9px!important;line-height:1.1!important;white-space:nowrap!important}
-  .ud-mobile-nav .bottom-item.active{background:#f8e8ed!important;color:#8f214f!important}
-  body{padding-bottom:84px!important}
-}
+.ud-main-nav{height:64px!important;padding:8px 12px!important}.ud-desktop-nav{display:none!important}.ud-main-nav .nav-actions .premium-link{display:none!important}
+.ud-mobile-nav{display:grid!important;grid-template-columns:repeat(5,1fr)!important;position:fixed!important;left:50%!important;transform:translateX(-50%)!important;bottom:8px!important;width:calc(100% - 12px)!important;z-index:99999!important;padding:6px!important;box-sizing:border-box!important;background:rgba(255,250,248,.98)!important;backdrop-filter:blur(18px)!important;border:1px solid #ead8df!important;border-radius:19px!important;box-shadow:0 10px 30px rgba(74,24,48,.18)!important}
+.ud-mobile-nav .bottom-item{display:flex!important;visibility:visible!important;opacity:1!important;min-width:0!important;flex-direction:column!important;align-items:center!important;justify-content:center!important;gap:3px!important;padding:7px 2px!important;border-radius:14px!important;color:#7a6871!important;text-decoration:none!important;font-weight:800!important}
+.ud-mobile-nav .bottom-item span{display:block!important;font-size:19px!important;line-height:1!important;color:#9a536e!important}.ud-mobile-nav .bottom-item small{display:block!important;font-size:9px!important;line-height:1.1!important;white-space:nowrap!important}.ud-mobile-nav .bottom-item.active{background:#f8e8ed!important;color:#8f214f!important}body{padding-bottom:84px!important}}
 @media(min-width:801px){.ud-mobile-nav{display:none!important}}
 </style>
 </head><body>
 <nav class="nav ud-main-nav">
-  <a class="brand-wrap" href="{{ url_for('home') }}">
-    <span class="logo-icon">♥</span>
-    <span class="brand">Uganda <span>Dating</span>♥</span>
-  </a>
+  <a class="brand-wrap" href="{{ url_for('home') }}"><span class="logo-icon">♥</span><span class="brand">Uganda <span>Dating</span>♥</span></a>
   {% if current_user %}
   <div class="desktop-nav ud-desktop-nav" aria-label="Main navigation">
     <a class="nav-item {% if request.endpoint=='discover' %}active{% endif %}" href="{{ url_for('discover') }}"><span>⌂</span><b>Discover</b></a>
@@ -35,10 +53,7 @@
     <a class="nav-item {% if request.endpoint in ['chats','messages'] %}active{% endif %}" href="{{ url_for('chats') }}"><span>♡</span><b>Chats</b></a>
     <a class="nav-item {% if request.endpoint=='profile' %}active{% endif %}" href="{{ url_for('profile') }}"><span>◉</span><b>Profile</b></a>
   </div>
-  <div class="nav-actions"><span class="nav-credit-status" title="Your account plan and credits">{{ active_plan|title }} · 💎 {{ credits_balance }}</span>
-    <a class="premium-link" href="{{ url_for('premium') }}">✨ Premium</a>
-    <a class="pill" href="{{ url_for('logout') }}">Log out</a>
-  </div>
+  <div class="nav-actions"><span class="nav-credit-status" title="Your account plan and credits">{{ active_plan|title }} · 💎 {{ credits_balance }}</span><a class="premium-link" href="{{ url_for('premium') }}">✨ Premium</a><a class="pill" href="{{ url_for('logout') }}">Log out</a></div>
   {% else %}
   <div class="navlinks"><a href="{{ url_for('login') }}">Log in</a><a class="pill" href="{{ url_for('register') }}">Join free</a></div>
   {% endif %}
@@ -49,19 +64,23 @@
 (function(){
   const banner=document.getElementById('installAppBanner'),btn=document.getElementById('installAppButton');
   let deferred=null;
-  const standalone=window.matchMedia('(display-mode:standalone)').matches || window.navigator.standalone===true;
-  window.addEventListener('beforeinstallprompt',e=>{e.preventDefault();deferred=e;if(!standalone)banner.hidden=false;});
-  btn&&btn.addEventListener('click',async()=>{if(!deferred){alert('On Android Chrome, open ⋮ and choose Install app. On iPhone Safari, use Share → Add to Home Screen.');return;}deferred.prompt();await deferred.userChoice;deferred=null;banner.hidden=true;});
+  const standalone=window.matchMedia('(display-mode:standalone)').matches||window.navigator.standalone===true;
+  window.addEventListener('beforeinstallprompt',e=>{e.preventDefault();deferred=e;if(!standalone)banner.hidden=false;window.__ugandaInstallPrompt=e});
+  window.addEventListener('appinstalled',()=>{deferred=null;window.__ugandaInstallPrompt=null;banner.hidden=true});
+  window.promptUgandaInstall=async function(){
+    if(deferred){const result=await deferred.prompt();await result?.userChoice?.catch(()=>{});deferred=null;window.__ugandaInstallPrompt=null;banner.hidden=true;return true}
+    return false
+  };
+  btn&&btn.addEventListener('click',async()=>{const shown=await window.promptUgandaInstall();if(!shown){alert('On Android Chrome, open ⋮ and choose Install app. On iPhone Safari, use Share → Add to Home Screen.')}});
   if('serviceWorker' in navigator) navigator.serviceWorker.register('/sw.js').catch(()=>{});
 })();
 </script>
 <style>.install-app-banner{position:fixed;left:50%;transform:translateX(-50%);bottom:88px;z-index:200000;display:flex;align-items:center;gap:14px;padding:12px 15px 12px 16px;border:1px solid #efd9e3;border-radius:18px;background:linear-gradient(135deg,#fffafd,#fff0f5);box-shadow:0 18px 45px rgba(125,60,91,.18)}.install-app-banner[hidden]{display:none}.install-app-banner strong{display:block;color:#6b2748}.install-app-banner small{display:block;color:#8b7480;margin-top:2px}.install-app-banner button{border:0;border-radius:999px;padding:10px 14px;color:#fff;font-weight:900;background:linear-gradient(135deg,#c64072,#e96a98)}@media(max-width:600px){.install-app-banner{left:10px;right:10px;transform:none;justify-content:space-between}.install-app-banner button{white-space:nowrap}}</style>{% block content %}{% endblock %}
-{% if current_user %}
-<nav class="mobile-bottom-nav ud-mobile-nav" aria-label="Main navigation">
+{% if current_user %}<nav class="mobile-bottom-nav ud-mobile-nav" aria-label="Main navigation">
   <a class="bottom-item {% if request.endpoint=='discover' %}active{% endif %}" href="{{ url_for('discover') }}"><span>⌂</span><small>Discover</small></a>
   <a class="bottom-item {% if request.endpoint=='likes' %}active{% endif %}" href="{{ url_for('likes') }}"><span>♥</span><small>Likes</small></a>
   <a class="bottom-item {% if request.endpoint=='encounters' %}active{% endif %}" href="{{ url_for('encounters') }}"><span>✦</span><small>Encounters</small></a>
   <a class="bottom-item {% if request.endpoint in ['chats','messages'] %}active{% endif %}" href="{{ url_for('chats') }}"><span>♡</span><small>Chats</small></a>
   <a class="bottom-item {% if request.endpoint=='profile' %}active{% endif %}" href="{{ url_for('profile') }}"><span>◉</span><small>Profile</small></a>
-</nav>
-{% endif %}<footer class="footer">Uganda Dating ❤️🇺🇬 · Real people. Real connections. · 18+</footer></body></html>
+</nav>{% endif %}
+<footer class="footer">Uganda Dating ❤️🇺🇬 · Real people. Real connections. · 18+</footer></body></html>

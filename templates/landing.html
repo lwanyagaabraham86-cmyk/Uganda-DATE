@@ -1,26 +1,44 @@
 <!doctype html>
-<html lang="en">
+<html lang="en-UG">
 <head>
-  <meta charset="utf-8">
-  <meta name="viewport" content="width=device-width,initial-scale=1">
-  <meta name="theme-color" content="#ec4f87">
-  <title>Uganda-Dating — Just a Swipe</title>
-</head>
-<body>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<meta name="theme-color" content="#ec4f87">
+<meta name="description" content="Uganda Dating is the modern dating app for singles in Uganda. Meet real people nearby, discover compatible matches and start genuine conversations in Kampala, Wakiso and across Uganda.">
+<meta name="robots" content="index,follow,max-image-preview:large">
+<meta name="googlebot" content="index,follow,max-image-preview:large">
+<link rel="canonical" href="https://ugandadating.co.ug/">
+<link rel="preload" as="image" href="/static/images/uganda-dating-hero.jpg?v=20261006-hero" fetchpriority="high">
+<link rel="manifest" href="/manifest.webmanifest">
+<link rel="icon" href="/static/img/icon.svg">
+<link rel="apple-touch-icon" href="/static/img/icon.svg">
+<meta property="og:type" content="website">
+<meta property="og:site_name" content="Uganda Dating">
+<meta property="og:title" content="Uganda Dating — Meet Singles in Uganda">
+<meta property="og:description" content="Meet real people around you in Uganda. Discover nearby singles, chat and build meaningful connections.">
+<meta property="og:url" content="https://ugandadating.co.ug/">
+<meta property="og:image" content="https://ugandadating.co.ug/static/images/uganda-dating-hero.jpg?v=20261006-hero">
+<meta property="og:image:alt" content="Uganda Dating — Just a Swipe">
+<meta name="twitter:card" content="summary_large_image">
+<meta name="twitter:title" content="Uganda Dating — Meet Singles in Uganda">
+<meta name="twitter:description" content="A modern dating app for singles in Uganda.">
+<meta name="twitter:image" content="https://ugandadating.co.ug/static/images/uganda-dating-hero.jpg?v=20261006-hero">
+<title>Uganda Dating — Meet Singles in Uganda | Just a Swipe</title>
+<script type="application/ld+json">
+{"@context":"https://schema.org","@graph":[
+{"@type":"Organization","@id":"https://ugandadating.co.ug/#organization","name":"Uganda Dating","url":"https://ugandadating.co.ug/","logo":"https://ugandadating.co.ug/static/img/icon.svg","description":"A Uganda-focused dating platform for genuine connections, nearby discovery and real conversations."},
+{"@type":"WebSite","@id":"https://ugandadating.co.ug/#website","url":"https://ugandadating.co.ug/","name":"Uganda Dating","description":"Meet singles in Uganda and discover genuine connections nearby.","publisher":{"@id":"https://ugandadating.co.ug/#organization"}}
+]}
+</script>
 <style>
 :root{--pink:#ff2f72;--rose:#ef5b8e;--wine:#651d43;--cream:#fff8fb}
 *{box-sizing:border-box}html{scroll-behavior:smooth}
-body{margin:0;font-family:Arial,'Helvetica Neue',sans-serif;background:#2e071d}
-.landing-shell{min-height:100vh;width:100vw;position:relative;overflow:hidden;color:#fff;
-background:
+body{margin:0;font-family:Arial,'Helvetica Neue',sans-serif;background:#fff8fb;color:#3d2132}
+.landing-shell{min-height:100vh;width:100vw;position:relative;overflow:hidden;color:#fff;background:
 linear-gradient(90deg,rgba(40,4,24,.76) 0%,rgba(70,7,36,.48) 38%,rgba(70,7,36,.10) 68%,rgba(25,3,19,.16) 100%),
 linear-gradient(180deg,rgba(255,76,139,.14),rgba(48,5,26,.12)),
-url("/static/images/uganda-dating-hero.jpg?v=20261006-hero");
-background-size:cover;background-position:center center;background-repeat:no-repeat}
-.landing-shell:before{content:"";position:absolute;inset:0;pointer-events:none;background:
-radial-gradient(circle at 78% 35%,rgba(255,137,178,.26),transparent 20%),
-radial-gradient(circle at 12% 75%,rgba(255,91,139,.18),transparent 30%),
-linear-gradient(to top,rgba(29,3,18,.66),transparent 48%)}
+url("/static/images/uganda-dating-hero.jpg?v=20261006-hero");background-size:cover;background-position:center center;background-repeat:no-repeat}
+.landing-shell:before{content:"";position:absolute;inset:0;pointer-events:none;background:radial-gradient(circle at 78% 35%,rgba(255,137,178,.26),transparent 20%),radial-gradient(circle at 12% 75%,rgba(255,91,139,.18),transparent 30%),linear-gradient(to top,rgba(29,3,18,.66),transparent 48%)}
 .landing-nav{position:absolute;left:0;right:0;top:0;z-index:10;display:flex;align-items:center;justify-content:space-between;padding:20px 30px}
 .brand{display:flex;align-items:center;gap:9px;font-weight:900;letter-spacing:-.8px;font-size:28px;color:#fff;text-shadow:0 3px 20px rgba(0,0,0,.35)}
 .brand-mark{display:inline-flex;align-items:center;justify-content:center;font-size:25px}.brand-sub{display:block;font-size:10px;letter-spacing:4px;margin-top:-2px;opacity:.92;font-weight:800}
@@ -36,30 +54,38 @@ linear-gradient(to top,rgba(29,3,18,.66),transparent 48%)}
 h1{font-family:Georgia,'Times New Roman',serif;font-size:clamp(72px,10.5vw,150px);line-height:.86;letter-spacing:-7px;margin:24px 0 22px;text-shadow:0 10px 38px rgba(43,3,21,.42)}
 h1 .plain{color:#fff}h1 .accent{display:block;color:#ff3f7d;text-shadow:0 12px 38px rgba(255,42,111,.22)}
 .lead{font-size:21px;line-height:1.62;max-width:600px;color:#fff3f6;text-shadow:0 2px 16px rgba(0,0,0,.45)}
-.actions{display:flex;gap:14px;flex-wrap:wrap;margin-top:31px}.cta{padding:16px 24px;border-radius:999px;text-decoration:none;font-weight:900;display:inline-flex;align-items:center;justify-content:center;gap:9px;min-width:205px}
-.cta-primary{background:linear-gradient(135deg,#ff2d70,#e52d6d);color:#fff;box-shadow:0 16px 40px rgba(255,45,112,.25)}
-.cta-secondary{background:rgba(255,255,255,.93);color:#7a1e49;border:1px solid rgba(255,255,255,.65);box-shadow:0 14px 34px rgba(0,0,0,.18)}
-.hero-note{margin-top:18px;color:#ffdfea;font-size:13px}
+.actions{display:flex;gap:14px;flex-wrap:wrap;margin-top:31px}.cta{padding:16px 24px;border-radius:999px;text-decoration:none;font-weight:900;display:inline-flex;align-items:center;justify-content:center;gap:9px;min-width:205px;border:0;cursor:pointer}
+.cta-primary{background:linear-gradient(135deg,#ff2d70,#e52d6d);color:#fff;box-shadow:0 16px 40px rgba(255,45,112,.25)}.cta-secondary{background:rgba(255,255,255,.93);color:#7a1e49;border:1px solid rgba(255,255,255,.65);box-shadow:0 14px 34px rgba(0,0,0,.18)}
+.hero-note{margin-top:18px;color:#ffdfea;font-size:13px}.install-hint{display:inline-flex;align-items:center;gap:7px;margin-top:12px;padding:8px 12px;border-radius:999px;background:rgba(255,255,255,.12);border:1px solid rgba(255,255,255,.20);color:#ffeaf2;font-size:12px;font-weight:800}
 .heart{position:absolute;z-index:1;font-size:28px;color:#ff6f9e;filter:drop-shadow(0 7px 13px rgba(0,0,0,.16));animation:float 5s ease-in-out infinite}.heart.h1{left:50%;top:26%;font-size:44px;animation-delay:.5s}.heart.h2{right:26%;top:33%;font-size:26px;animation-delay:1.2s}.heart.h3{right:12%;top:63%;font-size:36px;animation-delay:2s}.heart.h4{left:40%;bottom:22%;font-size:24px;animation-delay:1.6s}
 @keyframes float{0%,100%{transform:translateY(0) rotate(-5deg)}50%{transform:translateY(-13px) rotate(5deg)}}
 .feature-strip{position:absolute;left:3%;right:3%;bottom:22px;z-index:5;display:grid;grid-template-columns:repeat(4,1fr);gap:10px}
 .feature-card{padding:17px 18px;border-radius:22px;background:rgba(255,248,251,.90);color:#3d2132;border:1px solid rgba(255,255,255,.72);backdrop-filter:blur(16px);box-shadow:0 14px 34px rgba(0,0,0,.14)}
 .feature-icon{font-size:21px;margin-bottom:6px}.feature-title{font-weight:900}.feature-copy{font-size:12px;margin-top:3px;color:#755e69}
-@media(max-width:950px){.landing-nav{padding:17px 16px}.brand{font-size:21px}.brand-sub{display:none}.nav-btn{padding:9px 12px;font-size:12px}.hero{padding:130px 22px 190px}.copy{margin:auto;text-align:center}.lead{margin:auto;font-size:18px}.actions{justify-content:center}.feature-strip{grid-template-columns:repeat(2,1fr)}.heart.h2,.heart.h3{display:none}}
-@media(max-width:560px){.landing-shell{background-position:62% center}.nav-left .nav-btn:not(summary),.nav-right .nav-btn:first-child{display:none}.hero{padding:125px 18px 245px}h1{font-size:clamp(62px,19vw,88px);letter-spacing:-5px}.lead{font-size:16px}.cta{width:100%;min-width:0}.actions{gap:10px}.feature-strip{left:10px;right:10px;bottom:10px;grid-template-columns:1fr 1fr}.feature-card{padding:13px;border-radius:17px}}
+.seo-section{max-width:1120px;margin:0 auto;padding:72px 24px}.seo-section h2{font-family:Georgia,'Times New Roman',serif;font-size:42px;color:#6f2d4e;margin:0 0 12px}.seo-section p{color:#6d5d65;line-height:1.75;font-size:17px;max-width:850px}.seo-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:16px;margin-top:25px}.seo-card{background:#fff;border:1px solid #efdbe4;border-radius:22px;padding:21px;box-shadow:0 12px 34px rgba(120,52,87,.07)}.seo-card h3{color:#75334f;margin:0 0 7px}.seo-card p{font-size:14px;margin:0}.faq-grid{display:grid;grid-template-columns:1fr 1fr;gap:14px;margin-top:20px}.faq-grid details{background:#fff;border:1px solid #efdbe4;border-radius:18px;padding:16px}.faq-grid summary{cursor:pointer;font-weight:900;color:#73324f}.faq-grid p{font-size:14px;margin:10px 0 0}
+.install-section{background:linear-gradient(135deg,#fff0f5,#f8eef8);border-top:1px solid #f1dfe7;border-bottom:1px solid #f1dfe7}.install-box{max-width:900px;margin:auto;text-align:center}.install-box h2{margin-bottom:8px}.install-actions{display:flex;justify-content:center;gap:10px;flex-wrap:wrap;margin:22px 0}.install-steps{display:grid;grid-template-columns:1fr 1fr;gap:12px;margin-top:25px;text-align:left}.install-step{background:#fff;border:1px solid #f0dce4;border-radius:17px;padding:15px}.install-step strong{display:block;color:#6f2d4e}.install-step span{font-size:13px;color:#806d77}
+.site-footer{text-align:center;padding:35px 20px;color:#927785;background:#fff}
+@media(max-width:950px){.landing-nav{padding:17px 16px}.brand{font-size:21px}.brand-sub{display:none}.nav-btn{padding:9px 12px;font-size:12px}.hero{padding:130px 22px 190px}.copy{margin:auto;text-align:center}.lead{margin:auto;font-size:18px}.actions{justify-content:center}.feature-strip{grid-template-columns:repeat(2,1fr)}.heart.h2,.heart.h3{display:none}.seo-grid{grid-template-columns:1fr 1fr}}
+@media(max-width:700px){.faq-grid,.install-steps{grid-template-columns:1fr}.seo-section{padding:55px 18px}.seo-section h2{font-size:34px}}
+@media(max-width:560px){.landing-shell{background-position:62% center}.nav-left .nav-btn:not(summary),.nav-right .nav-btn:first-child{display:none}.hero{padding:125px 18px 245px}h1{font-size:clamp(62px,19vw,88px);letter-spacing:-5px}.lead{font-size:16px}.cta{width:100%;min-width:0}.actions{gap:10px}.feature-strip{left:10px;right:10px;bottom:10px;grid-template-columns:1fr 1fr}.feature-card{padding:13px;border-radius:17px}.seo-grid{grid-template-columns:1fr}}
 </style>
+</head>
+<body>
 <section class="landing-shell">
 <nav class="landing-nav">
-<div class="nav-left"><details class="product-menu"><summary class="nav-btn">☰ Products ▾</summary><div class="products"><a href="{{ url_for('discover') }}">❤️ Discover</a><a href="{{ url_for('likes') }}">💗 See Who Likes You</a><a href="{{ url_for('encounters') }}">✨ Encounters</a><a href="{{ url_for('chats') }}">💬 Chats</a><a href="{{ url_for('profile') }}">👤 Your Profile</a><a href="#download">📱 Download App</a></div></details></div>
+<div class="nav-left"><details class="product-menu"><summary class="nav-btn">☰ Products ▾</summary><div class="products"><a href="#why">❤️ Why Uganda Dating</a><a href="#how">✨ How it works</a><a href="#install">📱 Install the app</a><a href="{{ url_for('register') }}">💗 Create a Free Account</a><a href="{{ url_for('login') }}">Log in</a></div></details></div>
 <div class="brand"><span class="brand-mark">💗</span><span>Uganda-Dating<span class="brand-sub">MEET • CONNECT • DATE</span></span></div>
-<div class="nav-right"><a class="nav-btn" href="{{ url_for('login') }}">Login</a><a class="nav-btn primary" href="{{ url_for('register') }}">Get the App</a></div>
+<div class="nav-right"><a class="nav-btn" href="{{ url_for('login') }}">Login</a><button class="nav-btn primary" type="button" onclick="tryInstall()">Get the App</button></div>
 </nav>
 <span class="heart h1">♥</span><span class="heart h2">♥</span><span class="heart h3">♥</span><span class="heart h4">♥</span>
-<div class="hero"><div class="copy"><div class="kicker"><span class="kicker-dot"></span>🇺🇬 Made for connections in Uganda</div>
+<div class="hero">
+<div class="copy">
+<div class="kicker"><span class="kicker-dot"></span>🇺🇬 Uganda's modern dating experience</div>
 <h1><span class="plain">Just a</span><span class="accent">Swipe.</span></h1>
-<p class="lead">Meet real people around you in Uganda. Start a conversation, discover someone special and turn a simple swipe into a meaningful connection.</p>
-<div class="actions"><a class="cta cta-primary" href="{{ url_for('register') }}">📱 Get the App →</a><a class="cta cta-secondary" href="{{ url_for('register') }}">❤️ Create a Free Account →</a></div>
-<div id="download" class="hero-note">Nearby people • Smart preferences • Private location • Real conversations</div>
+<p class="lead">Meet real people around you in Uganda. Discover compatible singles, start genuine conversations and turn a simple swipe into a meaningful connection.</p>
+<div class="actions"><button class="cta cta-primary" type="button" onclick="tryInstall()">📱 Install Uganda Dating →</button><a class="cta cta-secondary" href="{{ url_for('register') }}">❤️ Create a Free Account →</a></div>
+<div class="install-hint" id="installHint">⚡ Fast install on supported Android browsers · iPhone: Share → Add to Home Screen</div>
+<div class="hero-note">Nearby people • Smart preferences • Private location • Real conversations</div>
 </div></div>
 <div class="feature-strip">
 <div class="feature-card"><div class="feature-icon">📍</div><div class="feature-title">People Near You</div><div class="feature-copy">Discover singles around you</div></div>
@@ -68,4 +94,67 @@ h1 .plain{color:#fff}h1 .accent{display:block;color:#ff3f7d;text-shadow:0 12px 3
 <div class="feature-card"><div class="feature-icon">🛡️</div><div class="feature-title">Safe & Secure</div><div class="feature-copy">Your privacy comes first</div></div>
 </div>
 </section>
-</body></html>
+
+<section class="seo-section" id="why">
+<div class="eyebrow">Uganda Dating App</div>
+<h2>Meet singles in Uganda who are ready to connect</h2>
+<p>Uganda Dating is built for adults in Uganda who want a simple, modern way to meet people nearby. Whether you are in Kampala, Wakiso, Entebbe, Jinja, Mbarara, Gulu or Mbale, you can discover compatible people using your interests, age preferences and location range.</p>
+<div class="seo-grid">
+<article class="seo-card"><h3>Dating in Kampala</h3><p>Discover singles around Kampala and nearby neighbourhoods with distance-aware matching when GPS is available.</p></article>
+<article class="seo-card"><h3>Nearby people</h3><p>Use your preferred distance, age range and gender preferences to focus on people you are more likely to connect with.</p></article>
+<article class="seo-card"><h3>Private by design</h3><p>Your exact GPS coordinates are not displayed to other members. The app uses location to improve nearby discovery.</p></article>
+</div>
+</section>
+
+<section class="seo-section" id="how">
+<div class="eyebrow">How it works</div>
+<h2>Find a connection in three simple steps</h2>
+<div class="seo-grid">
+<article class="seo-card"><h3>1. Create your profile</h3><p>Add at least two photos, choose your preferences and tell people a little about you.</p></article>
+<article class="seo-card"><h3>2. Discover people</h3><p>Browse compatible profiles, filter by what matters to you and open a full profile before deciding.</p></article>
+<article class="seo-card"><h3>3. Like & chat</h3><p>Send a Like or Special Like. When interest is mutual, start a conversation.</p></article>
+</div>
+</section>
+
+<section class="seo-section install-section" id="install">
+<div class="install-box">
+<div class="eyebrow">Install faster</div>
+<h2>Take Uganda Dating with you</h2>
+<p>Uganda Dating is a Progressive Web App, so supported browsers can install it directly from the website and place it on your phone like an app. On Android browsers that support the install prompt, the button above can open the native install flow; iPhone users can use Share → Add to Home Screen. </p>
+<div class="install-actions"><button class="cta cta-primary" type="button" onclick="tryInstall()">📲 Install the App</button><a class="cta cta-secondary" href="{{ url_for('register') }}">Create Account First</a></div>
+<div class="install-steps"><div class="install-step"><strong>Android / Chrome</strong><span>Open this site, tap Install App when prompted, and Uganda Dating will appear on your home screen.</span></div><div class="install-step"><strong>iPhone / Safari</strong><span>Tap Share, choose Add to Home Screen, then launch Uganda Dating like an app.</span></div></div>
+</div>
+</section>
+
+<section class="seo-section" id="faq">
+<div class="eyebrow">FAQ</div>
+<h2>Questions about Uganda Dating</h2>
+<div class="faq-grid">
+<details><summary>Is Uganda Dating free?</summary><p>Creating an account and discovering people are free. Optional premium features are available for members who want more visibility and extra features.</p></details>
+<details><summary>Can I find people near me?</summary><p>Yes. When you share GPS, nearby discovery can use real distance. Your exact coordinates are not displayed to other members.</p></details>
+<details><summary>Can I install Uganda Dating on my phone?</summary><p>Yes. It is designed as an installable web app. Supported Android browsers can offer a one-tap install prompt, while iPhone users can add it to the Home Screen.</p></details>
+<details><summary>Is Uganda Dating for adults?</summary><p>Yes. Uganda Dating is intended for adults aged 18 and over.</p></details>
+</div>
+</section>
+
+<footer class="site-footer">Uganda Dating ❤️🇺🇬 · Meet real people. Build real connections. · 18+</footer>
+
+<script>
+let deferredInstall=null;
+const isStandalone=window.matchMedia('(display-mode:standalone)').matches||window.navigator.standalone===true;
+window.addEventListener('beforeinstallprompt',e=>{e.preventDefault();deferredInstall=e;window.ugandaInstallAvailable=true;document.getElementById('installHint')?.setAttribute('data-ready','1')});
+window.addEventListener('appinstalled',()=>{deferredInstall=null;window.ugandaInstallAvailable=false});
+async function tryInstall(){
+  if(deferredInstall){
+    const promptEvent=deferredInstall;deferredInstall=null;
+    try{await promptEvent.prompt();await promptEvent.userChoice}catch(e){}
+    return;
+  }
+  document.getElementById('install')?.scrollIntoView({behavior:'smooth',block:'start'});
+  const hint=document.getElementById('installHint');
+  if(hint)hint.textContent='📲 Android: use Install app in Chrome. iPhone: Share → Add to Home Screen.';
+}
+if('serviceWorker' in navigator)navigator.serviceWorker.register('/sw.js').catch(()=>{});
+</script>
+</body>
+</html>
