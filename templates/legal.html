@@ -1,0 +1,31 @@
+{% extends 'base.html' %}
+{% block title %}{% if page=='privacy' %}Privacy Policy{% elif page=='terms' %}Terms of Service{% elif page=='guidelines' %}Community Guidelines{% else %}Child Safety Standards{% endif %} — Uganda Dating{% endblock %}
+{% block content %}
+<main class="container legal-page">
+  {% if page=='privacy' %}
+  <div class="eyebrow">Uganda Dating</div><h1>Privacy Policy</h1>
+  <p>We collect account information, profile details, uploaded photos and location information that you choose to provide so we can operate discovery, matching, safety and messaging.</p>
+  <h2>Location privacy</h2><p>Your exact GPS coordinates are not displayed to other members. Nearby discovery uses location to calculate distance where available.</p>
+  <h2>Photos and profiles</h2><p>Profile photos and profile information are visible to registered members as part of the dating service. Do not upload private, illegal or sensitive material.</p>
+  <h2>Safety reports</h2><p>Reports may be reviewed by our moderation team to protect members and remove accounts or content that violate our rules.</p>
+  {% elif page=='terms' %}
+  <div class="eyebrow">Before you join</div><h1>Terms of Service</h1>
+  <p>Uganda Dating is an adults-only dating service. By creating an account, you confirm that you are at least 18 years old and agree to use the service respectfully and lawfully.</p>
+  <h2>Prohibited behaviour</h2><p>No harassment, threats, scams, impersonation, extortion, child sexual exploitation, illegal content, spam or abusive behaviour.</p>
+  <h2>User content</h2><p>You are responsible for the photos, bio and messages you submit. We may remove content or restrict accounts that violate these terms or our Community Guidelines.</p>
+  {% elif page=='guidelines' %}
+  <div class="eyebrow">Meet respectfully</div><h1>Community Guidelines</h1>
+  <p>Uganda Dating should feel welcoming, respectful and safe for adults. Treat people as people, not as products.</p>
+  <h2>Do</h2><p>Use real photos, be honest about your intentions, respect boundaries, communicate respectfully and use Block or Report when something feels wrong.</p>
+  <h2>Don't</h2><p>Do not post sexual exploitation material, content involving minors, hate, threats, blackmail, scams, spam, impersonation or abusive content.</p>
+  <h2>Moderation</h2><p>We review reports and can remove profiles, content or access when necessary to protect members and comply with applicable requirements.</p>
+  {% else %}
+  <div class="eyebrow">18+ safety</div><h1>Child Safety Standards</h1>
+  <p>Uganda Dating is an adults-only service. People under 18 are not permitted to create or use dating accounts.</p>
+  <h2>Zero tolerance</h2><p>Any content or behaviour that sexualizes, exploits or endangers children is prohibited and may be removed immediately and reported to the appropriate authorities when required.</p>
+  <h2>Report concerns</h2><p>Use the in-app Report feature to flag a child-safety concern. Our moderation process is intended to review reports promptly.</p>
+  <h2>Child-safety point of contact</h2><p>For urgent child-safety concerns, use the in-app Report feature and contact the Uganda Dating moderation team at admin@ugandadating.app.</p>
+  {% endif %}
+</main>
+<style>.legal-page{max-width:850px}.legal-page h1{font-family:'Playfair Display',serif;font-size:46px;color:#71304f;margin:8px 0 18px}.legal-page h2{font-family:'Playfair Display',serif;color:#75334f;margin-top:28px}.legal-page p{color:#6d5e67;line-height:1.8}</style>
+{% endblock %}

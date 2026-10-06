@@ -93,6 +93,22 @@ class Message(db.Model):
     body = db.Column(db.Text, nullable=False)
     created_at = db.Column(db.DateTime, default=datetime.utcnow)
 
+class Block(db.Model):
+    id = db.Column(db.Integer, primary_key=True)
+    blocker_id = db.Column(db.Integer, nullable=False)
+    blocked_id = db.Column(db.Integer, nullable=False)
+    created_at = db.Column(db.DateTime, default=datetime.utcnow)
+
+class Report(db.Model):
+    id = db.Column(db.Integer, primary_key=True)
+    reporter_id = db.Column(db.Integer, nullable=False)
+    reported_id = db.Column(db.Integer, nullable=False)
+    category = db.Column(db.String(60), nullable=False)
+    details = db.Column(db.Text, default='')
+    status = db.Column(db.String(20), default='pending')
+    created_at = db.Column(db.DateTime, default=datetime.utcnow)
+    reviewed_at = db.Column(db.DateTime, nullable=True)
+
 MTN_MOMO_NUMBER = os.environ.get('MTN_MOMO_NUMBER', '65616659')
 MTN_MOMO_MODE = os.environ.get('MTN_MOMO_MODE', 'manual').lower()
 MTN_MOMO_BASE_URL = os.environ.get(
@@ -367,6 +383,12 @@ def preference_matches(me, user):
 def nearby_profiles(me, exclude_ids=None, limit=200):
     """Return mutually compatible profiles sorted by real GPS distance when coordinates exist."""
     exclude_ids = set(exclude_ids or ()) | {me.id}
+    blocked_ids = {
+        b.blocked_id for b in Block.query.filter_by(blocker_id=me.id).all()
+    } | {
+        b.blocker_id for b in Block.query.filter_by(blocked_id=me.id).all()
+    }
+    exclude_ids |= blocked_ids
     radius = max(1.0, min(float(request.args.get('distance_km') or me.search_radius_km or 25), 500.0))
 
     min_age = max(18, min(100, int(request.args.get('min_age') or me.min_age or 18)))
@@ -561,6 +583,13 @@ def view_member_profile(user_id):
     if not member or member.id == me.id:
         flash('That profile is not available.', 'error')
         return redirect(url_for('discover'))
+    blocked = Block.query.filter(
+        ((Block.blocker_id == me.id) & (Block.blocked_id == member.id)) |
+        ((Block.blocker_id == member.id) & (Block.blocked_id == me.id))
+    ).first()
+    if blocked:
+        flash('This profile is unavailable because one of you has blocked the other.', 'error')
+        return redirect(url_for('discover'))
     me.last_seen = datetime.utcnow()
     db.session.commit()
     distance = None
@@ -570,6 +599,36 @@ def view_member_profile(user_id):
     liked = Like.query.filter_by(from_id=me.id, to_id=member.id).first() is not None
     mutual = Like.query.filter_by(from_id=member.id, to_id=me.id).first() is not None
     return render_template('member_profile.html', member=member, distance=distance, online=online, liked=liked, mutual=mutual)
+
+@app.post('/member/<int:user_id>/block')
+@login_required
+def block_member(user_id):
+    me = current_user()
+    member = db.session.get(User, user_id)
+    if not member or member.id == me.id:
+        flash('That profile is not available.', 'error')
+        return redirect(url_for('discover'))
+    existing = Block.query.filter_by(blocker_id=me.id, blocked_id=member.id).first()
+    if not existing:
+        db.session.add(Block(blocker_id=me.id, blocked_id=member.id))
+        db.session.commit()
+    flash(f'{member.name} has been blocked. You will no longer see this profile.', 'success')
+    return redirect(url_for('discover'))
+
+@app.post('/member/<int:user_id>/report')
+@login_required
+def report_member(user_id):
+    me = current_user()
+    member = db.session.get(User, user_id)
+    if not member or member.id == me.id:
+        flash('That profile is not available.', 'error')
+        return redirect(url_for('discover'))
+    category = (request.form.get('category') or 'Other').strip()[:60]
+    details = (request.form.get('details') or '').strip()[:1000]
+    db.session.add(Report(reporter_id=me.id, reported_id=member.id, category=category, details=details))
+    db.session.commit()
+    flash('Thanks for helping keep Uganda Dating safe. Your report was sent to our moderation team.', 'success')
+    return redirect(url_for('discover'))
 
 @app.post('/location')
 @login_required
@@ -608,7 +667,14 @@ def update_search_radius():
 @login_required
 def like(user_id):
     me = current_user()
-    if me.id == user_id: return jsonify({'ok': False})
+    if me.id == user_id:
+        return jsonify({'ok': False})
+    blocked = Block.query.filter(
+        ((Block.blocker_id == me.id) & (Block.blocked_id == user_id)) |
+        ((Block.blocker_id == user_id) & (Block.blocked_id == me.id))
+    ).first()
+    if blocked:
+        return jsonify({'ok': False, 'error': 'This profile is unavailable.'}), 403
     kind = request.form.get('kind','like')
     if kind == 'superlike':
         if (me.super_likes or 0) > 0:
@@ -691,6 +757,13 @@ def matches():
 def messages(user_id):
     me = current_user(); other = db.session.get(User, user_id)
     if not other: return redirect(url_for('matches'))
+    blocked = Block.query.filter(
+        ((Block.blocker_id == me.id) & (Block.blocked_id == other.id)) |
+        ((Block.blocker_id == other.id) & (Block.blocked_id == me.id))
+    ).first()
+    if blocked:
+        flash('Messaging is unavailable because one of you has blocked the other.', 'error')
+        return redirect(url_for('chats'))
     if request.method == 'POST' and request.form.get('body','').strip():
         db.session.add(Message(sender_id=me.id, receiver_id=other.id, body=request.form['body'].strip()))
         db.session.commit()
@@ -895,6 +968,23 @@ def activate_purchase(user, plan):
     elif plan == 'credits60':
         user.credits = (user.credits or 0) + 60
 
+@app.route('/admin/reports')
+@admin_required
+def admin_reports():
+    reports = Report.query.order_by(Report.created_at.desc()).all()
+    return render_template('admin_reports.html', reports=reports)
+
+@app.post('/admin/reports/<int:report_id>/resolve')
+@admin_required
+def resolve_report(report_id):
+    report = db.session.get(Report, report_id)
+    if report:
+        report.status = 'resolved'
+        report.reviewed_at = datetime.utcnow()
+        db.session.commit()
+        flash('Report marked resolved.', 'success')
+    return redirect(url_for('admin_reports'))
+
 @app.route('/admin/payments')
 @admin_required
 def admin_payments():
@@ -926,6 +1016,39 @@ def reject_payment(payment_id):
         payment.status = 'rejected'; db.session.commit()
         flash('Payment rejected.', 'success')
     return redirect(url_for('admin_payments'))
+
+@app.get('/privacy')
+def privacy():
+    return render_template('legal.html', page='privacy')
+
+@app.get('/terms')
+def terms():
+    return render_template('legal.html', page='terms')
+
+@app.get('/community-guidelines')
+def community_guidelines():
+    return render_template('legal.html', page='guidelines')
+
+@app.get('/child-safety')
+def child_safety():
+    return render_template('legal.html', page='child_safety')
+
+CITY_PAGES = {
+    'kampala': {'name':'Kampala','areas':'Kololo, Ntinda, Bugolobi, Muyenga, Makindye, Bukoto, Kabalagala, Kansanga and nearby areas','title':'Dating in Kampala, Uganda | Meet Singles Near You','description':'Meet singles in Kampala with Uganda Dating. Discover compatible people nearby, browse full profiles, like, match and chat.','intro':'Looking for a dating app in Kampala? Uganda Dating helps adults discover compatible singles around Kampala and its neighbourhoods with smart age, gender and distance preferences.'},
+    'wakiso': {'name':'Wakiso','areas':'Kira, Najjera, Kira Road, Kiwatule, Kyaliwajjala and nearby areas','title':'Dating in Wakiso, Uganda | Meet Singles Near You','description':'Meet singles in Wakiso on Uganda Dating. Discover compatible people around Kira, Najjera and nearby areas.','intro':'Meet people in Wakiso without endless searching. Uganda Dating lets you focus on compatible singles around Kira, Najjera and surrounding communities.'},
+    'entebbe': {'name':'Entebbe','areas':'Entebbe town and surrounding communities','title':'Dating in Entebbe, Uganda | Meet Singles Near You','description':'Meet singles in Entebbe with Uganda Dating. Discover genuine connections nearby and start real conversations.','intro':'Dating in Entebbe can be more personal when you meet people nearby. Uganda Dating helps adults discover compatible local connections and start conversations.'},
+    'jinja': {'name':'Jinja','areas':'Jinja City and surrounding communities','title':'Dating in Jinja, Uganda | Meet Singles Near You','description':'Meet singles in Jinja on Uganda Dating. Discover compatible people nearby and build genuine connections.','intro':'Whether you live in Jinja or are new to the city, Uganda Dating gives you a modern way to discover compatible adults nearby.'},
+    'mbarara': {'name':'Mbarara','areas':'Mbarara City and surrounding communities','title':'Dating in Mbarara, Uganda | Meet Singles Near You','description':'Meet singles in Mbarara with Uganda Dating. Browse profiles, match and chat with people nearby.','intro':'Discover dating in Mbarara with people who fit your preferences. Browse profiles, open full galleries and connect at your own pace.'},
+    'gulu': {'name':'Gulu','areas':'Gulu City and surrounding communities','title':'Dating in Gulu, Uganda | Meet Singles Near You','description':'Meet singles in Gulu on Uganda Dating. Discover compatible people nearby and start meaningful conversations.','intro':'Uganda Dating brings a modern dating experience to Gulu, making it easier to discover compatible adults and start genuine conversations.'},
+    'mbale': {'name':'Mbale','areas':'Mbale City and surrounding communities','title':'Dating in Mbale, Uganda | Meet Singles Near You','description':'Meet singles in Mbale with Uganda Dating. Discover nearby profiles, matches and real conversations.','intro':'Meet people around Mbale using age, gender, activity and distance preferences designed to help you find better matches.'}
+}
+
+@app.get('/dating/<city_slug>')
+def city_landing(city_slug):
+    city = CITY_PAGES.get(city_slug.lower())
+    if not city:
+        return render_template('404.html'), 404
+    return render_template('seo_city.html', city=city, slug=city_slug.lower())
 
 @app.errorhandler(404)
 def not_found(e):

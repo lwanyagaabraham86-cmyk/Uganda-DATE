@@ -1,5 +1,7 @@
 {% extends 'base.html' %}
-{% block title %}{{ member.name }} — Uganda Dating{% endblock %}
+{% block title %}{{ member.name }}, {{ member.age }} — Uganda Dating{% endblock %}
+{% block og_title %}{{ member.name }}, {{ member.age }} — Uganda Dating{% endblock %}
+{% block og_description %}View {{ member.name }}'s profile on Uganda Dating.{% endblock %}
 {% block content %}
 <main class="member-profile-page">
   <div class="member-profile-topbar">
@@ -53,6 +55,27 @@
         {% endif %}
       </div>
       <p class="member-action-note" id="memberActionNote">A like lets {{ member.name }} know you're interested. ❤️</p>
+      <details class="member-safety-menu">
+        <summary>⋯ More</summary>
+        <div class="member-safety-panel">
+          <form method="post" action="{{ url_for('block_member', user_id=member.id) }}" onsubmit="return confirm('Block {{ member.name }}? You will stop seeing this profile and will not be able to message each other.');">
+            <button type="submit">🚫 Block {{ member.name }}</button>
+          </form>
+          <form method="post" action="{{ url_for('report_member', user_id=member.id) }}">
+            <label>Report this profile</label>
+            <select name="category" required>
+              <option value="Fake profile">Fake profile</option>
+              <option value="Harassment">Harassment</option>
+              <option value="Scam or fraud">Scam or fraud</option>
+              <option value="Inappropriate content">Inappropriate content</option>
+              <option value="Child safety concern">Child safety concern</option>
+              <option value="Other">Other</option>
+            </select>
+            <textarea name="details" maxlength="1000" placeholder="Tell us what happened (optional)"></textarea>
+            <button type="submit" class="report-submit">Report profile</button>
+          </form>
+        </div>
+      </details>
     </aside>
   </section>
 
@@ -129,4 +152,4 @@ async function sendProfileLike(kind){
 }
 renderMemberPhoto();
 </script>
-{% endblock %}
+{% endblock %}<style>.member-safety-menu{margin-top:13px;text-align:center}.member-safety-menu summary{display:inline-block;cursor:pointer;color:#96727f;font-weight:900;font-size:12px;padding:8px 12px;border-radius:999px;background:#fff8fb;border:1px solid #eedde5}.member-safety-panel{margin:10px auto 0;display:grid;gap:10px;max-width:440px;padding:14px;border:1px solid #efdce4;border-radius:18px;background:#fffafb;text-align:left}.member-safety-panel form{margin:0}.member-safety-panel button{border:1px solid #efd5df;background:#fff;color:#9f3f67;border-radius:12px;padding:10px 12px;font:inherit;font-weight:900;cursor:pointer}.member-safety-panel .report-submit{background:linear-gradient(135deg,#8b4163,#dc5b88);color:#fff;border:0}.member-safety-panel label{display:block;font-size:11px;font-weight:900;color:#71425a;margin-bottom:6px}.member-safety-panel select,.member-safety-panel textarea{width:100%;border:1px solid #ead8e0;border-radius:12px;padding:10px;font:inherit;margin-bottom:8px;background:#fff}.member-safety-panel textarea{min-height:75px;resize:vertical}</style>

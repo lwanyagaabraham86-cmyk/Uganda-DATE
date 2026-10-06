@@ -83,4 +83,4 @@
   <a class="bottom-item {% if request.endpoint in ['chats','messages'] %}active{% endif %}" href="{{ url_for('chats') }}"><span>♡</span><small>Chats</small></a>
   <a class="bottom-item {% if request.endpoint=='profile' %}active{% endif %}" href="{{ url_for('profile') }}"><span>◉</span><small>Profile</small></a>
 </nav>{% endif %}
-<footer class="footer">Uganda Dating ❤️🇺🇬 · Real people. Real connections. · 18+</footer></body></html>
+<footer class="footer">Uganda Dating ❤️🇺🇬 · Real people. Real connections. · 18+ · <a href="{{ url_for('privacy') }}">Privacy</a> · <a href="{{ url_for('terms') }}">Terms</a> · <a href="{{ url_for('community_guidelines') }}">Community Guidelines</a> · <a href="{{ url_for('child_safety') }}">Child Safety</a></footer></body></html><style>.footer a{color:#8d4566;text-decoration:underline;text-underline-offset:2px}</style>

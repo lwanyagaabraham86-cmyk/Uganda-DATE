@@ -116,6 +116,8 @@ h1 .plain{color:#fff}h1 .accent{display:block;color:#ff3f7d;text-shadow:0 12px 3
 </div>
 </section>
 
+<section class="seo-section" id="cities"><div class="eyebrow">Find people around Uganda</div><h2>Dating in cities across Uganda</h2><div class="seo-grid"><article class="seo-card"><h3>Dating in Kampala</h3><p>Meet singles around Kampala and nearby neighbourhoods.</p><a href="{{ url_for('city_landing', city_slug='kampala') }}">Explore Kampala dating →</a></article><article class="seo-card"><h3>Dating in Wakiso</h3><p>Discover compatible people around Kira, Najjera and Wakiso.</p><a href="{{ url_for('city_landing', city_slug='wakiso') }}">Explore Wakiso dating →</a></article><article class="seo-card"><h3>Dating in Entebbe</h3><p>Connect with adults in Entebbe and surrounding areas.</p><a href="{{ url_for('city_landing', city_slug='entebbe') }}">Explore Entebbe dating →</a></article><article class="seo-card"><h3>Dating in Jinja</h3><p>Find compatible singles in Jinja and nearby communities.</p><a href="{{ url_for('city_landing', city_slug='jinja') }}">Explore Jinja dating →</a></article><article class="seo-card"><h3>Dating in Mbarara</h3><p>Browse profiles and build genuine connections in Mbarara.</p><a href="{{ url_for('city_landing', city_slug='mbarara') }}">Explore Mbarara dating →</a></article><article class="seo-card"><h3>Dating in Gulu & Mbale</h3><p>Explore more Uganda dating communities beyond Kampala.</p><a href="{{ url_for('city_landing', city_slug='gulu') }}">Gulu</a> · <a href="{{ url_for('city_landing', city_slug='mbale') }}">Mbale</a></article></div></section>
+
 <section class="seo-section install-section" id="install">
 <div class="install-box">
 <div class="eyebrow">Install faster</div>
@@ -137,7 +139,7 @@ h1 .plain{color:#fff}h1 .accent{display:block;color:#ff3f7d;text-shadow:0 12px 3
 </div>
 </section>
 
-<footer class="site-footer">Uganda Dating ❤️🇺🇬 · Meet real people. Build real connections. · 18+</footer>
+<footer class="site-footer">Uganda Dating ❤️🇺🇬 · Meet real people. Build real connections. · 18+ · <a href="{{ url_for('privacy') }}">Privacy</a> · <a href="{{ url_for('terms') }}">Terms</a> · <a href="{{ url_for('community_guidelines') }}">Community Guidelines</a> · <a href="{{ url_for('child_safety') }}">Child Safety</a></footer>
 
 <script>
 let deferredInstall=null;
@@ -157,4 +159,4 @@ async function tryInstall(){
 if('serviceWorker' in navigator)navigator.serviceWorker.register('/sw.js').catch(()=>{});
 </script>
 </body>
-</html>
+</html><style>.site-footer a{color:#8d4566;text-decoration:underline;margin-left:5px}</style>
