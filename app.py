@@ -140,12 +140,27 @@ def nearby_profiles(me, limit=200):
             distance = distance_km(me.latitude, me.longitude, p.latitude, p.longitude)
             if distance > radius:
                 continue
-        elif me.city and p.city and me.city.strip().lower() == p.city.strip().lower():
-            # Same-city fallback lets Kampala/Makindye users discover profiles
-            # even when those profiles have not saved GPS coordinates.
-            distance = None
-        else:
-            continue
+        elif me.city and p.city:
+            # Location fallback: treat Kampala neighbourhoods/areas as Kampala.
+            # This is only a fallback for missing GPS; exact GPS still wins.
+            def area_group(city):
+                c = (city or '').strip().lower()
+                kampala_areas = {
+                    'kampala','makindye','muyenga','bukoto','ntinda','kololo',
+                    'nakawa','rubaga','kawempe','central kampala','najjera',
+                    'kibuye','munyonyo','buziga','kabalagala','nsambya',
+                    'kisugu','namuwongo','bugolobi','kiwafu','katwe',
+                    'namirembe','makerere','mengo','kansanga'
+                }
+                if c in kampala_areas or 'kampala' in c:
+                    return 'kampala'
+                if 'wakiso' in c or 'kira' in c or 'kajjansi' in c:
+                    return 'wakiso'
+                return c
+            if area_group(me.city) == area_group(p.city):
+                distance = None
+            else:
+                continue
 
         out.append((p, distance))
 
