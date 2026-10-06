@@ -122,3 +122,438 @@
   .swipe-hint{font-size:10px}
   .info-close{right:18px;margin-top:-12px}
 }
+
+
+/* ═════════════════════════════════════════════════════════════
+   UGANDA DATING — ROMANTIC 2.0 VISUAL THEME
+   Warm wine + rose + blush palette across the app
+   ═════════════════════════════════════════════════════════════ */
+
+:root{
+  --rose:#c72f68;
+  --rose-deep:#9d214f;
+  --wine:#4f1833;
+  --wine-2:#6d2346;
+  --blush:#f9e3ea;
+  --blush-2:#fff0f4;
+  --pearl:#fffafb;
+  --gold:#d9a85b;
+  --cream:#fff8f6;
+  --ink:#2c1822;
+  --muted:#806b75;
+  --line:#ecd5de;
+  --shadow-romantic:0 18px 55px rgba(104,31,66,.11);
+}
+
+body{
+  background:
+    radial-gradient(circle at 8% 8%,rgba(255,214,227,.50),transparent 24%),
+    radial-gradient(circle at 92% 18%,rgba(246,204,214,.42),transparent 25%),
+    radial-gradient(circle at 50% 100%,rgba(253,225,214,.50),transparent 30%),
+    linear-gradient(135deg,#fffaf9 0%,#fff5f7 48%,#fbeff3 100%);
+  color:var(--ink);
+}
+
+body:before{
+  content:"♥";
+  position:fixed;
+  left:-20px;
+  bottom:90px;
+  font-size:170px;
+  line-height:1;
+  color:rgba(199,47,104,.035);
+  transform:rotate(-18deg);
+  pointer-events:none;
+  z-index:-1;
+}
+
+body:after{
+  content:"♥";
+  position:fixed;
+  right:-22px;
+  top:120px;
+  font-size:150px;
+  line-height:1;
+  color:rgba(109,35,70,.03);
+  transform:rotate(18deg);
+  pointer-events:none;
+  z-index:-1;
+}
+
+/* Main app chrome */
+.ud-main-nav{
+  background:rgba(255,250,249,.88)!important;
+  border-bottom:1px solid rgba(236,213,222,.92)!important;
+  box-shadow:0 8px 28px rgba(79,24,51,.06)!important;
+}
+
+.brand{
+  color:var(--wine)!important;
+}
+.brand span{
+  color:var(--rose)!important;
+}
+
+.logo-icon{
+  background:linear-gradient(145deg,#5b1738,#bd2e64 72%,#df8b78)!important;
+  box-shadow:0 10px 28px rgba(199,47,104,.24)!important;
+}
+
+.ud-desktop-nav{
+  background:rgba(255,255,255,.86)!important;
+  border-color:#eed9e1!important;
+  box-shadow:0 10px 28px rgba(79,24,51,.08)!important;
+}
+
+.ud-desktop-nav .nav-item{
+  color:#745f69!important;
+}
+.ud-desktop-nav .nav-item.active,
+.ud-desktop-nav .nav-item:hover{
+  background:linear-gradient(135deg,#f9e5ec,#fff2f5)!important;
+  color:var(--rose-deep)!important;
+}
+
+.premium-link{
+  color:var(--wine)!important;
+}
+
+/* Page shells */
+.container{
+  position:relative;
+}
+
+.container:before{
+  content:"";
+  position:absolute;
+  top:8px;
+  right:16px;
+  width:110px;
+  height:110px;
+  border-radius:50%;
+  background:radial-gradient(circle,rgba(244,182,202,.18),transparent 70%);
+  pointer-events:none;
+}
+
+.section-title{
+  position:relative;
+  margin-bottom:28px;
+}
+
+.section-title h1,
+.encounters-header h1{
+  color:var(--wine);
+  text-shadow:0 4px 18px rgba(79,24,51,.07);
+}
+
+.section-title h1:after,
+.encounters-header h1:after{
+  content:"";
+  display:block;
+  width:54px;
+  height:3px;
+  margin-top:10px;
+  border-radius:99px;
+  background:linear-gradient(90deg,var(--rose),#e79caf);
+}
+
+.eyebrow{
+  color:var(--rose)!important;
+}
+
+/* Controls / filters */
+.nearby-controls{
+  background:linear-gradient(135deg,rgba(255,255,255,.94),rgba(255,241,245,.88))!important;
+  border-color:#eed7df!important;
+  box-shadow:var(--shadow-romantic)!important;
+}
+
+.location-note{
+  background:linear-gradient(135deg,#fff7f1,#fff0f4)!important;
+  border-color:#efddcd!important;
+}
+
+.radius-form select,
+.encounter-range select,
+.field input,
+.field textarea,
+.field select{
+  border-color:#e8d2dc!important;
+  background:rgba(255,253,253,.96)!important;
+  color:var(--ink)!important;
+}
+
+.radius-form select:focus,
+.encounter-range select:focus,
+.field input:focus,
+.field textarea:focus,
+.field select:focus{
+  border-color:#d05b83!important;
+  box-shadow:0 0 0 4px rgba(199,47,104,.09)!important;
+}
+
+/* Buttons */
+.btn,
+.pill{
+  background:linear-gradient(135deg,#5d1c3b 0%,#a62655 55%,#d04372 100%)!important;
+  box-shadow:0 12px 28px rgba(157,33,79,.20)!important;
+}
+
+.btn:hover,
+.pill:hover{
+  box-shadow:0 16px 34px rgba(157,33,79,.27)!important;
+}
+
+.btn.secondary{
+  background:linear-gradient(135deg,#f8e8ee,#fff4f6)!important;
+  color:var(--wine)!important;
+  border:1px solid #efd6df!important;
+  box-shadow:none!important;
+}
+
+/* Discovery/profile cards */
+.cards{
+  gap:20px!important;
+}
+
+.profile-card{
+  background:linear-gradient(180deg,rgba(255,255,255,.97),rgba(255,248,250,.95))!important;
+  border-color:#eed9e1!important;
+  box-shadow:0 16px 40px rgba(79,24,51,.10)!important;
+}
+
+.profile-card:hover{
+  box-shadow:0 24px 56px rgba(79,24,51,.16)!important;
+}
+
+.profile-body{
+  background:linear-gradient(180deg,rgba(255,255,255,.98),rgba(255,247,249,.95));
+}
+
+.name{
+  color:var(--wine)!important;
+}
+
+.distance-line{
+  color:var(--rose)!important;
+}
+
+.tag{
+  background:linear-gradient(135deg,#f8e8ee,#fff2f5)!important;
+  color:#7f4058!important;
+  border:1px solid #efd7e0;
+}
+
+/* Romantic action buttons on cards */
+.action{
+  border:1px solid #ecd6df!important;
+  background:#fff8fa!important;
+  color:#95536b;
+}
+
+.action.like{
+  background:linear-gradient(135deg,#f9dbe6,#ffeaf1)!important;
+  color:var(--rose)!important;
+}
+
+.action.super{
+  background:linear-gradient(135deg,#fff0d7,#fff7eb)!important;
+  color:#a67524!important;
+}
+
+/* Auth / forms */
+.auth{
+  background:linear-gradient(145deg,rgba(255,255,255,.97),rgba(255,239,245,.92))!important;
+  border-color:#eed8e1!important;
+  box-shadow:0 22px 60px rgba(79,24,51,.12)!important;
+}
+
+.auth h1{
+  color:var(--wine);
+}
+
+.auth .field label{
+  color:#593345;
+}
+
+/* Chats */
+.chat-preview{
+  background:linear-gradient(135deg,rgba(255,255,255,.96),rgba(255,243,247,.92))!important;
+  border-color:#eed7df!important;
+  box-shadow:0 12px 32px rgba(79,24,51,.08)!important;
+}
+
+.chat-preview:hover{
+  border-color:#e6c3d0!important;
+  box-shadow:0 18px 40px rgba(79,24,51,.13)!important;
+}
+
+.chat-preview img{
+  border-color:#f1d5df!important;
+  box-shadow:0 5px 16px rgba(199,47,104,.10);
+}
+
+.chat{
+  border-color:#edd7df!important;
+  box-shadow:var(--shadow-romantic)!important;
+}
+
+.messages{
+  background:
+    radial-gradient(circle at 10% 15%,rgba(250,211,223,.35),transparent 25%),
+    linear-gradient(180deg,#fff9fa,#fff4f6)!important;
+}
+
+.theirs{
+  background:#fff!important;
+  border-color:#ecd8e0!important;
+}
+
+.mine{
+  background:linear-gradient(135deg,#5d1c3b,#bc2e64)!important;
+}
+
+/* Pricing / premium */
+.price{
+  background:linear-gradient(145deg,rgba(255,255,255,.97),rgba(255,241,246,.92))!important;
+  border-color:#eed6df!important;
+  box-shadow:0 16px 42px rgba(79,24,51,.08)!important;
+}
+
+.price.featured{
+  border-color:#cd4c78!important;
+  box-shadow:0 22px 52px rgba(199,47,104,.15)!important;
+  background:linear-gradient(145deg,#fff,#fff0f5)!important;
+}
+
+.amount{
+  color:var(--wine)!important;
+}
+
+/* Profile settings */
+.location-settings{
+  background:linear-gradient(135deg,#fff9f7,#fff0f4)!important;
+  border-color:#eed8e0!important;
+}
+
+/* Empty states */
+.empty,
+.no-encounters{
+  background:linear-gradient(145deg,rgba(255,255,255,.96),rgba(255,239,245,.92))!important;
+  border-color:#eed8e1!important;
+  box-shadow:0 20px 52px rgba(79,24,51,.08)!important;
+}
+
+.empty h2,
+.no-encounters h2{
+  color:var(--wine);
+}
+
+.empty-heart{
+  background:linear-gradient(135deg,#f9dce7,#fff0ea)!important;
+  color:var(--rose)!important;
+  box-shadow:0 14px 32px rgba(199,47,104,.12)!important;
+}
+
+/* Matches / little romantic highlights */
+.match{
+  background:linear-gradient(145deg,rgba(255,255,255,.98),rgba(255,240,245,.94))!important;
+  border-color:#eed8e0!important;
+}
+
+.match img{
+  border-color:#f2d4df!important;
+  box-shadow:0 7px 18px rgba(199,47,104,.12);
+}
+
+/* Swipe / Encounters */
+.encounters-page{
+  background:
+    radial-gradient(circle at 50% 0%,rgba(248,205,218,.45),transparent 25%),
+    radial-gradient(circle at 15% 70%,rgba(255,227,217,.42),transparent 22%),
+    linear-gradient(135deg,#fffafa,#fff1f5 58%,#f8e7ee)!important;
+}
+
+.encounter-card{
+  border-color:#ebd4de!important;
+  box-shadow:0 28px 65px rgba(79,24,51,.19)!important;
+}
+
+.encounter-info{
+  background:linear-gradient(180deg,#fffafb,#fff1f5)!important;
+}
+
+.encounter-name-row h2{
+  color:var(--wine)!important;
+}
+
+.encounter-distance{
+  color:var(--rose)!important;
+}
+
+.encounter-pass{
+  background:#fff!important;
+  color:#a34a69!important;
+  border-color:#edd8e0!important;
+}
+
+.encounter-super{
+  background:linear-gradient(135deg,#fff7fb,#ffe8f0)!important;
+  border-color:#c83d6d!important;
+  color:#a92656!important;
+}
+
+.encounter-like{
+  background:linear-gradient(135deg,#7a2247,#c42f69)!important;
+}
+
+/* Premium / special highlights */
+.super-choice{
+  background:linear-gradient(135deg,#fff5e0,#fffaf0)!important;
+}
+
+/* Mobile nav */
+.ud-mobile-nav{
+  background:rgba(255,249,249,.96)!important;
+  border-color:#ecd6df!important;
+  box-shadow:0 18px 46px rgba(79,24,51,.18)!important;
+}
+
+.ud-mobile-nav .bottom-item.active{
+  background:linear-gradient(135deg,#f8e4eb,#fff0f4)!important;
+  color:var(--rose-deep)!important;
+}
+
+/* Alerts */
+.alert{
+  background:linear-gradient(135deg,#fff0f4,#fff8fa)!important;
+  border:1px solid #efd5df;
+}
+
+.alert.success{
+  background:linear-gradient(135deg,#f0faf5,#f7fffb)!important;
+}
+
+/* Footer */
+.footer{
+  color:#8c707c!important;
+}
+
+/* Extra romance on selected page headers */
+.encounters-page:before,
+main.container:before{
+  background:radial-gradient(circle,rgba(224,115,151,.16),transparent 68%)!important;
+}
+
+/* Soft mobile polish */
+@media(max-width:700px){
+  .section-title{
+    margin-bottom:20px;
+  }
+  .profile-card{
+    border-radius:24px!important;
+  }
+  .auth{
+    border-radius:26px!important;
+  }
+}
