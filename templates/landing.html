@@ -9,179 +9,63 @@
 <body>
 <style>
 :root{--pink:#ff2f72;--rose:#ef5b8e;--wine:#651d43;--cream:#fff8fb}
-*{box-sizing:border-box}
-html{scroll-behavior:smooth}
+*{box-sizing:border-box}html{scroll-behavior:smooth}
 body{margin:0;font-family:Arial,'Helvetica Neue',sans-serif;background:#2e071d}
-.landing-shell{
-  min-height:100vh;width:100vw;position:relative;overflow:hidden;color:#fff;
-  background:
-    linear-gradient(90deg,rgba(40,4,24,.88) 0%,rgba(70,7,36,.60) 38%,rgba(70,7,36,.18) 68%,rgba(25,3,19,.22) 100%),
-    linear-gradient(180deg,rgba(255,76,139,.18),rgba(48,5,26,.20)),
-    url("https://images.unsplash.com/photo-1534528741775-53994a69daeb?w=1800");
-  background-size:cover;background-position:center 32%;background-repeat:no-repeat;
-}
-.landing-shell:before{
-  content:"";position:absolute;inset:0;pointer-events:none;
-  background:
-    radial-gradient(circle at 78% 35%,rgba(255,137,178,.30),transparent 20%),
-    radial-gradient(circle at 12% 75%,rgba(255,91,139,.22),transparent 30%),
-    linear-gradient(to top,rgba(29,3,18,.72),transparent 48%);
-}
-.landing-nav{
-  position:absolute;left:0;right:0;top:0;z-index:10;
-  display:flex;align-items:center;justify-content:space-between;
-  padding:20px 30px;
-}
-.brand{
-  display:flex;align-items:center;gap:9px;
-  font-weight:900;letter-spacing:-.8px;font-size:28px;
-  color:#fff;text-shadow:0 3px 20px rgba(0,0,0,.35)
-}
-.brand-mark{display:inline-flex;align-items:center;justify-content:center;font-size:25px}
-.brand-sub{
-  display:block;font-size:10px;letter-spacing:4px;margin-top:-2px;opacity:.92;font-weight:800
-}
+.landing-shell{min-height:100vh;width:100vw;position:relative;overflow:hidden;color:#fff;
+background:
+linear-gradient(90deg,rgba(40,4,24,.76) 0%,rgba(70,7,36,.48) 38%,rgba(70,7,36,.10) 68%,rgba(25,3,19,.16) 100%),
+linear-gradient(180deg,rgba(255,76,139,.14),rgba(48,5,26,.12)),
+url("/static/images/uganda-dating-hero.jpg?v=20261006-hero");
+background-size:cover;background-position:center center;background-repeat:no-repeat}
+.landing-shell:before{content:"";position:absolute;inset:0;pointer-events:none;background:
+radial-gradient(circle at 78% 35%,rgba(255,137,178,.26),transparent 20%),
+radial-gradient(circle at 12% 75%,rgba(255,91,139,.18),transparent 30%),
+linear-gradient(to top,rgba(29,3,18,.66),transparent 48%)}
+.landing-nav{position:absolute;left:0;right:0;top:0;z-index:10;display:flex;align-items:center;justify-content:space-between;padding:20px 30px}
+.brand{display:flex;align-items:center;gap:9px;font-weight:900;letter-spacing:-.8px;font-size:28px;color:#fff;text-shadow:0 3px 20px rgba(0,0,0,.35)}
+.brand-mark{display:inline-flex;align-items:center;justify-content:center;font-size:25px}.brand-sub{display:block;font-size:10px;letter-spacing:4px;margin-top:-2px;opacity:.92;font-weight:800}
 .nav-left,.nav-right{display:flex;align-items:center;gap:10px}
-.nav-btn{
-  border:1px solid rgba(255,255,255,.30);
-  background:rgba(45,4,26,.30);color:#fff;padding:11px 17px;border-radius:999px;
-  text-decoration:none;font-weight:800;backdrop-filter:blur(16px);
-  box-shadow:0 8px 24px rgba(0,0,0,.12)
-}
+.nav-btn{border:1px solid rgba(255,255,255,.30);background:rgba(45,4,26,.30);color:#fff;padding:11px 17px;border-radius:999px;text-decoration:none;font-weight:800;backdrop-filter:blur(16px);box-shadow:0 8px 24px rgba(0,0,0,.12)}
 .nav-btn.primary{background:linear-gradient(135deg,#ff3173,#df2d6c);border-color:rgba(255,255,255,.16)}
-.product-menu{position:relative}
-.product-menu summary{list-style:none;cursor:pointer}
-.product-menu summary::-webkit-details-marker{display:none}
-.products{
-  position:absolute;top:54px;left:0;width:250px;padding:13px;border-radius:20px;
-  background:rgba(49,5,27,.94);backdrop-filter:blur(20px);
-  box-shadow:0 22px 55px rgba(0,0,0,.34);border:1px solid rgba(255,255,255,.15)
-}
-.products a{display:block;padding:11px 12px;border-radius:12px;color:#fff;text-decoration:none;font-weight:700}
-.products a:hover{background:rgba(255,255,255,.11)}
-.hero{
-  position:relative;z-index:2;min-height:100vh;
-  display:flex;align-items:center;padding:150px 7% 110px
-}
-.copy{max-width:680px}
-.kicker{
-  display:inline-flex;align-items:center;gap:8px;padding:9px 15px;border-radius:999px;
-  background:rgba(255,255,255,.14);font-weight:900;color:#ffe9f1;
-  border:1px solid rgba(255,255,255,.23);backdrop-filter:blur(12px)
-}
+.product-menu{position:relative}.product-menu summary{list-style:none;cursor:pointer}.product-menu summary::-webkit-details-marker{display:none}
+.products{position:absolute;top:54px;left:0;width:250px;padding:13px;border-radius:20px;background:rgba(49,5,27,.94);backdrop-filter:blur(20px);box-shadow:0 22px 55px rgba(0,0,0,.34);border:1px solid rgba(255,255,255,.15)}
+.products a{display:block;padding:11px 12px;border-radius:12px;color:#fff;text-decoration:none;font-weight:700}.products a:hover{background:rgba(255,255,255,.11)}
+.hero{position:relative;z-index:2;min-height:100vh;display:flex;align-items:center;padding:150px 7% 110px}.copy{max-width:680px}
+.kicker{display:inline-flex;align-items:center;gap:8px;padding:9px 15px;border-radius:999px;background:rgba(255,255,255,.14);font-weight:900;color:#ffe9f1;border:1px solid rgba(255,255,255,.23);backdrop-filter:blur(12px)}
 .kicker-dot{width:8px;height:8px;border-radius:50%;background:#ff7aa7;box-shadow:0 0 0 5px rgba(255,122,167,.15)}
-h1{
-  font-family:Georgia,'Times New Roman',serif;
-  font-size:clamp(72px,10.5vw,150px);line-height:.86;letter-spacing:-7px;
-  margin:24px 0 22px;text-shadow:0 10px 38px rgba(43,3,21,.42)
-}
-h1 .plain{color:#fff} h1 .accent{
-  display:block;color:#ff3f7d;
-  text-shadow:0 12px 38px rgba(255,42,111,.22)
-}
+h1{font-family:Georgia,'Times New Roman',serif;font-size:clamp(72px,10.5vw,150px);line-height:.86;letter-spacing:-7px;margin:24px 0 22px;text-shadow:0 10px 38px rgba(43,3,21,.42)}
+h1 .plain{color:#fff}h1 .accent{display:block;color:#ff3f7d;text-shadow:0 12px 38px rgba(255,42,111,.22)}
 .lead{font-size:21px;line-height:1.62;max-width:600px;color:#fff3f6;text-shadow:0 2px 16px rgba(0,0,0,.45)}
-.actions{display:flex;gap:14px;flex-wrap:wrap;margin-top:31px}
-.cta{
-  padding:16px 24px;border-radius:999px;text-decoration:none;font-weight:900;
-  display:inline-flex;align-items:center;justify-content:center;gap:9px;min-width:205px
-}
-.cta-primary{
-  background:linear-gradient(135deg,#ff2d70,#e52d6d);color:#fff;
-  box-shadow:0 16px 40px rgba(255,45,112,.25)
-}
-.cta-secondary{
-  background:rgba(255,255,255,.93);color:#7a1e49;border:1px solid rgba(255,255,255,.65);
-  box-shadow:0 14px 34px rgba(0,0,0,.18)
-}
+.actions{display:flex;gap:14px;flex-wrap:wrap;margin-top:31px}.cta{padding:16px 24px;border-radius:999px;text-decoration:none;font-weight:900;display:inline-flex;align-items:center;justify-content:center;gap:9px;min-width:205px}
+.cta-primary{background:linear-gradient(135deg,#ff2d70,#e52d6d);color:#fff;box-shadow:0 16px 40px rgba(255,45,112,.25)}
+.cta-secondary{background:rgba(255,255,255,.93);color:#7a1e49;border:1px solid rgba(255,255,255,.65);box-shadow:0 14px 34px rgba(0,0,0,.18)}
 .hero-note{margin-top:18px;color:#ffdfea;font-size:13px}
-.heart{position:absolute;z-index:1;font-size:28px;color:#ff6f9e;filter:drop-shadow(0 7px 13px rgba(0,0,0,.16));animation:float 5s ease-in-out infinite}
-.heart.h1{left:50%;top:26%;font-size:44px;animation-delay:.5s}
-.heart.h2{right:26%;top:33%;font-size:26px;animation-delay:1.2s}
-.heart.h3{right:12%;top:63%;font-size:36px;animation-delay:2s}
-.heart.h4{left:40%;bottom:22%;font-size:24px;animation-delay:1.6s}
+.heart{position:absolute;z-index:1;font-size:28px;color:#ff6f9e;filter:drop-shadow(0 7px 13px rgba(0,0,0,.16));animation:float 5s ease-in-out infinite}.heart.h1{left:50%;top:26%;font-size:44px;animation-delay:.5s}.heart.h2{right:26%;top:33%;font-size:26px;animation-delay:1.2s}.heart.h3{right:12%;top:63%;font-size:36px;animation-delay:2s}.heart.h4{left:40%;bottom:22%;font-size:24px;animation-delay:1.6s}
 @keyframes float{0%,100%{transform:translateY(0) rotate(-5deg)}50%{transform:translateY(-13px) rotate(5deg)}}
-.feature-strip{
-  position:absolute;left:3%;right:3%;bottom:22px;z-index:5;
-  display:grid;grid-template-columns:repeat(4,1fr);gap:10px
-}
-.feature-card{
-  padding:17px 18px;border-radius:22px;background:rgba(255,248,251,.90);color:#3d2132;
-  border:1px solid rgba(255,255,255,.72);backdrop-filter:blur(16px);
-  box-shadow:0 14px 34px rgba(0,0,0,.14)
-}
+.feature-strip{position:absolute;left:3%;right:3%;bottom:22px;z-index:5;display:grid;grid-template-columns:repeat(4,1fr);gap:10px}
+.feature-card{padding:17px 18px;border-radius:22px;background:rgba(255,248,251,.90);color:#3d2132;border:1px solid rgba(255,255,255,.72);backdrop-filter:blur(16px);box-shadow:0 14px 34px rgba(0,0,0,.14)}
 .feature-icon{font-size:21px;margin-bottom:6px}.feature-title{font-weight:900}.feature-copy{font-size:12px;margin-top:3px;color:#755e69}
-@media(max-width:950px){
-  .landing-nav{padding:17px 16px}.brand{font-size:21px}.brand-sub{display:none}.nav-btn{padding:9px 12px;font-size:12px}
-  .hero{padding:130px 22px 190px}.copy{margin:auto;text-align:center}
-  .lead{margin:auto;font-size:18px}.actions{justify-content:center}.feature-strip{grid-template-columns:repeat(2,1fr)}
-  .heart.h2,.heart.h3{display:none}
-}
-@media(max-width:560px){
-  .landing-shell{background-position:63% 25%}
-  .nav-left .nav-btn:not(summary),.nav-right .nav-btn:first-child{display:none}
-  .hero{padding:125px 18px 245px}
-  h1{font-size:clamp(62px,19vw,88px);letter-spacing:-5px}
-  .lead{font-size:16px}
-  .cta{width:100%;min-width:0}.actions{gap:10px}
-  .feature-strip{left:10px;right:10px;bottom:10px;grid-template-columns:1fr 1fr}
-  .feature-card{padding:13px;border-radius:17px}
-}
+@media(max-width:950px){.landing-nav{padding:17px 16px}.brand{font-size:21px}.brand-sub{display:none}.nav-btn{padding:9px 12px;font-size:12px}.hero{padding:130px 22px 190px}.copy{margin:auto;text-align:center}.lead{margin:auto;font-size:18px}.actions{justify-content:center}.feature-strip{grid-template-columns:repeat(2,1fr)}.heart.h2,.heart.h3{display:none}}
+@media(max-width:560px){.landing-shell{background-position:62% center}.nav-left .nav-btn:not(summary),.nav-right .nav-btn:first-child{display:none}.hero{padding:125px 18px 245px}h1{font-size:clamp(62px,19vw,88px);letter-spacing:-5px}.lead{font-size:16px}.cta{width:100%;min-width:0}.actions{gap:10px}.feature-strip{left:10px;right:10px;bottom:10px;grid-template-columns:1fr 1fr}.feature-card{padding:13px;border-radius:17px}}
 </style>
-
 <section class="landing-shell">
-  <nav class="landing-nav">
-    <div class="nav-left">
-      <details class="product-menu">
-        <summary class="nav-btn">☰ Products ▾</summary>
-        <div class="products">
-          <a href="{{ url_for('discover') }}">❤️ Discover</a>
-          <a href="{{ url_for('likes') }}">💗 See Who Likes You</a>
-          <a href="{{ url_for('encounters') }}">✨ Encounters</a>
-          <a href="{{ url_for('chats') }}">💬 Chats</a>
-          <a href="{{ url_for('profile') }}">👤 Your Profile</a>
-          <a href="#download">📱 Download App</a>
-        </div>
-      </details>
-    </div>
-
-    <div class="brand">
-      <span class="brand-mark">💗</span>
-      <span>
-        Uganda-Dating
-        <span class="brand-sub">MEET • CONNECT • DATE</span>
-      </span>
-    </div>
-
-    <div class="nav-right">
-      <a class="nav-btn" href="{{ url_for('login') }}">Login</a>
-      <a class="nav-btn primary" href="{{ url_for('register') }}">Get the App</a>
-    </div>
-  </nav>
-
-  <span class="heart h1">♥</span>
-  <span class="heart h2">♥</span>
-  <span class="heart h3">♥</span>
-  <span class="heart h4">♥</span>
-
-  <div class="hero">
-    <div class="copy">
-      <div class="kicker"><span class="kicker-dot"></span>🇺🇬 Made for connections in Uganda</div>
-      <h1><span class="plain">Just a</span><span class="accent">Swipe.</span></h1>
-      <p class="lead">Meet real people around you in Uganda. Start a conversation, discover someone special and turn a simple swipe into a meaningful connection.</p>
-      <div class="actions">
-        <a class="cta cta-primary" href="{{ url_for('register') }}">📱 Get the App →</a>
-        <a class="cta cta-secondary" href="{{ url_for('register') }}">❤️ Create a Free Account →</a>
-      </div>
-      <div id="download" class="hero-note">Nearby people • Smart preferences • Private location • Real conversations</div>
-    </div>
-  </div>
-
-  <div class="feature-strip">
-    <div class="feature-card"><div class="feature-icon">📍</div><div class="feature-title">People Near You</div><div class="feature-copy">Discover singles around you</div></div>
-    <div class="feature-card"><div class="feature-icon">💬</div><div class="feature-title">Real Conversations</div><div class="feature-copy">Chat and get to know each other</div></div>
-    <div class="feature-card"><div class="feature-icon">❤️</div><div class="feature-title">Meaningful Connections</div><div class="feature-copy">From friendship to love</div></div>
-    <div class="feature-card"><div class="feature-icon">🛡️</div><div class="feature-title">Safe & Secure</div><div class="feature-copy">Your privacy comes first</div></div>
-  </div>
+<nav class="landing-nav">
+<div class="nav-left"><details class="product-menu"><summary class="nav-btn">☰ Products ▾</summary><div class="products"><a href="{{ url_for('discover') }}">❤️ Discover</a><a href="{{ url_for('likes') }}">💗 See Who Likes You</a><a href="{{ url_for('encounters') }}">✨ Encounters</a><a href="{{ url_for('chats') }}">💬 Chats</a><a href="{{ url_for('profile') }}">👤 Your Profile</a><a href="#download">📱 Download App</a></div></details></div>
+<div class="brand"><span class="brand-mark">💗</span><span>Uganda-Dating<span class="brand-sub">MEET • CONNECT • DATE</span></span></div>
+<div class="nav-right"><a class="nav-btn" href="{{ url_for('login') }}">Login</a><a class="nav-btn primary" href="{{ url_for('register') }}">Get the App</a></div>
+</nav>
+<span class="heart h1">♥</span><span class="heart h2">♥</span><span class="heart h3">♥</span><span class="heart h4">♥</span>
+<div class="hero"><div class="copy"><div class="kicker"><span class="kicker-dot"></span>🇺🇬 Made for connections in Uganda</div>
+<h1><span class="plain">Just a</span><span class="accent">Swipe.</span></h1>
+<p class="lead">Meet real people around you in Uganda. Start a conversation, discover someone special and turn a simple swipe into a meaningful connection.</p>
+<div class="actions"><a class="cta cta-primary" href="{{ url_for('register') }}">📱 Get the App →</a><a class="cta cta-secondary" href="{{ url_for('register') }}">❤️ Create a Free Account →</a></div>
+<div id="download" class="hero-note">Nearby people • Smart preferences • Private location • Real conversations</div>
+</div></div>
+<div class="feature-strip">
+<div class="feature-card"><div class="feature-icon">📍</div><div class="feature-title">People Near You</div><div class="feature-copy">Discover singles around you</div></div>
+<div class="feature-card"><div class="feature-icon">💬</div><div class="feature-title">Real Conversations</div><div class="feature-copy">Chat and get to know each other</div></div>
+<div class="feature-card"><div class="feature-icon">❤️</div><div class="feature-title">Meaningful Connections</div><div class="feature-copy">From friendship to love</div></div>
+<div class="feature-card"><div class="feature-icon">🛡️</div><div class="feature-title">Safe & Secure</div><div class="feature-copy">Your privacy comes first</div></div>
+</div>
 </section>
-</body>
-</html>
+</body></html>

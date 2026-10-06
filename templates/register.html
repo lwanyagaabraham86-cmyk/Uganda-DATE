@@ -1,70 +1,240 @@
 {% extends 'base.html' %}
 {% block title %}Join Uganda Dating{% endblock %}
 {% block content %}
-<main class="container">
-  <div class="auth registration-card">
-    <div class="eyebrow">🇺🇬 Made for genuine connections</div>
-    <h1>Create your profile ❤️</h1>
-    <p class="muted">Free to join. You must be 18 or older.</p>
-    <form method="post" id="registrationForm">
-      <section class="photo-onboarding">
-        <div class="photo-onboarding-head"><div><h2>Add your photos</h2><p class="muted small">Choose at least 2 clear photos from your gallery. You can add up to 6.</p></div><span id="photoCount" class="photo-count">0/6</span></div>
-        <div class="photo-grid onboarding-photo-grid">
-          {% for slot in range(1,7) %}
-          <button type="button" class="photo-slot {% if slot <= 2 %}required-slot{% endif %}" id="photoSlot{{slot}}" onclick="pickPhoto({{slot}})">
-            <span class="photo-slot-plus" id="plus{{slot}}">＋</span><img id="preview{{slot}}" alt="Photo {{slot}}" hidden>
-            <span class="photo-slot-label">{% if slot <= 2 %}Photo {{slot}} · required{% else %}Add photo{% endif %}</span>
-            <span class="photo-slot-remove" id="remove{{slot}}" hidden onclick="event.stopPropagation();removePhoto({{slot}})">×</span>
-          </button>
-          <input type="file" id="file{{slot}}" accept="image/jpeg,image/png,image/webp" hidden>
-          <input type="hidden" name="photo{{slot}}_data" id="data{{slot}}">
-          {% endfor %}
+<style>
+.registration-page{
+  min-height:calc(100vh - 80px);
+  margin:-38px -20px;
+  padding:48px 18px 90px;
+  background:
+    radial-gradient(circle at 12% 12%,rgba(255,149,191,.30),transparent 25%),
+    radial-gradient(circle at 88% 16%,rgba(222,190,231,.30),transparent 24%),
+    radial-gradient(circle at 78% 82%,rgba(250,205,194,.30),transparent 24%),
+    linear-gradient(135deg,#fffafd 0%,#fff3f7 50%,#fff8f3 100%);
+  position:relative;overflow:hidden;
+}
+.registration-page:before,.registration-page:after{
+  position:absolute;content:"♡";font-size:180px;line-height:1;color:rgba(232,93,140,.08);pointer-events:none
+}
+.registration-page:before{left:-46px;top:100px;transform:rotate(-13deg)}
+.registration-page:after{right:-36px;bottom:40px;transform:rotate(16deg)}
+.registration-wrap{max-width:920px;margin:0 auto;position:relative;z-index:2}
+.registration-header{text-align:center;max-width:700px;margin:0 auto 22px}
+.registration-badge{
+  display:inline-flex;align-items:center;gap:8px;padding:9px 14px;border-radius:999px;
+  background:rgba(255,255,255,.78);border:1px solid #efd9e3;color:#c84a79;
+  font-size:11px;font-weight:900;letter-spacing:.5px;box-shadow:0 10px 28px rgba(173,82,119,.08)
+}
+.registration-header h1{font-family:'Playfair Display',serif;font-size:44px;line-height:1.05;color:#71304f;margin:15px 0 10px}
+.registration-header h1 .love{color:#e85d8c}
+.registration-header p{margin:0;color:#8a7380}
+.registration-card{
+  max-width:920px!important;margin:0 auto!important;padding:30px!important;border-radius:34px!important;
+  background:rgba(255,255,255,.90)!important;border:1px solid rgba(239,217,226,.95)!important;
+  box-shadow:0 28px 80px rgba(120,52,87,.13)!important;backdrop-filter:blur(18px)
+}
+.romance-top{
+  display:grid;grid-template-columns:1fr 1fr;gap:16px;margin-bottom:18px
+}
+.romance-note{
+  padding:18px;border-radius:22px;background:linear-gradient(145deg,#fff1f6,#f8eef7);
+  border:1px solid #f0dbe4
+}
+.romance-note strong{display:block;color:#75334f;font-size:15px;margin-bottom:5px}
+.romance-note span{font-size:12px;color:#8e7482;line-height:1.55}
+.photo-onboarding{
+  margin:0!important;padding:20px!important;border-radius:26px!important;
+  background:linear-gradient(145deg,#fffafd,#fff0f5)!important;border:1px solid #efd8e2!important
+}
+.photo-onboarding-head{margin-bottom:15px!important}
+.photo-onboarding-head h2,.preference-title h2{color:#74334f!important}
+.photo-count{
+  background:linear-gradient(135deg,#ffe4ee,#f4e6f5)!important;color:#bd3f70!important
+}
+.photo-grid.onboarding-photo-grid{gap:12px}
+.photo-slot{
+  border-color:#dfbfd0!important;border-radius:20px!important;background:linear-gradient(145deg,#fffafd,#fff0f5)!important;
+  transition:.2s;box-shadow:0 8px 22px rgba(176,87,120,.06)
+}
+.photo-slot:hover{transform:translateY(-2px);border-color:#e26d98!important;box-shadow:0 14px 28px rgba(176,87,120,.11)}
+.photo-slot.filled{box-shadow:0 10px 30px rgba(181,61,111,.13)}
+.gallery-button{margin-top:14px!important}
+.registration-fields{
+  display:grid;grid-template-columns:1fr 1fr;gap:4px 16px;margin-top:20px
+}
+.registration-fields .field:first-child,.registration-fields .field:nth-child(2),.registration-fields .field:nth-child(3){grid-column:1/-1}
+.field{margin:11px 0!important}
+.field label{color:#6f5664!important}
+.field input,.field select{
+  background:#fff!important;border-color:#ead7df!important;border-radius:15px!important
+}
+.preference-panel{
+  margin:18px 0!important;padding:19px!important;border-radius:24px!important;
+  background:linear-gradient(145deg,#fff8fb,#fbf3f8)!important;border-color:#efdbe4!important
+}
+#ageSummary{
+  padding:7px 11px;border-radius:999px;background:#fde7f0;color:#bf416f;font-size:12px
+}
+.create-account-btn{
+  margin-top:12px;
+  min-height:56px!important;font-size:16px!important;letter-spacing:.1px;
+  background:linear-gradient(135deg,#8c4264 0%,#d84f7f 54%,#f17aa4 100%)!important;
+  box-shadow:0 16px 34px rgba(216,79,127,.24)!important
+}
+.create-account-btn:hover{transform:translateY(-2px) scale(1.005)!important}
+.registration-footer-note{text-align:center;margin:15px 0 0;color:#9a7e8c}
+@media(max-width:700px){
+  .registration-page{margin:-25px -15px;padding:34px 12px 88px}
+  .registration-card{padding:18px!important;border-radius:26px!important}
+  .registration-header h1{font-size:35px}
+  .romance-top{grid-template-columns:1fr}
+  .registration-fields{grid-template-columns:1fr}
+  .registration-fields .field{grid-column:auto!important}
+}
+</style>
+
+<main class="registration-page">
+  <div class="registration-wrap">
+    <header class="registration-header">
+      <div class="registration-badge">💗 🇺🇬 MADE FOR LOVE, CONNECTION & GOOD CONVERSATIONS</div>
+      <h1>Create your profile <span class="love">♥</span></h1>
+      <p>Join Uganda Dating, add your best photos and tell us who you would love to meet.</p>
+    </header>
+
+    <div class="auth registration-card">
+      <div class="romance-top">
+        <div class="romance-note"><strong>✨ Show your personality</strong><span>Use bright, clear photos that help people see the real you. Your first photo becomes your main profile photo.</span></div>
+        <div class="romance-note"><strong>📍 Meet people nearby</strong><span>Choose your city and age preferences. Nearby discovery can use GPS while keeping your exact location private.</span></div>
+      </div>
+
+      <form method="post" id="registrationForm">
+        <section class="photo-onboarding">
+          <div class="photo-onboarding-head">
+            <div><h2>Add your photos</h2><p class="muted small">Choose at least 2 clear photos from your gallery. You can add up to 6.</p></div>
+            <span id="photoCount" class="photo-count">0/6</span>
+          </div>
+          <div class="photo-grid onboarding-photo-grid" id="photoGrid">
+            {% for slot in range(1,7) %}
+            <button type="button" class="photo-slot {% if slot <= 2 %}required-slot{% endif %}" id="photoSlot{{slot}}" onclick="pickPhoto({{slot}})">
+              <span class="photo-slot-plus" id="plus{{slot}}">＋</span>
+              <img id="preview{{slot}}" alt="Photo {{slot}}" hidden>
+              <span class="photo-slot-label">{% if slot <= 2 %}Photo {{slot}} · required{% else %}Add photo{% endif %}</span>
+              <span class="photo-slot-remove" id="remove{{slot}}" hidden onclick="event.stopPropagation();removePhoto({{slot}})">×</span>
+            </button>
+            <input type="file" id="file{{slot}}" accept="image/jpeg,image/png,image/webp" hidden>
+            <input type="hidden" name="photo{{slot}}_data" id="data{{slot}}">
+            {% endfor %}
+          </div>
+          <input type="file" id="galleryPicker" accept="image/jpeg,image/png,image/webp" multiple hidden>
+          <button type="button" class="btn secondary gallery-button" onclick="document.getElementById('galleryPicker').click()">📷 Choose photos from your gallery</button>
+          <div id="photoHint" class="muted small photo-hint">Add 2 or more photos to continue.</div>
+        </section>
+
+        <div class="registration-fields">
+          <div class="field"><label>Name</label><input name="name" autocomplete="name" placeholder="What should we call you?" required></div>
+          <div class="field"><label>Email</label><input type="email" name="email" autocomplete="email" placeholder="you@example.com" required></div>
+          <div class="field"><label>Password</label><input type="password" name="password" minlength="6" autocomplete="new-password" placeholder="At least 6 characters" required></div>
+          <div class="field"><label>Age</label><input type="number" name="age" min="18" max="100" placeholder="18+" required></div>
+          <div class="field"><label>I am</label><select name="gender"><option>Woman</option><option>Man</option><option>Non-binary</option></select></div>
+          <div class="field"><label>Interested in</label><select name="interested_in"><option>Women</option><option>Men</option><option>Everyone</option></select></div>
+          <div class="field"><label>City / Area</label><select name="city"><option>Kampala</option><option>Entebbe</option><option>Jinja</option><option>Mbarara</option><option>Gulu</option><option>Mbale</option><option>Wakiso</option><option>Other</option></select></div>
         </div>
-        <input type="file" id="galleryPicker" accept="image/jpeg,image/png,image/webp" multiple hidden>
-        <button type="button" class="btn secondary gallery-button" onclick="document.getElementById('galleryPicker').click()">📷 Choose from gallery</button>
-        <div id="photoHint" class="muted small photo-hint">Add 2 or more photos to continue.</div>
-      </section>
-      <div class="field"><label>Name</label><input name="name" autocomplete="name" required></div>
-      <div class="field"><label>Email</label><input type="email" name="email" autocomplete="email" required></div>
-      <div class="field"><label>Password</label><input type="password" name="password" minlength="6" autocomplete="new-password" required></div>
-      <div class="field"><label>Age</label><input type="number" name="age" min="18" max="100" required></div>
-      <div class="field"><label>I am</label><select name="gender"><option>Woman</option><option>Man</option><option>Non-binary</option></select></div>
-      <div class="field"><label>Interested in</label><select name="interested_in"><option>Women</option><option>Men</option><option>Everyone</option></select></div>
-      <div class="field"><label>City / Area</label><select name="city"><option>Kampala</option><option>Entebbe</option><option>Jinja</option><option>Mbarara</option><option>Gulu</option><option>Mbale</option><option>Wakiso</option><option>Other</option></select></div>
-      <section class="preference-panel">
-        <div class="preference-title"><div><h2>Who would you like to meet?</h2><p class="muted small">Set the age range you expect matches to be in.</p></div><strong id="ageSummary">18–60</strong></div>
-        <div class="age-range"><label>Minimum age <input id="minAge" type="range" name="min_age" min="18" max="100" value="18"></label><label>Maximum age <input id="maxAge" type="range" name="max_age" min="18" max="100" value="60"></label></div>
-      </section>
-      <button class="btn full" id="createAccountButton">Create free account</button>
-      <p class="muted small form-note">Two photos are required. Photos are compressed on your phone before upload for faster registration.</p>
-    </form>
+
+        <section class="preference-panel">
+          <div class="preference-title"><div><h2>Who would you like to meet?</h2><p class="muted small">Set the age range you expect your matches to be in.</p></div><strong id="ageSummary">18–60</strong></div>
+          <div class="age-range">
+            <label>Minimum age <input id="minAge" type="range" name="min_age" min="18" max="100" value="18"></label>
+            <label>Maximum age <input id="maxAge" type="range" name="max_age" min="18" max="100" value="60"></label>
+          </div>
+        </section>
+
+        <button class="btn full create-account-btn" id="createAccountButton">Create my free account ❤️</button>
+        <p class="muted small registration-footer-note">18+ only • Your exact location stays private • Photos are compressed before upload</p>
+      </form>
+    </div>
   </div>
 </main>
+
 <script>
 (function(){
-  const MAX=6,MIN=2,MAX_BYTES=180*1024,slots=Array.from({length:MAX},(_,i)=>i+1),form=document.getElementById('registrationForm'),btn=document.getElementById('createAccountButton'),count=document.getElementById('photoCount'),hint=document.getElementById('photoHint'),picker=document.getElementById('galleryPicker');
+  const MAX=6,MIN=2,MAX_BYTES=180*1024,
+    slots=Array.from({length:MAX},(_,i)=>i+1),
+    form=document.getElementById('registrationForm'),
+    btn=document.getElementById('createAccountButton'),
+    count=document.getElementById('photoCount'),
+    hint=document.getElementById('photoHint'),
+    picker=document.getElementById('galleryPicker');
+
   const photoCount=()=>slots.filter(i=>document.getElementById('data'+i).value).length;
-  function sync(){const n=photoCount();count.textContent=n+'/'+MAX;hint.textContent=n<MIN?'Add at least 2 clear photos to continue.':n+' photo'+(n===1?'':'s')+' ready.';btn.disabled=false;btn.style.opacity=1}
+
+  function sync(){
+    const n=photoCount();
+    count.textContent=n+'/'+MAX;
+    hint.textContent=n<MIN?'Add at least 2 clear photos to continue.':n+' photo'+(n===1?'':'s')+' ready — looking good! ❤️';
+    btn.disabled=false;btn.style.opacity=1;
+  }
+
   async function compress(file){
-    let bitmap=window.createImageBitmap?await createImageBitmap(file,{imageOrientation:'from-image'}).catch(()=>null):null,img=bitmap;
-    if(!img) img=await new Promise((ok,no)=>{const r=new FileReader();r.onload=()=>{const i=new Image();i.onload=()=>ok(i);i.onerror=no;i.src=r.result};r.onerror=no;r.readAsDataURL(file)});
+    let bitmap=window.createImageBitmap?await createImageBitmap(file,{imageOrientation:'from-image'}).catch(()=>null):null,
+      img=bitmap;
+    if(!img) img=await new Promise((ok,no)=>{
+      const r=new FileReader();r.onload=()=>{const i=new Image();i.onload=()=>ok(i);i.onerror=no;i.src=r.result};r.onerror=no;r.readAsDataURL(file)
+    });
     let w=img.width,h=img.height,s=Math.min(1,1280/Math.max(w,h));w=Math.max(1,Math.round(w*s));h=Math.max(1,Math.round(h*s));
-    const c=document.createElement('canvas');c.width=w;c.height=h;c.getContext('2d',{alpha:false}).drawImage(img,0,0,w,h);if(bitmap&&bitmap.close)bitmap.close();
-    let q=.8,blob=null;for(let i=0;i<7;i++){blob=await new Promise(r=>c.toBlob(r,'image/jpeg',q));if(blob&&blob.size<=MAX_BYTES)break;q-=.08}
+    const c=document.createElement('canvas');c.width=w;c.height=h;c.getContext('2d',{alpha:false}).drawImage(img,0,0,w,h);
+    if(bitmap&&bitmap.close)bitmap.close();
+    let q=.8,blob=null;
+    for(let i=0;i<7;i++){blob=await new Promise(r=>c.toBlob(r,'image/jpeg',q));if(blob&&blob.size<=MAX_BYTES)break;q-=.08}
     if(!blob)throw new Error('Could not process this photo.');
     return await new Promise((ok,no)=>{const r=new FileReader();r.onload=()=>ok(r.result);r.onerror=no;r.readAsDataURL(blob)});
   }
+
   async function setPhoto(slot,file){
-    try{const data=await compress(file);document.getElementById('data'+slot).value=data;const img=document.getElementById('preview'+slot);img.src=data;img.hidden=false;document.getElementById('plus'+slot).hidden=true;document.getElementById('remove'+slot).hidden=false;document.getElementById('photoSlot'+slot).classList.add('filled');}catch(e){alert(e.message||'Could not add this photo.')}sync()
+    try{
+      const data=await compress(file);
+      document.getElementById('data'+slot).value=data;
+      const img=document.getElementById('preview'+slot);
+      img.src=data;img.hidden=false;
+      document.getElementById('plus'+slot).hidden=true;
+      document.getElementById('remove'+slot).hidden=false;
+      document.getElementById('photoSlot'+slot).classList.add('filled');
+    }catch(e){alert(e.message||'Could not add this photo.')}
+    sync();
   }
+
   const firstEmpty=()=>slots.find(i=>!document.getElementById('data'+i).value);
   window.pickPhoto=s=>document.getElementById('file'+s).click();
-  window.removePhoto=s=>{document.getElementById('data'+s).value='';const img=document.getElementById('preview'+s);img.hidden=true;img.removeAttribute('src');document.getElementById('plus'+s).hidden=false;document.getElementById('remove'+s).hidden=true;document.getElementById('photoSlot'+s).classList.remove('filled');sync()};
-  slots.forEach(s=>document.getElementById('file'+s).addEventListener('change',e=>{const f=e.target.files[0];if(f)setPhoto(s,f);e.target.value=''}));
-  picker.addEventListener('change',async e=>{for(const f of Array.from(e.target.files||[]).slice(0,MAX)){const s=firstEmpty();if(!s)break;await setPhoto(s,f)}picker.value=''});
+  window.removePhoto=s=>{
+    document.getElementById('data'+s).value='';
+    const img=document.getElementById('preview'+s);img.hidden=true;img.removeAttribute('src');
+    document.getElementById('plus'+s).hidden=false;document.getElementById('remove'+s).hidden=true;
+    document.getElementById('photoSlot'+s).classList.remove('filled');sync();
+  };
+  slots.forEach(s=>document.getElementById('file'+s).addEventListener('change',e=>{
+    const f=e.target.files[0];if(f)setPhoto(s,f);e.target.value=''
+  }));
+  picker.addEventListener('change',async e=>{
+    for(const f of Array.from(e.target.files||[]).slice(0,MAX)){
+      const s=firstEmpty();if(!s)break;await setPhoto(s,f)
+    }
+    picker.value=''
+  });
+
   const min=document.getElementById('minAge'),max=document.getElementById('maxAge'),sum=document.getElementById('ageSummary');
-  function age(){if(+min.value>+max.value)min.value=max.value;sum.textContent=min.value+'–'+max.value}min.oninput=age;max.oninput=age;
-  form.onsubmit=e=>{if(photoCount()<MIN){e.preventDefault();hint.textContent='Please add at least 2 photos before creating your account.';document.getElementById('photoGrid').scrollIntoView({behavior:'smooth',block:'center'});return;}btn.textContent='Creating your account…';btn.disabled=true;}sync();age();
+  function age(){if(+min.value>+max.value)min.value=max.value;sum.textContent=min.value+'–'+max.value}
+  min.oninput=age;max.oninput=age;
+
+  form.onsubmit=e=>{
+    if(photoCount()<MIN){
+      e.preventDefault();
+      hint.textContent='Please add at least 2 photos before creating your account. ❤️';
+      document.getElementById('photoGrid').scrollIntoView({behavior:'smooth',block:'center'});
+      return;
+    }
+    btn.textContent='Creating your account… 💗';btn.disabled=true;
+  };
+
+  sync();age();
 })();
 </script>
 {% endblock %}
