@@ -3,7 +3,7 @@
 {% block content %}
 <main class="container">
   <div class="section-title">
-    <div><div class="eyebrow">Nearby connections</div><h1>Discover</h1><p class="muted">Everyone compatible within your selected range is shown below. 💕</p></div>
+    <div><div class="eyebrow">Nearby connections</div><h1>Discover</h1><p class="muted">People nearby are shown below. Your selected range is {{ radius|round|int }} km. 💕</p></div>
     <a class="btn secondary" href="{{ url_for('premium') }}">✨ Go Premium</a>
   </div>
 

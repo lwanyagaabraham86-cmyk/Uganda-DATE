@@ -64,8 +64,8 @@
 .swipe-choice-button.super:hover{transform:translateY(-9px)}
 .pierced-heart{position:relative;width:50px;height:50px;display:block}
 .heart-shape{position:absolute;inset:1px 0 0;font-size:46px;line-height:1;color:#e5225d;text-shadow:0 3px 7px rgba(181,31,85,.25)}
-.arrow-shaft{position:absolute;width:5px;height:59px;background:linear-gradient(#d18b2f,#9d6115);left:23px;top:-6px;transform:rotate(38deg);border-radius:5px;box-shadow:0 1px 3px rgba(80,45,5,.3)}
-.arrow-head{position:absolute;width:0;height:0;border-left:8px solid transparent;border-right:8px solid transparent;border-top:14px solid #b9761d;left:39px;top:38px;transform:rotate(38deg);filter:drop-shadow(0 1px 1px rgba(80,45,5,.3))}
+
+
 .swipe-out-left{transform:translateX(-120%) rotate(-12deg);opacity:0}
 .swipe-out-right{transform:translateX(120%) rotate(12deg);opacity:0}
 .swipe-empty{text-align:center;background:#fff;border:1px solid #ead8df;border-radius:28px;padding:60px 25px;box-shadow:0 15px 40px rgba(74,24,48,.08)}
@@ -109,3 +109,6 @@
   .cards.discover-grid{grid-template-columns:1fr;gap:16px}
   .cards.discover-grid .profile-img{height:360px}
 }
+
+/* Navigation cleanup */
+.bottom-nav .swipe-nav-item{display:none!important}
