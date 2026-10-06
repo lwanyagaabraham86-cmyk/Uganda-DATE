@@ -1,48 +1,55 @@
 {% extends 'base.html' %}
 {% block title %}Discover — Uganda Dating{% endblock %}
 {% block content %}
-<main class="container">
+<main class="container discover-page">
   <div class="section-title">
-    <div><div class="eyebrow">Nearby connections</div><h1>Discover</h1><p class="muted">People are filtered by mutual preference, your age range and your GPS distance. Closest compatible matches appear first. 💕</p></div>
-    <a class="btn secondary" href="{{ url_for('premium') }}">✨ Go Premium</a>
+    <div><div class="eyebrow">Nearby connections</div><h1>Discover</h1><p class="muted">Browse compatible people using your age, gender, location and activity preferences. 💕</p></div>
+    <div class="discover-header-actions">
+      <button class="btn secondary filter-open" type="button" onclick="toggleFilters()">⚙ Filters <span id="filterBadge"></span></button>
+      <a class="btn secondary" href="{{ url_for('premium') }}">✨ Go Premium</a>
+    </div>
   </div>
 
-  <section class="nearby-controls">
-    <div class="nearby-copy">
-      <div class="nearby-icon">⌖</div>
-      <div>
-        <strong>People near you who are interested in you</strong>
-        <p class="muted small">Only compatible profiles are shown: they fit your gender preference and their preference includes you. Your exact location is never shown.</p>
-        <span id="locationStatus" class="location-status">{% if has_location %}✓ GPS saved{% if current_user.location_accuracy_m %} · ±{{ current_user.location_accuracy_m|round|int }} m{% endif %}{% else %}Location not shared yet{% endif %}</span>
+  <section class="filter-panel" id="filterPanel" hidden>
+    <form method="get" action="{{ url_for('discover') }}" class="filter-form">
+      <div class="filter-head"><div><div class="eyebrow">Discovery settings</div><h2>Who do you want to see?</h2></div><button type="button" class="filter-close" onclick="toggleFilters()">×</button></div>
+      <div class="filter-grid">
+        <div class="filter-field"><label>Show me</label><select name="gender"><option value="Everyone" {% if request.args.get('gender','Everyone')=='Everyone' %}selected{% endif %}>Everyone</option><option value="Women" {% if request.args.get('gender')=='Women' %}selected{% endif %}>Women</option><option value="Men" {% if request.args.get('gender')=='Men' %}selected{% endif %}>Men</option><option value="Non-binary" {% if request.args.get('gender')=='Non-binary' %}selected{% endif %}>Non-binary</option></select></div>
+        <div class="filter-field"><label>Location</label><select name="location"><option value="Any">Any location</option><option value="Kampala" {% if request.args.get('location')=='Kampala' %}selected{% endif %}>Kampala</option><option value="Wakiso" {% if request.args.get('location')=='Wakiso' %}selected{% endif %}>Wakiso</option><option value="Entebbe" {% if request.args.get('location')=='Entebbe' %}selected{% endif %}>Entebbe</option><option value="Jinja" {% if request.args.get('location')=='Jinja' %}selected{% endif %}>Jinja</option><option value="Mbarara" {% if request.args.get('location')=='Mbarara' %}selected{% endif %}>Mbarara</option><option value="Gulu" {% if request.args.get('location')=='Gulu' %}selected{% endif %}>Gulu</option><option value="Mbale" {% if request.args.get('location')=='Mbale' %}selected{% endif %}>Mbale</option></select></div>
+        <div class="filter-field filter-wide"><label>Age range <strong id="discoverAgeValue">{{ request.args.get('min_age',current_user.min_age or 18) }}–{{ request.args.get('max_age',current_user.max_age or 60) }}</strong></label><div class="dual-range"><input id="discoverMinAge" type="range" name="min_age" min="18" max="100" value="{{ request.args.get('min_age',current_user.min_age or 18) }}"><input id="discoverMaxAge" type="range" name="max_age" min="18" max="100" value="{{ request.args.get('max_age',current_user.max_age or 60) }}"></div></div>
+        <div class="filter-field"><label>Maximum distance</label><select name="distance_km"><option value="1">1 km</option><option value="2">2 km</option><option value="5">5 km</option><option value="10">10 km</option><option value="15">15 km</option><option value="25" {% if request.args.get('distance_km','25')=='25' %}selected{% endif %}>25 km</option><option value="50">50 km</option><option value="100">100 km</option><option value="250">250 km</option><option value="500">500 km</option></select></div>
       </div>
-    </div>
-    <div class="nearby-actions">
-      <form method="post" action="{{ url_for('update_search_radius') }}" class="radius-form">
-        <input type="hidden" name="next" value="{{ request.path }}">
-        <label for="radius">Search within</label>
-        <select id="radius" name="search_radius_km" onchange="this.form.submit()">
-          {% for value in [1,2,5,10,15,25,50,100,250,500] %}
-          <option value="{{ value }}" {% if (radius|float) == value %}selected{% endif %}>{{ value }} km</option>
-          {% endfor %}
-        </select>
-      </form>
-      <button class="btn location-btn" type="button" onclick="shareLocation()">{% if has_location %}Update location{% else %}Use my location{% endif %}</button>
-    </div>
+      <div class="filter-toggles">
+        <label class="toggle-option"><input type="checkbox" name="online" value="1" {% if request.args.get('online')=='1' %}checked{% endif %}><span>Online now</span><small>Active in the last 10 minutes</small></label>
+        <label class="toggle-option"><input type="checkbox" name="verified" value="1" {% if request.args.get('verified')=='1' %}checked{% endif %}><span>Verified only</span><small>Show verified profiles</small></label>
+        <label class="toggle-option"><input type="checkbox" name="photos" value="1" {% if request.args.get('photos')=='1' %}checked{% endif %}><span>2+ photos</span><small>Profiles with a fuller gallery</small></label>
+        <label class="toggle-option"><input type="checkbox" name="new" value="1" {% if request.args.get('new')=='1' %}checked{% endif %}><span>New here</span><small>Joined within 7 days</small></label>
+      </div>
+      <div class="filter-actions"><a class="btn secondary" href="{{ url_for('discover') }}">Reset</a><button class="btn" type="submit">Show matches</button></div>
+    </form>
   </section>
 
-  {% if not has_location %}
-  <div class="location-note"><span>💡</span><div><strong>Get precise nearby matches</strong><br><span class="muted small">Tap “Use my location” for GPS-based distance. Your exact coordinates are never shown to other members.</span></div></div>
-  {% endif %}
+  <section class="nearby-controls">
+    <div class="nearby-copy"><div class="nearby-icon">⌖</div><div><strong>People near you who are interested in you</strong><p class="muted small">GPS distance is used whenever both people have coordinates. Your exact location stays private.</p><span id="locationStatus" class="location-status">{% if has_location %}✓ GPS saved{% if current_user.location_accuracy_m %} · ±{{ current_user.location_accuracy_m|round|int }} m{% endif %}{% else %}Location not shared yet{% endif %}</span></div></div>
+    <div class="nearby-actions"><button class="btn location-btn" type="button" onclick="shareLocation()">{% if has_location %}Update GPS{% else %}Use my GPS{% endif %}</button></div>
+  </section>
+
+  {% if not has_location %}<div class="location-note"><span>💡</span><div><strong>Get precise nearby matches</strong><br><span class="muted small">Share GPS for the most accurate nearby distance calculations.</span></div></div>{% endif %}
 
   {% if nearby %}
+  <div class="result-summary"><span><strong>{{ nearby|length }}</strong> compatible profiles</span><span class="muted small">Closest matches are ranked first</span></div>
   <div class="cards">
     {% for p, distance in nearby %}
     <article class="profile-card">
-      <img class="profile-img" src="{{ p.photo }}" alt="{{ p.name }}" loading="lazy">
+      <button type="button" class="profile-gallery-trigger" data-gallery='{{ profile_photos(p)|tojson|forceescape }}' data-name="{{ p.name }}" data-age="{{ p.age }}" data-city="{{ p.city }}" onclick="openProfileGallery(this)">
+        <img class="profile-img" src="{{ photo_url(p,1) }}" alt="{{ p.name }}" loading="lazy" decoding="async">
+        <span class="gallery-count">📷 {{ profile_photos(p)|length }}</span>
+        <span class="gallery-open-label">View photos</span>
+      </button>
       <div class="profile-body">
         <div class="name">{{ p.name }}, {{ p.age }} {% if p.verified %}<span class="verified">●</span>{% endif %}</div>
         <div class="distance-line">📍 {% if distance is not none %}{{ '%.1f'|format(distance) }} km away{% else %}{{ p.city }} · nearby{% endif %}</div>
-        <div class="tags"><span class="tag">{{ p.gender }}</span><span class="tag">18+</span>{% if p.verified %}<span class="tag">✓ Verified</span>{% endif %}</div>
+        <div class="tags"><span class="tag">{{ p.gender }}</span>{% if p.last_seen and p.last_seen.strftime('%Y-%m-%d') == p.last_seen.strftime('%Y-%m-%d') %}{% endif %}{% if p.verified %}<span class="tag">✓ Verified</span>{% endif %}{% if profile_photos(p)|length >= 2 %}<span class="tag">📷 {{ profile_photos(p)|length }} photos</span>{% endif %}</div>
         <div class="muted small">{{ p.bio }}</div>
         <div class="actions"><button class="action" aria-label="Don't like" onclick="act({{p.id}},'pass',this)">✕</button><button class="action super" aria-label="Special like" onclick="act({{p.id}},'superlike',this)">♥</button><button class="action like" aria-label="Like" onclick="act({{p.id}},'like',this)">♥</button></div>
       </div>
@@ -50,29 +57,35 @@
     {% endfor %}
   </div>
   {% else %}
-  <div class="empty"><div class="empty-heart">♥</div><h2>No one found within {{ radius|round|int }} km yet</h2><p class="muted">Try increasing your search range or check again later for new people.</p><a class="btn" href="{{ url_for('profile') }}">Adjust my settings</a></div>
+  <div class="empty"><div class="empty-heart">♥</div><h2>No profiles match these settings</h2><p class="muted">Try widening your age or distance range, changing the location, or turning off one of the optional filters.</p><button class="btn" onclick="toggleFilters()">Adjust filters</button></div>
   {% endif %}
 </main>
+
+<div class="profile-gallery-modal" id="profileGalleryModal" hidden>
+  <div class="profile-gallery-backdrop" onclick="closeProfileGallery()"></div>
+  <div class="profile-gallery-dialog" role="dialog" aria-modal="true" aria-label="Profile photos">
+    <button class="profile-gallery-close" type="button" onclick="closeProfileGallery()">×</button>
+    <button class="gallery-arrow gallery-prev" type="button" onclick="galleryMove(-1)">‹</button>
+    <img id="galleryMainImage" class="gallery-main-image" alt="">
+    <button class="gallery-arrow gallery-next" type="button" onclick="galleryMove(1)">›</button>
+    <div class="gallery-meta"><strong id="galleryProfileName"></strong><span id="galleryProfileMeta"></span><span id="galleryPosition"></span></div>
+    <div class="gallery-thumbs" id="galleryThumbs"></div>
+  </div>
+</div>
+
 <script>
-async function act(id,kind,el){
-  if(kind==='pass'){el.closest('.profile-card').remove();return}
-  const f=new FormData();f.append('kind',kind);
-  const r=await fetch('/like/'+id,{method:'POST',body:f}); const d=await r.json();
-  if(d.match){alert("It's a match! ❤️");location.href='/matches'}
-  else{el.closest('.profile-card').style.opacity='.25';setTimeout(()=>el.closest('.profile-card').remove(),250)}
-}
-function shareLocation(){
-  const status=document.getElementById('locationStatus');
-  if(!navigator.geolocation){status.textContent='Location is not supported by this browser.';return}
-  status.textContent='Getting your most accurate GPS position…';
-  navigator.geolocation.getCurrentPosition(async pos=>{
-    const f=new FormData();
-    f.append('latitude',pos.coords.latitude);f.append('longitude',pos.coords.longitude);f.append('accuracy',pos.coords.accuracy);f.append('search_radius_km',document.getElementById('radius').value);
-    const r=await fetch('{{ url_for('update_location') }}',{method:'POST',body:f});
-    const d=await r.json();
-    if(d.ok){status.textContent='✓ GPS saved · ±'+Math.round(d.accuracy_m||pos.coords.accuracy)+' m · refreshing';setTimeout(()=>location.reload(),350)}
-    else status.textContent=d.error||'Could not save your location.';
-  },err=>{status.textContent=err.code===1?'Location permission was denied. You can enable it in your browser settings.':'Could not get your location. Please try again.'},{enableHighAccuracy:true,timeout:10000,maximumAge:300000});
-}
+let activeGallery=[],activeGalleryIndex=0;
+function toggleFilters(){const p=document.getElementById('filterPanel');p.hidden=!p.hidden;if(!p.hidden)document.body.classList.add('filters-open');else document.body.classList.remove('filters-open');}
+function syncDiscoverAge(){const a=document.getElementById('discoverMinAge'),b=document.getElementById('discoverMaxAge'),s=document.getElementById('discoverAgeValue');if(!a||!b)return;if(+a.value>+b.value)a.value=b.value;s.textContent=a.value+'–'+b.value}
+document.getElementById('discoverMinAge')?.addEventListener('input',syncDiscoverAge);
+document.getElementById('discoverMaxAge')?.addEventListener('input',syncDiscoverAge);syncDiscoverAge();
+function updateFilterBadge(){const n=['gender','min_age','max_age','location','distance_km','online','verified','photos','new'].filter(k=>{const e=new URLSearchParams(location.search).get(k);return e&&e!=='Everyone'&&e!=='Any'&&e!=='25'&&e!=='18'&&e!=='60'}).length;document.getElementById('filterBadge').textContent=n?' · '+n:''}
+updateFilterBadge();
+async function act(id,kind,el){if(kind==='pass'){el.closest('.profile-card').remove();return}const f=new FormData();f.append('kind',kind);const r=await fetch('/like/'+id,{method:'POST',body:f});const d=await r.json();if(d.match){location.href='/matches'}else{el.closest('.profile-card').style.opacity='.25';setTimeout(()=>el.closest('.profile-card').remove(),250)}}
+function shareLocation(){const status=document.getElementById('locationStatus');if(!navigator.geolocation){status.textContent='Location is not supported by this browser.';return}status.textContent='Getting your most accurate GPS position…';navigator.geolocation.getCurrentPosition(async pos=>{const f=new FormData();f.append('latitude',pos.coords.latitude);f.append('longitude',pos.coords.longitude);f.append('accuracy',pos.coords.accuracy);f.append('search_radius_km',new URLSearchParams(location.search).get('distance_km')||'{{ current_user.search_radius_km or 25 }}');const r=await fetch('{{ url_for("update_location") }}',{method:'POST',body:f});const d=await r.json();if(d.ok){status.textContent='✓ GPS saved · ±'+Math.round(d.accuracy_m||pos.coords.accuracy)+' m · refreshing';setTimeout(()=>location.reload(),350)}else status.textContent=d.error||'Could not save your location.';},()=>{status.textContent='Location permission was denied or unavailable.'},{enableHighAccuracy:true,timeout:20000,maximumAge:60000})}
+function openProfileGallery(el){activeGallery=JSON.parse(el.dataset.gallery||'[]');activeGalleryIndex=0;document.getElementById('galleryProfileName').textContent=el.dataset.name||'Profile';document.getElementById('galleryProfileMeta').textContent=el.dataset.age+' · '+el.dataset.city;renderGallery();document.getElementById('profileGalleryModal').hidden=false;document.body.classList.add('gallery-open')}
+function renderGallery(){const img=document.getElementById('galleryMainImage'),thumbs=document.getElementById('galleryThumbs'),pos=document.getElementById('galleryPosition');img.src=activeGallery[activeGalleryIndex]||'';pos.textContent=(activeGalleryIndex+1)+' / '+activeGallery.length;thumbs.innerHTML=activeGallery.map((src,i)=>'<button type="button" class="'+(i===activeGalleryIndex?'active':'')+'" onclick="galleryGo('+i+')"><img src="'+src+'" alt=""></button>').join('')}
+function galleryGo(i){activeGalleryIndex=Math.max(0,Math.min(i,activeGallery.length-1));renderGallery()}function galleryMove(d){if(!activeGallery.length)return;activeGalleryIndex=(activeGalleryIndex+d+activeGallery.length)%activeGallery.length;renderGallery()}function closeProfileGallery(){document.getElementById('profileGalleryModal').hidden=true;document.body.classList.remove('gallery-open')}
+document.addEventListener('keydown',e=>{if(document.getElementById('profileGalleryModal').hidden)return;if(e.key==='Escape')closeProfileGallery();if(e.key==='ArrowLeft')galleryMove(-1);if(e.key==='ArrowRight')galleryMove(1)});
 </script>
 {% endblock %}
