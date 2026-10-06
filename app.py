@@ -4,7 +4,6 @@ import uuid
 from datetime import datetime, timedelta
 from math import radians, sin, cos, sqrt, atan2
 from functools import wraps
-from io import BytesIO
 import requests
 from flask import Flask, render_template, request, redirect, url_for, session, flash, jsonify, send_from_directory, Response
 from werkzeug.security import generate_password_hash, check_password_hash
@@ -45,6 +44,7 @@ class User(db.Model):
     latitude = db.Column(db.Float, nullable=True)
     longitude = db.Column(db.Float, nullable=True)
     search_radius_km = db.Column(db.Float, default=25.0, nullable=False)
+    location_accuracy_m = db.Column(db.Float, nullable=True)
     min_age = db.Column(db.Integer, default=18, nullable=False)
     max_age = db.Column(db.Integer, default=60, nullable=False)
     bio = db.Column(db.Text, default='')
@@ -360,15 +360,30 @@ def preference_matches(me, user):
 
     age_ok_for_me = (me.min_age or 18) <= user.age <= (me.max_age or 60)
     age_ok_for_them = (user.min_age or 18) <= me.age <= (user.max_age or 60)
-    return accepts(my_choice, their_gender) and accepts(their_choice, my_gender) and age_ok_for_me and age_ok_for_them
+    age_ok_for_me = (me.min_age or 18) <= user.age <= (me.max_age or 60)
+    age_ok_for_them = (user.min_age or 18) <= me.age <= (user.max_age or 60)
+    return accepts(my_choice, their_gender) and accepts(their_choice, my_gender) and age_ok_for_me and age_ok_for_them and age_ok_for_me and age_ok_for_them
 
 
 def nearby_profiles(me, exclude_ids=None, limit=200):
-    """Return compatible nearby people using GPS when possible and area fallback when GPS is missing."""
+    """Return mutually compatible profiles sorted by real GPS distance when coordinates exist."""
     exclude_ids = set(exclude_ids or ()) | {me.id}
-    candidates = User.query.filter(~User.id.in_(exclude_ids)).all()
-    results = []
     radius = max(1.0, min(float(me.search_radius_km or 25), 500.0))
+
+    query = User.query.filter(~User.id.in_(exclude_ids))
+    query = query.filter(User.age >= (me.min_age or 18), User.age <= (me.max_age or 60))
+    candidates = query.all()
+
+    results = []
+    has_my_gps = me.latitude is not None and me.longitude is not None
+
+    lat_delta = radius / 111.0
+    lon_denominator = max(0.1, cos(radians(me.latitude or 0)))
+    lon_delta = radius / (111.0 * lon_denominator)
+    min_lat = (me.latitude - lat_delta) if has_my_gps else None
+    max_lat = (me.latitude + lat_delta) if has_my_gps else None
+    min_lon = (me.longitude - lon_delta) if has_my_gps else None
+    max_lon = (me.longitude + lon_delta) if has_my_gps else None
 
     def area_group(city):
         c = (city or '').strip().lower()
@@ -390,19 +405,14 @@ def nearby_profiles(me, exclude_ids=None, limit=200):
     for user in candidates:
         if not preference_matches(me, user):
             continue
-
-        # Exact GPS wins whenever both profiles have coordinates.
-        if (me.latitude is not None and me.longitude is not None and
-                user.latitude is not None and user.longitude is not None):
+        if has_my_gps and user.latitude is not None and user.longitude is not None:
+            if not (min_lat <= user.latitude <= max_lat and min_lon <= user.longitude <= max_lon):
+                continue
             distance = distance_km(me.latitude, me.longitude, user.latitude, user.longitude)
             if distance <= radius:
                 results.append((user, distance))
             continue
-
-        # If either profile lacks GPS, use the city/neighborhood fallback.
-        # This prevents Kampala users from disappearing simply because a
-        # profile has not shared browser location yet.
-        if my_area and area_group(user.city) == my_area:
+        if not has_my_gps and my_area and area_group(user.city) == my_area:
             results.append((user, None))
 
     def visibility_key(item):
@@ -410,7 +420,9 @@ def nearby_profiles(me, exclude_ids=None, limit=200):
         now = datetime.utcnow()
         featured = 0 if user.featured_until and user.featured_until > now else 1
         boosted = 0 if user.boost_until and user.boost_until > now else 1
-        return (featured, boosted, distance is None, distance if distance is not None else 999999)
+        no_distance = distance is None
+        return (featured, boosted, no_distance, distance if distance is not None else 999999)
+
     results.sort(key=visibility_key)
     return results[:limit]
 
@@ -442,28 +454,48 @@ def register():
             email = request.form['email'].strip().lower()
             password = request.form['password']
             age = int(request.form['age'])
+            min_age = max(18, min(100, int(request.form.get('min_age', 18))))
+            max_age = max(18, min(100, int(request.form.get('max_age', 60))))
         except (KeyError, ValueError):
             flash('Please complete all required fields.', 'error')
             return render_template('register.html')
+        if min_age > max_age:
+            min_age, max_age = max_age, min_age
+
         gender = request.form['gender']
         interested_in = request.form['interested_in']
         city = request.form.get('city', 'Kampala')
-        photo1 = clean_profile_photo(request.form.get('photo1_data', ''))
-        photo2 = clean_profile_photo(request.form.get('photo2_data', ''))
+        photos = []
+        for slot in range(1, 7):
+            photo = clean_profile_photo(request.form.get(f'photo{slot}_data', ''))
+            if photo:
+                photos.append(photo)
+
         if age < 18:
             flash('Uganda Dating is for adults 18+ only.', 'error')
             return render_template('register.html')
         if User.query.filter_by(email=email).first():
             flash('An account with that email already exists.', 'error')
             return render_template('register.html')
-        if not photo1 or not photo2:
-            flash('Please add two clear photos of yourself from your gallery before creating your account.', 'error')
+        if len(photos) < 2:
+            flash('Please add at least two clear photos of yourself from your gallery.', 'error')
             return render_template('register.html')
-        user = User(name=name, email=email, password_hash=generate_password_hash(password), age=age,
-                    gender=gender, interested_in=interested_in, city=city,
-                    photo1_data=photo1, photo2_data=photo2,
-                    bio='New on Uganda Dating. Looking forward to meeting someone genuine!')
-        db.session.add(user); db.session.commit()
+
+        data = {
+            'name': name, 'email': email,
+            'password_hash': generate_password_hash(password),
+            'age': age, 'gender': gender, 'interested_in': interested_in,
+            'city': city, 'min_age': min_age, 'max_age': max_age,
+            'photo1_data': photos[0], 'photo2_data': photos[1],
+            'bio': 'New on Uganda Dating. Looking forward to meeting someone genuine!'
+        }
+        for slot, photo in enumerate(photos[2:6], start=3):
+            data[f'photo{slot}_data'] = photo
+        user = User(**data)
+        db.session.add(user)
+        db.session.commit()
+        user.photo = url_for('user_photo', user_id=user.id, slot=1)
+        db.session.commit()
         session['user_id'] = user.id
         return redirect(url_for('discover'))
     return render_template('register.html')
@@ -500,14 +532,18 @@ def update_location():
         lat = float(request.form.get('latitude', ''))
         lon = float(request.form.get('longitude', ''))
         radius = float(request.form.get('search_radius_km', me.search_radius_km or 25))
+        accuracy = float(request.form.get('accuracy', '0') or 0)
     except (TypeError, ValueError):
         return jsonify({'ok': False, 'error': 'Invalid location or range.'}), 400
     if not (-90 <= lat <= 90 and -180 <= lon <= 180):
         return jsonify({'ok': False, 'error': 'Invalid coordinates.'}), 400
+    if accuracy < 0 or accuracy > 100000:
+        accuracy = 0
     me.latitude, me.longitude = lat, lon
+    me.location_accuracy_m = accuracy or me.location_accuracy_m
     me.search_radius_km = max(1, min(radius, 500))
     db.session.commit()
-    return jsonify({'ok': True, 'radius': me.search_radius_km})
+    return jsonify({'ok': True, 'radius': me.search_radius_km, 'accuracy_m': me.location_accuracy_m})
 
 @app.post('/search-radius')
 @login_required
@@ -617,15 +653,32 @@ def messages(user_id):
 def profile():
     me = current_user()
     if request.method == 'POST':
-        me.name = request.form['name'].strip(); me.city = request.form.get('city','Kampala')
+        me.name = request.form['name'].strip()
+        me.city = request.form.get('city', 'Kampala')
         me.gender = request.form.get('gender', me.gender)
         me.interested_in = request.form.get('interested_in', me.interested_in)
-        me.bio = request.form.get('bio','').strip(); me.photo = request.form.get('photo','').strip() or me.photo
+        me.bio = request.form.get('bio', '').strip()
         try:
             me.search_radius_km = max(1, min(float(request.form.get('search_radius_km', me.search_radius_km or 25)), 500))
         except ValueError:
             pass
-        db.session.commit(); flash('Profile updated.', 'success')
+        try:
+            min_age = max(18, min(100, int(request.form.get('min_age', me.min_age or 18))))
+            max_age = max(18, min(100, int(request.form.get('max_age', me.max_age or 60))))
+            if min_age > max_age:
+                min_age, max_age = max_age, min_age
+            me.min_age, me.max_age = min_age, max_age
+        except ValueError:
+            pass
+        for slot in range(1, 7):
+            incoming = request.form.get(f'photo{slot}_data', '')
+            if incoming:
+                cleaned = clean_profile_photo(incoming)
+                if cleaned:
+                    setattr(me, f'photo{slot}_data', cleaned)
+        me.photo = url_for('user_photo', user_id=me.id, slot=1) if me.photo1_data else me.photo
+        db.session.commit()
+        flash('Profile updated.', 'success')
     return render_template('profile.html', user=me)
 
 @app.route('/premium')
