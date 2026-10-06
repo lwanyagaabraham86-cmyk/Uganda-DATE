@@ -3,7 +3,7 @@
 {% block content %}
 <main class="container">
   <div class="section-title">
-    <div><div class="eyebrow">Nearby connections</div><h1>Discover</h1><p class="muted">Only people who match your gender preference, their preference for you, and your distance range are shown. 💕</p></div>
+    <div><div class="eyebrow">Nearby connections</div><h1>Discover</h1><p class="muted">People are filtered by mutual preference, your age range and your GPS distance. Closest compatible matches appear first. 💕</p></div>
     <a class="btn secondary" href="{{ url_for('premium') }}">✨ Go Premium</a>
   </div>
 
@@ -13,7 +13,7 @@
       <div>
         <strong>People near you who are interested in you</strong>
         <p class="muted small">Only compatible profiles are shown: they fit your gender preference and their preference includes you. Your exact location is never shown.</p>
-        <span id="locationStatus" class="location-status">{% if has_location %}✓ Location saved{% else %}Location not shared yet{% endif %}</span>
+        <span id="locationStatus" class="location-status">{% if has_location %}✓ GPS saved{% if current_user.location_accuracy_m %} · ±{{ current_user.location_accuracy_m|round|int }} m{% endif %}{% else %}Location not shared yet{% endif %}</span>
       </div>
     </div>
     <div class="nearby-actions">
@@ -31,7 +31,7 @@
   </section>
 
   {% if not has_location %}
-  <div class="location-note"><span>💡</span><div><strong>Get more accurate matches</strong><br><span class="muted small">Tap “Use my location” and we’ll calculate distances in kilometres. We store your coordinates securely and only display an approximate distance.</span></div></div>
+  <div class="location-note"><span>💡</span><div><strong>Get precise nearby matches</strong><br><span class="muted small">Tap “Use my location” for GPS-based distance. Your exact coordinates are never shown to other members.</span></div></div>
   {% endif %}
 
   {% if nearby %}
@@ -64,13 +64,13 @@ async function act(id,kind,el){
 function shareLocation(){
   const status=document.getElementById('locationStatus');
   if(!navigator.geolocation){status.textContent='Location is not supported by this browser.';return}
-  status.textContent='Finding your location…';
+  status.textContent='Getting your most accurate GPS position…';
   navigator.geolocation.getCurrentPosition(async pos=>{
     const f=new FormData();
-    f.append('latitude',pos.coords.latitude);f.append('longitude',pos.coords.longitude);f.append('search_radius_km',document.getElementById('radius').value);
+    f.append('latitude',pos.coords.latitude);f.append('longitude',pos.coords.longitude);f.append('accuracy',pos.coords.accuracy);f.append('search_radius_km',document.getElementById('radius').value);
     const r=await fetch('{{ url_for('update_location') }}',{method:'POST',body:f});
     const d=await r.json();
-    if(d.ok){status.textContent='✓ Location saved — refreshing nearby people';setTimeout(()=>location.reload(),500)}
+    if(d.ok){status.textContent='✓ GPS saved · ±'+Math.round(d.accuracy_m||pos.coords.accuracy)+' m · refreshing';setTimeout(()=>location.reload(),350)}
     else status.textContent=d.error||'Could not save your location.';
   },err=>{status.textContent=err.code===1?'Location permission was denied. You can enable it in your browser settings.':'Could not get your location. Please try again.'},{enableHighAccuracy:true,timeout:10000,maximumAge:300000});
 }
