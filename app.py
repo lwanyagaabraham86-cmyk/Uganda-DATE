@@ -741,7 +741,14 @@ def likes():
     me = current_user()
     incoming = Like.query.filter_by(to_id=me.id).order_by(Like.created_at.desc()).all()
     if not has_plan(me, 'gold'):
-        return render_template('likes.html', liked_users=[], locked=True, like_count=len(incoming))
+        teaser_users = []
+        seen_teasers = set()
+        for item in incoming[:8]:
+            user = db.session.get(User, item.from_id)
+            if user and user.id not in seen_teasers:
+                teaser_users.append(user)
+                seen_teasers.add(user.id)
+        return render_template('likes.html', liked_users=[], liked_teasers=teaser_users, locked=True, like_count=len(incoming))
     liked_users = []
     seen = set()
     for item in incoming:
@@ -780,7 +787,19 @@ def chats():
             continue
         last = Message.query.filter(((Message.sender_id == me.id) & (Message.receiver_id == other.id)) | ((Message.sender_id == other.id) & (Message.receiver_id == me.id))).order_by(Message.created_at.desc()).first()
         conversations.append((other, last))
-    return render_template('chats.html', conversations=conversations)
+    incoming = Like.query.filter_by(to_id=me.id).order_by(Like.created_at.desc()).all()
+    like_people = []
+    seen_like_people = set()
+    for item in incoming[:8]:
+        person = db.session.get(User, item.from_id)
+        if person and person.id not in seen_like_people:
+            like_people.append(person)
+            seen_like_people.add(person.id)
+    outgoing_ids = {x.to_id for x in Like.query.filter_by(from_id=me.id).all()}
+    incoming_ids = {x.from_id for x in incoming}
+    matched_ids = list(outgoing_ids & incoming_ids)
+    match_people = User.query.filter(User.id.in_(matched_ids)).all() if matched_ids else []
+    return render_template('chats.html', conversations=conversations, like_people=like_people, match_people=match_people, like_count=len(incoming))
 
 @app.route('/swipe')
 @login_required
@@ -855,7 +874,16 @@ def profile():
         me.photo = url_for('user_photo', user_id=me.id, slot=1) if me.photo1_data else me.photo
         db.session.commit()
         flash('Profile updated.', 'success')
-    return render_template('profile.html', user=me)
+    completion_fields = [
+        bool(me.photo1_data), bool(me.photo2_data),
+        bool((me.bio or '').strip()), bool((me.mood or '').strip()),
+        bool((me.relationship_status or '').strip()), bool((me.relationship_goal or '').strip()),
+        bool((me.religion or '').strip()), bool((me.languages or '').strip()),
+        bool((me.work or '').strip()), bool((me.education or '').strip()),
+        bool((me.interests or '').strip())
+    ]
+    completion = round(sum(completion_fields) / len(completion_fields) * 100)
+    return render_template('profile.html', user=me, profile_completion=completion)
 
 @app.route('/premium')
 @login_required
