@@ -57,7 +57,7 @@ h1 .plain{color:#fff}h1 .accent{display:block;color:#ff3f7d;text-shadow:0 12px 3
 .lead{font-size:21px;line-height:1.62;max-width:600px;color:#fff3f6;text-shadow:0 2px 16px rgba(0,0,0,.45)}
 .actions{display:flex;gap:14px;flex-wrap:wrap;margin-top:31px}.cta{padding:16px 24px;border-radius:999px;text-decoration:none;font-weight:900;display:inline-flex;align-items:center;justify-content:center;gap:9px;min-width:205px;border:0;cursor:pointer}
 .cta-primary{background:linear-gradient(135deg,#ff2d70,#e52d6d);color:#fff;box-shadow:0 16px 40px rgba(255,45,112,.25)}.cta-secondary{background:rgba(255,255,255,.93);color:#7a1e49;border:1px solid rgba(255,255,255,.65);box-shadow:0 14px 34px rgba(0,0,0,.18)}
-.hero-note{margin-top:18px;color:#ffdfea;font-size:13px}.install-hint{display:inline-flex;align-items:center;gap:7px;margin-top:12px;padding:8px 12px;border-radius:999px;background:rgba(255,255,255,.12);border:1px solid rgba(255,255,255,.20);color:#ffeaf2;font-size:12px;font-weight:800}
+.hero-note{margin-top:18px;color:#ffdfea;font-size:13px}.share-landing{display:flex;align-items:center;justify-content:center;gap:8px;flex-wrap:wrap;margin-top:14px;font-size:12px}.share-landing>span{color:#ffe4ef;font-weight:800}.share-landing a,.share-landing button{border:1px solid rgba(255,255,255,.22);background:rgba(255,255,255,.10);color:#fff;padding:8px 11px;border-radius:999px;font:inherit;font-weight:800;cursor:pointer;text-decoration:none}.install-hint{display:inline-flex;align-items:center;gap:7px;margin-top:12px;padding:8px 12px;border-radius:999px;background:rgba(255,255,255,.12);border:1px solid rgba(255,255,255,.20);color:#ffeaf2;font-size:12px;font-weight:800}
 .heart{position:absolute;z-index:1;font-size:28px;color:#ff6f9e;filter:drop-shadow(0 7px 13px rgba(0,0,0,.16));animation:float 5s ease-in-out infinite}.heart.h1{left:50%;top:26%;font-size:44px;animation-delay:.5s}.heart.h2{right:26%;top:33%;font-size:26px;animation-delay:1.2s}.heart.h3{right:12%;top:63%;font-size:36px;animation-delay:2s}.heart.h4{left:40%;bottom:22%;font-size:24px;animation-delay:1.6s}
 @keyframes float{0%,100%{transform:translateY(0) rotate(-5deg)}50%{transform:translateY(-13px) rotate(5deg)}}
 .feature-strip{position:absolute;left:3%;right:3%;bottom:22px;z-index:5;display:grid;grid-template-columns:repeat(4,1fr);gap:10px}
@@ -85,6 +85,11 @@ h1 .plain{color:#fff}h1 .accent{display:block;color:#ff3f7d;text-shadow:0 12px 3
 <h1><span class="plain">Just a</span><span class="accent">Swipe.</span></h1>
 <p class="lead">Meet real people around you in Uganda. Discover compatible singles, start genuine conversations and turn a simple swipe into a meaningful connection.</p>
 <div class="actions"><button class="cta cta-primary" type="button" onclick="tryInstall()">📱 Install Uganda Dating →</button><a class="cta cta-secondary" href="{{ url_for('register') }}">❤️ Create a Free Account →</a></div>
+<div class="share-landing">
+  <span>Help grow Uganda Dating 🇺🇬</span>
+  <a target="_blank" rel="noopener" href="https://wa.me/?text={{ ('Join me on Uganda Dating ❤️ Meet singles in Uganda and create your free profile: https://ugandadating.co.ug/register')|urlencode }}">💬 Share on WhatsApp</a>
+  <button type="button" onclick="copyLandingLink()">Copy signup link</button>
+</div>
 <div class="install-hint" id="installHint">⚡ Fast install on supported Android browsers · iPhone: Share → Add to Home Screen</div>
 <div class="hero-note">Nearby people • Smart preferences • Private location • Real conversations</div>
 </div></div>
@@ -154,6 +159,7 @@ h1 .plain{color:#fff}h1 .accent{display:block;color:#ff3f7d;text-shadow:0 12px 3
 <footer class="site-footer">Uganda Dating ❤️🇺🇬 · Meet real people. Build real connections. · 18+ · <a href="{{ url_for('privacy') }}">Privacy</a> · <a href="{{ url_for('terms') }}">Terms</a> · <a href="{{ url_for('community_guidelines') }}">Community Guidelines</a> · <a href="{{ url_for('child_safety') }}">Child Safety</a></footer>
 
 <script>
+function copyLandingLink(){const text='https://ugandadating.co.ug/register';if(navigator.clipboard){navigator.clipboard.writeText(text).then(()=>alert('Signup link copied. Share it with your friends ❤️')).catch(()=>alert(text))}else{alert(text)}}
 let deferredInstall=null;
 const isStandalone=window.matchMedia('(display-mode:standalone)').matches||window.navigator.standalone===true;
 window.addEventListener('beforeinstallprompt',e=>{e.preventDefault();deferredInstall=e;window.ugandaInstallAvailable=true;document.getElementById('installHint')?.setAttribute('data-ready','1')});
