@@ -3,8 +3,9 @@
 <meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
 <meta name="theme-color" content="#d84f7f">
 <meta name="description" content="Uganda Dating is a modern dating app for meeting genuine singles in Uganda, with nearby discovery, smart preferences, private location and real conversations.">
-<meta name="robots" content="{% if request.endpoint == 'home' %}index,follow,max-image-preview:large{% else %}noindex,follow{% endif %}">
-<meta name="googlebot" content="{% if request.endpoint == 'home' %}index,follow,max-image-preview:large{% else %}noindex,follow{% endif %}">
+{% set public_index = request.endpoint in ['home','city_landing','privacy','terms','community_guidelines','child_safety'] %}
+<meta name="robots" content="{% if public_index %}index,follow,max-image-preview:large{% else %}noindex,follow{% endif %}">
+<meta name="googlebot" content="{% if public_index %}index,follow,max-image-preview:large{% else %}noindex,follow{% endif %}">
 <link rel="canonical" href="https://ugandadating.co.ug{{ request.path }}">
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
