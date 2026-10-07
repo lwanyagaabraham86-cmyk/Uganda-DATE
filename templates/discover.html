@@ -6,7 +6,7 @@
     <div><h1>Discover</h1><p>People nearby who match what you're looking for.</p></div>
     <div class="head-icons">
       <button class="icon-circle" type="button" title="Special likes">♥<i></i></button>
-      <button class="icon-circle" type="button" onclick="toggleFilters()" title="Filters">☷</button>
+      <button id="discoverFilterToggle" class="icon-circle filter-trigger" type="button" aria-label="Open filters" aria-expanded="false" title="Filters">☷</button>
     </div>
   </header>
 
@@ -62,7 +62,7 @@
   </section>
 </main>
 
-<section class="filter-panel" id="filterPanel" hidden>
+<section class="filter-panel" id="filterPanel" hidden aria-hidden="true">
   <div class="filter-panel-backdrop" onclick="toggleFilters()"></div>
   <div class="filter-drawer badoo-filter-drawer">
     <div class="filter-grabber"></div>
@@ -92,7 +92,23 @@
 <button class="floating-chat" type="button" onclick="location.href='{{url_for('chats')}}'">♡</button>
 
 <script>
-function toggleFilters(){const p=document.getElementById('filterPanel');p.hidden=!p.hidden;document.body.classList.toggle('filters-open',!p.hidden)}
+function toggleFilters(force){
+  const p=document.getElementById('filterPanel');
+  if(!p) return;
+  const open = typeof force === 'boolean' ? force : p.hidden;
+  p.hidden = !open;
+  p.setAttribute('aria-hidden', open ? 'false' : 'true');
+  document.body.classList.toggle('filters-open', open);
+  const t=document.getElementById('discoverFilterToggle');
+  t?.setAttribute('aria-expanded', open ? 'true' : 'false');
+  if(open) setTimeout(()=>document.querySelector('.badoo-filter-drawer .filter-close')?.focus(), 30);
+}
+document.getElementById('discoverFilterToggle')?.addEventListener('click',()=>toggleFilters(true));
+document.querySelectorAll('[data-open-filters]').forEach(el=>el.addEventListener('click',()=>toggleFilters(true)));
+document.querySelector('.filter-panel-backdrop')?.addEventListener('click',()=>toggleFilters(false));
+document.querySelector('.filter-close')?.addEventListener('click',()=>toggleFilters(false));
+document.querySelector('.filter-form')?.addEventListener('submit',()=>document.body.classList.remove('filters-open'));
+document.addEventListener('keydown',e=>{if(e.key==='Escape')toggleFilters(false)});
 function sync(){const a=document.getElementById('discoverMinAge'),b=document.getElementById('discoverMaxAge'),s=document.getElementById('discoverAgeValue');if(a&&b&&s){if(+a.value>+b.value)a.value=b.value;s.textContent=a.value+'–'+b.value}const d=document.getElementById('discoverDistance'),ds=document.getElementById('discoverDistanceValue');if(d&&ds)ds.textContent=d.value+' km'}
 document.getElementById('discoverMinAge')?.addEventListener('input',sync);document.getElementById('discoverMaxAge')?.addEventListener('input',sync);document.getElementById('discoverDistance')?.addEventListener('input',sync);sync();
 document.querySelectorAll('.filter-choice input').forEach(i=>i.addEventListener('change',()=>i.closest('.filter-choice-grid').querySelectorAll('.filter-choice').forEach(c=>c.classList.toggle('selected',c.contains(i)&&i.checked))));
@@ -101,6 +117,7 @@ async function quickAction(id,kind,el){if(kind==='pass'){el.closest('.everyone-c
 function shareLocation(){navigator.geolocation?.getCurrentPosition(async p=>{const f=new FormData();f.append('latitude',p.coords.latitude);f.append('longitude',p.coords.longitude);f.append('accuracy',p.coords.accuracy);f.append('search_radius_km',new URLSearchParams(location.search).get('distance_km')||'{{current_user.search_radius_km or 25}}');const r=await fetch('{{url_for("update_location")}}',{method:'POST',body:f});const d=await r.json();if(d.ok)location.reload()},{enableHighAccuracy:true,timeout:20000,maximumAge:60000})}
 </script>
 <style id="discover-badoo-style">
+.filter-panel{position:fixed!important;inset:0!important;z-index:250000!important;display:block!important;background:rgba(17,12,18,.34)!important;backdrop-filter:blur(3px)!important}.filter-panel[hidden]{display:none!important}.filter-panel .filter-panel-backdrop{position:absolute!important;inset:0!important;background:transparent!important}.badoo-filter-drawer{position:absolute!important;right:0!important;top:0!important;bottom:0!important;width:min(560px,100%)!important;overflow-y:auto!important;padding:18px 22px 26px!important;background:#fff!important;box-shadow:-24px 0 60px rgba(0,0,0,.20)!important}.filter-grabber{display:block!important;width:44px!important;height:5px!important;border-radius:999px!important;background:#ddd!important;margin:0 auto 12px!important}.filter-close{cursor:pointer!important;z-index:3!important}@media(max-width:600px){.badoo-filter-drawer{width:100%!important;right:0!important;left:0!important;top:auto!important;height:min(88vh,760px)!important;border-radius:24px 24px 0 0!important;padding:12px 18px calc(28px + env(safe-area-inset-bottom))!important;box-shadow:0 -18px 55px rgba(0,0,0,.20)!important}.filter-head{position:sticky!important;top:0!important;z-index:4!important;padding-top:2px!important;background:#fff!important}.filter-section{padding:16px 0!important}.filter-actions{position:sticky!important;bottom:0!important;z-index:5!important;background:#fff!important;padding-top:12px!important}}
 .ud-mobile-app{background:#fff;min-height:calc(100vh - 86px);margin:0 auto}
 .discover-badoo-page{padding:18px 0 30px}
 .badoo-page-head{display:flex;justify-content:space-between;align-items:center;padding:8px 18px 18px;background:#fff}
