@@ -1,97 +1,77 @@
 {% extends 'base.html' %}
-{% block title %}My Profile — Uganda Dating{% endblock %}
+{% block title %}Profile — Uganda Dating{% endblock %}
 {% block content %}
-<main class="container profile-page">
-  <div class="profile-edit-header">
-    <div><div class="eyebrow">Your dating profile</div><h1>Make your profile feel like you.</h1><p class="muted">Good photos get attention. Good details give people something real to talk about.</p></div>
-    <a class="btn secondary" href="{{ url_for('discover') }}">Back to Discover</a>
-  </div>
+<main class="profile-badoo-page">
+  <header class="profile-badoo-head"><h1>Profile</h1><div class="profile-head-actions"><button type="button">⚙</button><button type="button">?</button><button type="button" onclick="document.getElementById('editProfile').open=true">✎</button></div></header>
 
-  <div class="auth profile-settings-card">
+  <section class="profile-summary">
+    <div class="profile-avatar-wrap">
+      <div class="profile-avatar"><img src="{{photo_url(user,1)}}" alt="{{user.name}}"></div>
+      <div class="completion-ring"><span>{{profile_completion}}%</span></div>
+    </div>
+    <div class="profile-summary-main"><h2>{{user.name}}, {{user.age}}</h2><span class="chat-open-pill">● Open to chat</span><small>{{user.city or 'Uganda'}}{% if user.verified %} · ✓ Verified{% endif %}</small></div>
+  </section>
+
+  {% if not user.religion %}
+  <a class="profile-prompt" href="#editProfile"><span class="prompt-icon">⌂</span><span>What’s your religion?</span><b>›</b></a>
+  {% endif %}
+
+  <div class="profile-tabs"><button class="active" type="button" onclick="showProfileTab('plans',this)">Plans</button><button type="button" onclick="showProfileTab('safety',this)">Safety</button></div>
+
+  <section id="plans" class="profile-tab-panel active">
+    <div class="quick-cards">
+      <article><span class="quick-icon">◔</span><div><small>Your activity</small><strong>{% if user.last_seen %}Active{% else %}Getting started{% endif %}</strong></div></article>
+      <article><span class="quick-icon purple">◉+</span><div><small>Credits</small><strong>{{user.credits or 0}} <a href="{{url_for('premium')}}">Add</a></strong></div></article>
+    </div>
+    <div class="premium-panel"><div class="premium-brand">UGANDA DATING <span>Extra</span></div><a href="{{url_for('premium')}}">Get Extra · from UGX 10,000</a><div class="plan-mini"><span>My plan</span><strong>{{active_plan|title}}</strong></div></div>
+  </section>
+
+  <section id="safety" class="profile-tab-panel">
+    <div class="safety-card"><strong>Stay safe on Uganda Dating</strong><p>Never share passwords, banking details or your exact location. Use Block and Report when something feels wrong.</p><div><a href="{{url_for('community_guidelines')}}">Community Guidelines</a><a href="{{url_for('child_safety')}}">Child Safety</a><a href="{{url_for('privacy')}}">Privacy</a></div></div>
+  </section>
+
+  <details id="editProfile" class="profile-edit-details">
+    <summary>Edit profile <span>⌄</span></summary>
     <form method="post" id="profileForm">
-      <section class="photo-onboarding">
-        <div class="photo-onboarding-head"><div><h2>Your photos</h2><p class="muted small">Keep 2–6 photos. Each photo is shown as a full-width photo in your public profile.</p></div><span class="photo-count">{{ profile_photos(user)|length }}/6</span></div>
+      <section class="photo-onboarding"><div class="photo-onboarding-head"><div><h2>Your photos</h2><p class="muted small">Keep 2–6 photos.</p></div><span class="photo-count">{{profile_photos(user)|length}}/6</span></div>
         <div class="photo-grid onboarding-photo-grid">
-          {% set sources = [photo_url(user,1) if user.photo1_data else '', photo_url(user,2) if user.photo2_data else '', photo_url(user,3) if user.photo3_data else '', photo_url(user,4) if user.photo4_data else '', photo_url(user,5) if user.photo5_data else '', photo_url(user,6) if user.photo6_data else ''] %}
+          {% set sources=[photo_url(user,1) if user.photo1_data else '',photo_url(user,2) if user.photo2_data else '',photo_url(user,3) if user.photo3_data else '',photo_url(user,4) if user.photo4_data else '',photo_url(user,5) if user.photo5_data else '',photo_url(user,6) if user.photo6_data else ''] %}
           {% for slot in range(1,7) %}{% set src=sources[slot-1] %}
-          <button type="button" class="photo-slot {% if slot<=2 %}required-slot{% endif %}{% if src %} filled{% endif %}" id="profilePhotoSlot{{slot}}" onclick="pickProfilePhoto({{slot}})">
-            <span class="photo-slot-plus" id="profilePlus{{slot}}" {% if src %}hidden{% endif %}>＋</span><img id="profilePreview{{slot}}" src="{{src}}" alt="Photo {{slot}}" {% if not src %}hidden{% endif %}>
-            <span class="photo-slot-label">{% if src %}Photo {{slot}} · tap to replace{% elif slot<=2 %}Photo {{slot}} · required{% else %}Add photo{% endif %}</span>
-          </button>
+          <button type="button" class="photo-slot {% if slot<=2 %}required-slot{% endif %}{% if src %} filled{% endif %}" id="profilePhotoSlot{{slot}}" onclick="pickProfilePhoto({{slot}})"><span class="photo-slot-plus" id="profilePlus{{slot}}" {% if src %}hidden{% endif %}>＋</span><img id="profilePreview{{slot}}" src="{{src}}" alt="Photo {{slot}}" {% if not src %}hidden{% endif %}><span class="photo-slot-label">{% if src %}Photo {{slot}}{% elif slot<=2 %}Photo {{slot}} · required{% else %}Add photo{% endif %}</span></button>
           <input type="file" id="profileFile{{slot}}" accept="image/jpeg,image/png,image/webp" hidden><input type="hidden" name="photo{{slot}}_data" id="profileData{{slot}}">
           {% endfor %}
         </div>
-        <div class="muted small photo-hint">Photos are resized on your device before upload so updates stay fast.</div>
       </section>
 
-      <section class="profile-edit-section">
-        <div class="edit-section-head"><div><div class="eyebrow">Basics</div><h2>About you</h2></div><span class="edit-section-note">Name and age stay simple</span></div>
-        <div class="edit-grid">
-          <div class="field"><label>Name</label><input name="name" value="{{user.name}}" required></div>
-          <div class="field"><label>City / Area</label><input name="city" value="{{user.city}}"></div>
-          <div class="field"><label>I am</label><select name="gender"><option value="Woman" {% if user.gender=='Woman' %}selected{% endif %}>Woman</option><option value="Man" {% if user.gender=='Man' %}selected{% endif %}>Man</option><option value="Non-binary" {% if user.gender=='Non-binary' %}selected{% endif %}>Non-binary</option></select></div>
-          <div class="field"><label>I am interested in</label><select name="interested_in"><option value="Women" {% if user.interested_in=='Women' %}selected{% endif %}>Women</option><option value="Men" {% if user.interested_in=='Men' %}selected{% endif %}>Men</option><option value="Everyone" {% if user.interested_in=='Everyone' %}selected{% endif %}>Everyone</option></select></div>
-        </div>
-      </section>
-
-      <section class="preference-panel">
-        <div class="preference-title"><div><h2>Who would you like to meet?</h2><p class="muted small">Set the age range and distance for Discover.</p></div><strong id="profileAgeSummary">{{user.min_age or 18}}–{{user.max_age or 60}}</strong></div>
-        <div class="age-range"><label>Minimum age <input id="profileMinAge" type="range" name="min_age" min="18" max="100" value="{{user.min_age or 18}}"></label><label>Maximum age <input id="profileMaxAge" type="range" name="max_age" min="18" max="100" value="{{user.max_age or 60}}"></label></div>
-        <div class="field"><label>People to show me within</label><select name="search_radius_km">{% for value in [1,2,5,10,15,25,50,100,250,500] %}<option value="{{value}}" {% if (user.search_radius_km|float)==value %}selected{% endif %}>{{value}} km</option>{% endfor %}</select></div>
-      </section>
-
-      <section class="profile-edit-section">
-        <div class="edit-section-head"><div><div class="eyebrow">Your story</div><h2>About me</h2></div><span class="edit-section-note">Give someone a reason to say hello</span></div>
-        <div class="field"><label>About me</label><textarea name="bio" maxlength="1200" placeholder="Tell people about your personality, what you enjoy and what a good connection looks like for you.">{{user.bio}}</textarea></div>
-        <div class="field"><label>Mood <span class="optional">Optional</span></label><input name="mood" maxlength="120" value="{{user.mood or ''}}" placeholder="e.g. Happy, adventurous, focused on good vibes"></div>
-      </section>
-
-      <section class="profile-edit-section">
-        <div class="edit-section-head"><div><div class="eyebrow">Relationship basics</div><h2>What are you looking for?</h2></div></div>
-        <div class="edit-grid">
-          <div class="field"><label>Relationship status</label><select name="relationship_status"><option value="">Select one</option>{% for v in ['Single','Separated','Divorced','Widowed','It’s complicated'] %}<option value="{{v}}" {% if user.relationship_status==v %}selected{% endif %}>{{v}}</option>{% endfor %}</select></div>
-          <div class="field"><label>Looking for</label><select name="relationship_goal"><option value="">Select one</option>{% for v in ['Something serious','Marriage','Long-term relationship','Something casual','Friendship first','Still figuring it out'] %}<option value="{{v}}" {% if user.relationship_goal==v %}selected{% endif %}>{{v}}</option>{% endfor %}</select></div>
-        </div>
-      </section>
-
-      <section class="profile-edit-section">
-        <div class="edit-section-head"><div><div class="eyebrow">More about me</div><h2>Life, lifestyle & conversation starters</h2></div></div>
-        <div class="edit-grid">
-          <div class="field"><label>Smoking</label><select name="smoking"><option value="">Prefer not to say</option><option value="Non-smoker" {% if user.smoking=='Non-smoker' %}selected{% endif %}>Non-smoker</option><option value="Occasionally" {% if user.smoking=='Occasionally' %}selected{% endif %}>Occasionally</option><option value="Smoker" {% if user.smoking=='Smoker' %}selected{% endif %}>Smoker</option></select></div>
-          <div class="field"><label>Religion</label><input name="religion" maxlength="80" value="{{user.religion or ''}}" placeholder="e.g. Christian, Muslim"></div>
-          <div class="field"><label>Languages</label><input name="languages" maxlength="200" value="{{user.languages or ''}}" placeholder="e.g. English, Luganda, Swahili"></div>
-          <div class="field"><label>Work</label><input name="work" maxlength="160" value="{{user.work or ''}}" placeholder="e.g. Entrepreneur, Engineer"></div>
-          <div class="field"><label>Education</label><input name="education" maxlength="160" value="{{user.education or ''}}" placeholder="e.g. Makerere University"></div>
-          <div class="field"><label>Interests</label><input name="interests" maxlength="500" value="{{user.interests or ''}}" placeholder="e.g. Music, Travel, Football, Cooking"></div>
-        </div>
-        <p class="muted small interest-help">Separate interests with commas. They will appear as individual tags on your profile.</p>
-      </section>
-
-      <button class="btn full save-profile-btn">Save profile changes ❤️</button>
+      <div class="edit-grid">
+        <div class="field"><label>Name</label><input name="name" value="{{user.name}}" required></div>
+        <div class="field"><label>City / Area</label><input name="city" value="{{user.city}}"></div>
+        <div class="field"><label>I am</label><select name="gender"><option value="Woman" {% if user.gender=='Woman' %}selected{% endif %}>Woman</option><option value="Man" {% if user.gender=='Man' %}selected{% endif %}>Man</option><option value="Non-binary" {% if user.gender=='Non-binary' %}selected{% endif %}>Non-binary</option></select></div>
+        <div class="field"><label>Interested in</label><select name="interested_in"><option value="Women" {% if user.interested_in=='Women' %}selected{% endif %}>Women</option><option value="Men" {% if user.interested_in=='Men' %}selected{% endif %}>Men</option><option value="Everyone" {% if user.interested_in=='Everyone' %}selected{% endif %}>Everyone</option></select></div>
+        <div class="field"><label>About me</label><textarea name="bio" maxlength="1200">{{user.bio}}</textarea></div>
+        <div class="field"><label>Mood</label><input name="mood" value="{{user.mood or ''}}"></div>
+        <div class="field"><label>Relationship status</label><select name="relationship_status"><option value="">Select one</option>{% for v in ['Single','Separated','Divorced','Widowed','It’s complicated'] %}<option value="{{v}}" {% if user.relationship_status==v %}selected{% endif %}>{{v}}</option>{% endfor %}</select></div>
+        <div class="field"><label>Looking for</label><select name="relationship_goal"><option value="">Select one</option>{% for v in ['Something serious','Marriage','Long-term relationship','Something casual','Friendship first','Still figuring it out'] %}<option value="{{v}}" {% if user.relationship_goal==v %}selected{% endif %}>{{v}}</option>{% endfor %}</select></div>
+        <div class="field"><label>Smoking</label><select name="smoking"><option value="">Prefer not to say</option><option value="Non-smoker" {% if user.smoking=='Non-smoker' %}selected{% endif %}>Non-smoker</option><option value="Occasionally" {% if user.smoking=='Occasionally' %}selected{% endif %}>Occasionally</option><option value="Smoker" {% if user.smoking=='Smoker' %}selected{% endif %}>Smoker</option></select></div>
+        <div class="field"><label>Religion</label><input name="religion" value="{{user.religion or ''}}"></div>
+        <div class="field"><label>Languages</label><input name="languages" value="{{user.languages or ''}}"></div>
+        <div class="field"><label>Work</label><input name="work" value="{{user.work or ''}}"></div>
+        <div class="field"><label>Education</label><input name="education" value="{{user.education or ''}}"></div>
+        <div class="field"><label>Interests</label><input name="interests" value="{{user.interests or ''}}"></div>
+        <div class="field"><label>Age range</label><div class="age-inline"><input type="number" name="min_age" min="18" max="100" value="{{user.min_age or 18}}"><span>to</span><input type="number" name="max_age" min="18" max="100" value="{{user.max_age or 60}}"></div></div>
+        <div class="field"><label>Discovery distance</label><select name="search_radius_km">{% for value in [1,2,5,10,15,25,50,100,250,500] %}<option value="{{value}}" {% if (user.search_radius_km|float)==value %}selected{% endif %}>{{value}} km</option>{% endfor %}</select></div>
+      </div>
+      <button class="btn full" type="submit">Save profile changes ❤️</button>
     </form>
-
-    <div class="location-settings precise-location-box">
-      <div><b>📍 Precise nearby search</b><p id="profileLocationText" class="muted small">{% if user.latitude is not none %}GPS enabled{% if user.location_accuracy_m %} · accuracy about {{user.location_accuracy_m|round|int}} m{% endif %}. Distances use your saved coordinates.{% else %}Share GPS for the most accurate nearby results.{% endif %}</p></div>
-      <button type="button" class="btn secondary" onclick="updateLocation()">{% if user.latitude is not none %}Update GPS{% else %}Use my GPS{% endif %}</button>
-    </div>
-
-    <div class="verification-strip"><b>Verification</b><p class="muted small">{% if user.verified %}✓ Your profile is verified.{% else %}Verification can be added by the admin after identity checks.{% endif %}</p></div>
-  </div>
+  </details>
 </main>
 <script>
-(function(){
-  async function compress(file){let bitmap=window.createImageBitmap?await createImageBitmap(file,{imageOrientation:'from-image'}).catch(()=>null):null,img=bitmap;if(!img)img=await new Promise((ok,no)=>{const r=new FileReader();r.onload=()=>{const i=new Image();i.onload=()=>ok(i);i.onerror=no;i.src=r.result};r.onerror=no;r.readAsDataURL(file)});let w=img.width,h=img.height,s=Math.min(1,1280/Math.max(w,h));w=Math.max(1,Math.round(w*s));h=Math.max(1,Math.round(h*s));const c=document.createElement('canvas');c.width=w;c.height=h;c.getContext('2d',{alpha:false}).drawImage(img,0,0,w,h);if(bitmap&&bitmap.close)bitmap.close();let q=.8,blob=null;for(let i=0;i<7;i++){blob=await new Promise(r=>c.toBlob(r,'image/jpeg',q));if(blob&&blob.size<=180*1024)break;q-=.08}return await new Promise((ok,no)=>{const r=new FileReader();r.onload=()=>ok(r.result);r.onerror=no;r.readAsDataURL(blob)})}
-  window.pickProfilePhoto=s=>document.getElementById('profileFile'+s).click();
-  for(let s=1;s<=6;s++)document.getElementById('profileFile'+s).addEventListener('change',async e=>{const f=e.target.files[0];e.target.value='';if(!f)return;try{const d=await compress(f);document.getElementById('profileData'+s).value=d;const img=document.getElementById('profilePreview'+s);img.src=d;img.hidden=false;document.getElementById('profilePlus'+s).hidden=true;document.getElementById('profilePhotoSlot'+s).classList.add('filled')}catch(err){alert(err.message||'Could not add this photo.')}});
-  const min=document.getElementById('profileMinAge'),max=document.getElementById('profileMaxAge'),sum=document.getElementById('profileAgeSummary');function age(){if(+min.value>+max.value)min.value=max.value;sum.textContent=min.value+'–'+max.value}min.oninput=age;max.oninput=age;
-  window.updateLocation=function(){const t=document.getElementById('profileLocationText');if(!navigator.geolocation){t.textContent='GPS is not supported by this browser.';return}t.textContent='Getting your most accurate GPS position…';navigator.geolocation.getCurrentPosition(async p=>{const f=new FormData();f.append('latitude',p.coords.latitude);f.append('longitude',p.coords.longitude);f.append('accuracy',p.coords.accuracy);f.append('search_radius_km','{{user.search_radius_km or 25}}');try{const r=await fetch('{{url_for("update_location")}}',{method:'POST',body:f}),d=await r.json();t.textContent=d.ok?'GPS saved · accuracy about '+Math.round(d.accuracy_m||p.coords.accuracy)+' m':'Could not save GPS location.'}catch(e){t.textContent='Could not save GPS location.'}},()=>{t.textContent='Location permission was denied or unavailable.'},{enableHighAccuracy:true,timeout:20000,maximumAge:60000})};
-})();
+(function(){async function compress(file){let bitmap=window.createImageBitmap?await createImageBitmap(file,{imageOrientation:'from-image'}).catch(()=>null):null,img=bitmap;if(!img)img=await new Promise((ok,no)=>{const r=new FileReader();r.onload=()=>{const i=new Image();i.onload=()=>ok(i);i.onerror=no;i.src=r.result};r.onerror=no;r.readAsDataURL(file)});let w=img.width,h=img.height,s=Math.min(1,1280/Math.max(w,h));w=Math.max(1,Math.round(w*s));h=Math.max(1,Math.round(h*s));const c=document.createElement('canvas');c.width=w;c.height=h;c.getContext('2d',{alpha:false}).drawImage(img,0,0,w,h);if(bitmap&&bitmap.close)bitmap.close();let q=.8,blob=null;for(let i=0;i<7;i++){blob=await new Promise(r=>c.toBlob(r,'image/jpeg',q));if(blob&&blob.size<=180*1024)break;q-=.08}return await new Promise((ok,no)=>{const r=new FileReader();r.onload=()=>ok(r.result);r.onerror=no;r.readAsDataURL(blob)})}
+window.pickProfilePhoto=s=>document.getElementById('profileFile'+s).click();for(let s=1;s<=6;s++)document.getElementById('profileFile'+s).addEventListener('change',async e=>{const f=e.target.files[0];e.target.value='';if(!f)return;try{const d=await compress(f);document.getElementById('profileData'+s).value=d;const img=document.getElementById('profilePreview'+s);img.src=d;img.hidden=false;document.getElementById('profilePlus'+s).hidden=true;document.getElementById('profilePhotoSlot'+s).classList.add('filled')}catch(err){alert(err.message||'Could not add this photo.')}});})();
+function showProfileTab(id,btn){document.querySelectorAll('.profile-tab-panel').forEach(x=>x.classList.remove('active'));document.getElementById(id).classList.add('active');document.querySelectorAll('.profile-tabs button').forEach(x=>x.classList.remove('active'));btn.classList.add('active')}
 </script>
 <style>
-.profile-page{max-width:1080px;padding-top:28px;padding-bottom:120px}.profile-edit-header{display:flex;justify-content:space-between;align-items:end;gap:20px;margin-bottom:20px}.profile-edit-header h1{font-family:'Playfair Display',serif;color:#71304f;font-size:clamp(34px,5vw,50px);margin:4px 0 8px}.profile-edit-header p{max-width:650px;margin:0}.profile-settings-card{max-width:1080px!important;padding:30px!important}
-.profile-edit-section{padding:25px 0;border-top:1px solid #f0dfe6}.edit-section-head{display:flex;justify-content:space-between;gap:15px;align-items:end;margin-bottom:15px}.edit-section-head h2{font-family:'Playfair Display',serif;color:#71304f;margin:3px 0 0;font-size:26px}.edit-section-note{font-size:11px;color:#9b7e8b}.optional{font-weight:700;color:#a68a96;font-size:10px;margin-left:4px}
-.edit-grid{display:grid;grid-template-columns:1fr 1fr;gap:2px 16px}.interest-help{margin-top:-2px}.save-profile-btn{min-height:55px;margin-top:4px;font-size:16px}
-.verification-strip{margin-top:25px;padding-top:20px;border-top:1px solid #f0dfe6}.verification-strip p{margin:5px 0 0}
-@media(max-width:700px){.profile-page{padding:18px 12px 100px}.profile-edit-header{align-items:flex-start;flex-direction:column}.profile-edit-header .btn{width:100%}.profile-settings-card{padding:18px!important;border-radius:26px!important}.edit-grid{grid-template-columns:1fr}.edit-section-head{align-items:flex-start;flex-direction:column;gap:4px}.edit-section-note{font-size:10px}}
+.profile-badoo-page{background:#fff;min-height:calc(100vh - 86px);padding:26px 24px 110px;color:#111;max-width:980px;margin:0 auto}.profile-badoo-head{display:flex;align-items:center;justify-content:space-between}.profile-badoo-head h1{font-family:Arial,sans-serif;font-size:36px;letter-spacing:-1.3px;margin:0}.profile-head-actions{display:flex;gap:10px}.profile-head-actions button{border:0;background:#fff;font-size:23px;color:#111;padding:4px 7px}.profile-summary{display:flex;align-items:center;gap:24px;padding:30px 0 22px}.profile-avatar-wrap{position:relative;width:170px;height:170px}.profile-avatar{width:148px;height:148px;border-radius:50%;padding:7px;border:1px solid #ddd}.profile-avatar img{width:100%;height:100%;object-fit:cover;border-radius:50%}.completion-ring{position:absolute;right:3px;bottom:7px;width:54px;height:54px;border-radius:50%;background:#111;color:#fff;display:flex;align-items:center;justify-content:center;border:4px solid #fff;font-weight:900}.profile-summary-main h2{font-family:Arial,sans-serif;font-size:34px;margin:0 0 13px}.profile-summary-main small{display:block;color:#888;margin-top:8px}.chat-open-pill{display:inline-flex;padding:9px 13px;border-radius:999px;background:#f5f5f5;font-weight:800;color:#333}.profile-prompt{display:flex;align-items:center;gap:15px;padding:22px 20px;border:1px solid #ddd;border-radius:25px;color:#333;margin:10px 0 26px}.prompt-icon{width:43px;height:43px;border-radius:50%;background:#f0dcff;display:flex;align-items:center;justify-content:center}.profile-prompt span:nth-child(2){flex:1;font-size:18px}.profile-tabs{display:flex;border-bottom:1px solid #ddd}.profile-tabs button{flex:1;border:0;background:#fff;padding:18px 0;font-size:18px;font-weight:800;color:#777;position:relative}.profile-tabs button.active{color:#111}.profile-tabs button.active:after{content:"";position:absolute;bottom:-1px;left:0;right:0;height:2px;background:#111}.profile-tab-panel{display:none;padding-top:18px}.profile-tab-panel.active{display:block}.quick-cards{display:grid;grid-template-columns:1fr 1fr;gap:16px}.quick-cards article{display:flex;align-items:center;gap:12px;padding:18px;border-radius:24px;background:#fafafa}.quick-icon{width:48px;height:48px;border-radius:50%;display:flex;align-items:center;justify-content:center;background:#fff;border:1px solid #eee;font-size:25px}.quick-icon.purple{background:#f0dcff}.quick-cards small{display:block;color:#888;font-size:12px}.quick-cards strong{display:block;margin-top:4px;font-size:17px}.quick-cards strong a{color:#111;text-decoration:underline}.premium-panel{margin-top:18px;padding:26px;border-radius:28px;background:#630037;color:#fff}.premium-brand{font-size:24px;font-weight:900;letter-spacing:-1px}.premium-brand span{opacity:.85}.premium-panel>a{display:flex;align-items:center;justify-content:center;background:#fff;color:#111;border-radius:999px;padding:14px;margin-top:20px;font-weight:900}.plan-mini{margin-top:14px;padding:12px 16px;border-radius:18px;background:rgba(255,255,255,.10);display:flex;justify-content:space-between}.safety-card{padding:20px;border:1px solid #ddd;border-radius:24px;background:#fafafa}.safety-card p{color:#777;line-height:1.5}.safety-card div{display:flex;gap:10px;flex-wrap:wrap}.safety-card a{font-weight:800;text-decoration:underline}.profile-edit-details{margin-top:20px;border-top:1px solid #e5e5e5;padding-top:18px}.profile-edit-details>summary{list-style:none;display:flex;justify-content:space-between;padding:17px 0;font-size:18px;font-weight:900;cursor:pointer}.profile-edit-details>summary::-webkit-details-marker{display:none}.edit-grid{display:grid;grid-template-columns:1fr 1fr;gap:3px 16px}.age-inline{display:flex;align-items:center;gap:8px}.age-inline input{min-width:0}.profile-edit-details form{padding-bottom:10px}.profile-edit-details .photo-onboarding{margin:14px 0}.profile-edit-details .field{margin:10px 0}
+@media(max-width:600px){.profile-badoo-page{padding:23px 22px 96px}.profile-badoo-head h1{font-size:31px}.profile-summary{gap:13px;padding:28px 0 20px}.profile-avatar-wrap{width:106px;height:106px}.profile-avatar{width:96px;height:96px;padding:4px}.completion-ring{width:42px;height:42px;font-size:11px;right:0;bottom:1px;border-width:3px}.profile-summary-main h2{font-size:26px}.chat-open-pill{font-size:13px;padding:8px 11px}.profile-summary-main small{font-size:12px}.profile-prompt{padding:18px 15px}.profile-tabs button{font-size:16px;padding:16px 0}.quick-cards{gap:10px}.quick-cards article{padding:13px 10px;border-radius:20px}.quick-icon{width:40px;height:40px;font-size:20px}.premium-panel{padding:21px}.premium-brand{font-size:20px}.edit-grid{grid-template-columns:1fr}}
 </style>
 {% endblock %}
