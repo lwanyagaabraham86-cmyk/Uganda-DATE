@@ -1,1 +1,47 @@
-{% extends 'base.html' %}{% block title %}Chats — Uganda Dating{% endblock %}{% block content %}<main class="container"><div class="section-title"><div><div class="eyebrow">♡ Conversations</div><h1>Your Chats</h1><p class="muted">Continue the conversations that could become something beautiful.</p></div><a class="btn secondary" href="{{ url_for('matches') }}">❤️ Matches</a></div>{% if conversations %}<div class="chat-list">{% for other,last in conversations %}<a class="chat-preview" href="{{ url_for('messages',user_id=other.id) }}"><img src="{{other.photo}}" alt="{{other.name}}"><div class="chat-preview-body"><div class="chat-preview-top"><strong>{{other.name}}, {{other.age}}</strong><span class="small muted">{{ last.created_at.strftime('%d %b') }}</span></div><div class="muted chat-preview-text">{{last.body}}</div></div><span class="chat-arrow">›</span></a>{% endfor %}</div>{% else %}<div class="empty"><div class="empty-heart">♡</div><h2>No chats yet</h2><p class="muted">Match with someone and start a genuine conversation.</p><a class="btn" href="{{ url_for('encounters') }}">Meet people</a></div>{% endif %}</main>{% endblock %}
+{% extends 'base.html' %}
+{% block title %}Chats — Uganda Dating{% endblock %}
+{% block content %}
+<main class="chats-badoo-page">
+  <header class="chats-head"><div><h1>Chats</h1><p>Likes, matches and conversations in one place.</p></div><div class="head-icons"><button class="icon-circle">⌁</button><button class="icon-circle">♟<i></i></button></div></header>
+
+  <section class="likes-matches-strip">
+    <div class="section-mini-title">Likes and matches</div>
+    <div class="story-row">
+      <a class="story-item" href="{{url_for('likes')}}">
+        <div class="story-avatar likes-story">{% if like_people %}<img src="{{photo_url(like_people[0],1)}}" alt="Likes">{% else %}<span>♥</span>{% endif %}{% if like_count %}<b>{{ '99+' if like_count>99 else like_count }}</b>{% endif %}</div><span>Likes</span>
+      </a>
+      {% for p in match_people[:5] %}
+      <a class="story-item" href="{{url_for('messages',user_id=p.id)}}"><div class="story-avatar"><img src="{{photo_url(p,1)}}" alt="{{p.name}}"></div><span>{{p.name|truncate(9,true,'…')}}</span></a>
+      {% endfor %}
+      {% for n in range(5 - match_people[:5]|length) %}<div class="story-item"><div class="story-avatar empty-story"></div><span>&nbsp;</span></div>{% endfor %}
+    </div>
+  </section>
+
+  <section class="messages-section">
+    <div class="messages-title"><h2>Messages</h2><button type="button">☷&nbsp; Sort by</button></div>
+    {% if like_count %}
+    <a class="likes-promo-row" href="{{url_for('likes')}}">
+      <div class="promo-avatar">{% if like_people %}<img src="{{photo_url(like_people[0],1)}}" alt="Likes">{% endif %}<b>♥ {{'99+' if like_count>99 else like_count}}</b></div>
+      <div><strong>Want to see the {{'99+' if like_count>99 else like_count}} people who already liked you?</strong><span>Open Likes to reveal them.</span></div>
+    </a>
+    {% endif %}
+    {% if conversations %}
+      <div class="conversation-list">
+      {% for other,last in conversations %}
+      <a class="conversation-row" href="{{url_for('messages',user_id=other.id)}}">
+        <div class="conversation-avatar"><img src="{{photo_url(other,1)}}" alt="{{other.name}}"></div>
+        <div class="conversation-copy"><strong>{{other.name}}</strong><span>{{last.body}}</span></div>
+        <span class="conversation-star">{% if last.sender_id==current_user.id %}☆{% else %}★{% endif %}</span>
+      </a>
+      {% endfor %}
+      </div>
+    {% elif not like_count %}
+      <div class="messages-empty"><strong>Your chats will appear here</strong><p>Match with someone and start a genuine conversation.</p><a href="{{url_for('discover')}}">Discover people</a></div>
+    {% endif %}
+  </section>
+</main>
+<style>
+.chats-badoo-page{background:#fff;min-height:calc(100vh - 86px);padding:28px 24px 110px;color:#111}.chats-head{max-width:980px;margin:0 auto 22px;display:flex;justify-content:space-between;align-items:center}.chats-head h1{font-family:Arial,sans-serif;font-size:36px;margin:0;letter-spacing:-1.4px}.chats-head p{margin:6px 0 0;color:#888;font-size:14px}.head-icons{display:flex;gap:11px}.icon-circle{width:40px;height:40px;border-radius:50%;border:0;background:#fff;color:#111;font-size:22px;position:relative}.icon-circle i{position:absolute;right:4px;top:2px;width:7px;height:7px;background:#e21d45;border-radius:50%}.likes-matches-strip,.messages-section{max-width:980px;margin:0 auto}.section-mini-title{font-size:20px;font-weight:800;margin-bottom:12px}.story-row{display:flex;gap:20px;overflow:auto;padding:2px 0 20px;scrollbar-width:none}.story-row::-webkit-scrollbar{display:none}.story-item{min-width:66px;text-align:center;color:#222}.story-item>span{display:block;margin-top:6px;font-size:11px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}.story-avatar{position:relative;width:62px;height:62px;border-radius:50%;border:1px solid #ededed;margin:auto;background:#fafafa;overflow:visible}.story-avatar img,.promo-avatar img{width:100%;height:100%;border-radius:50%;object-fit:cover}.likes-story{border:3px solid #d52954}.likes-story>span{display:flex;align-items:center;justify-content:center;width:100%;height:100%;font-size:25px;color:#d52954}.story-avatar b,.promo-avatar b{position:absolute;right:-5px;bottom:-3px;background:#d42145;color:#fff;border-radius:999px;padding:4px 7px;font-size:10px;border:2px solid #fff}.empty-story{background:#fff}.messages-section{padding-top:8px}.messages-title{display:flex;justify-content:space-between;align-items:center;border-bottom:0;margin-bottom:7px}.messages-title h2{margin:0;font-size:21px}.messages-title button{border:0;background:none;font-weight:800;color:#222;font-size:16px}.likes-promo-row{display:flex;gap:14px;align-items:center;padding:12px 0 15px;border-bottom:1px solid #eee}.promo-avatar{width:58px;height:58px;border-radius:50%;position:relative;flex:0 0 auto;background:#ddd;overflow:visible}.likes-promo-row strong{font-size:16px;line-height:1.25}.likes-promo-row span{display:block;color:#888;font-size:13px;margin-top:4px}.conversation-list{display:grid}.conversation-row{display:flex;align-items:center;gap:14px;padding:14px 0;border-bottom:1px solid #eee}.conversation-avatar{width:58px;height:58px;flex:0 0 auto}.conversation-avatar img{width:100%;height:100%;object-fit:cover;border-radius:50%}.conversation-copy{min-width:0;flex:1}.conversation-copy strong{display:block;font-size:17px}.conversation-copy span{display:block;color:#888;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;margin-top:4px;font-size:14px}.conversation-star{font-size:21px;color:#666}.messages-empty{text-align:center;padding:50px 10px;color:#777}.messages-empty strong{color:#222;font-size:18px}.messages-empty p{margin:6px 0 18px}.messages-empty a{display:inline-flex;padding:12px 18px;border-radius:999px;background:#111;color:#fff;font-weight:800}
+@media(max-width:600px){.chats-badoo-page{padding:25px 22px 96px}.chats-head h1{font-size:31px}.story-row{gap:15px}.story-item{min-width:58px}.story-avatar{width:58px;height:58px}.likes-promo-row strong{font-size:15px}.conversation-row{padding:13px 0}}
+</style>
+{% endblock %}
