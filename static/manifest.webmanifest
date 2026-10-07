@@ -12,7 +12,7 @@
   "lang":"en-UG",
   "categories":["social","lifestyle"],
   "icons":[
-    {"src":"/static/img/icon-pink.svg?v=20261007c","sizes":"192x192","type":"image/svg+xml","purpose":"any maskable"},
-    {"src":"/static/img/icon-pink.svg?v=20261007c","sizes":"512x512","type":"image/svg+xml","purpose":"any maskable"}
+    {"src":"/static/img/icon-reference.jpg?v=20261007d","sizes":"192x192","type":"image/jpeg","purpose":"any maskable"},
+    {"src":"/static/img/icon-reference.jpg?v=20261007d","sizes":"192x192","type":"image/jpeg","purpose":"any maskable"}
   ]
 }
