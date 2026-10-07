@@ -1,31 +1,43 @@
 {% extends 'base.html' %}
 {% block title %}Likes — Uganda Dating{% endblock %}
 {% block content %}
-<main class="container">
-  <div class="section-title">
-    <div><div class="eyebrow">♡ People interested in you</div><h1>Your Likes</h1><p class="muted">See who has already shown you some love.</p></div>
-    <a class="btn secondary" href="{{ url_for('premium') }}">✨ Upgrade</a>
-  </div>
+<main class="likes-badoo-page">
+  <header class="likes-head"><h1>Your likes list</h1><p>The faster you like them back, the higher your chance of chatting and dating!</p></header>
+  <div class="likes-tabs"><button class="active">All likes <span>🔒</span></button><button>New likes <span>🔒</span></button><button>Online <span>🔒</span></button><button>Nearby <span>🔒</span></button></div>
+
   {% if locked %}
-  <div class="likes-locked">
-    <div class="locked-heart">♥</div>
-    <div class="eyebrow">Gold feature</div>
-    <h2>See who likes you</h2>
-    <p class="muted">There are <strong>{{ like_count }}</strong> people waiting to be discovered. Upgrade to Gold or Platinum to reveal them.</p>
-    <a class="btn" href="{{ url_for('payment', plan='gold') }}">Unlock Likes · UGX 20,000/month</a>
-  </div>
+  <section class="locked-likes-wrap">
+    <div class="locked-grid">
+      {% for p in liked_teasers or [] %}
+      <article class="locked-card"><img src="{{photo_url(p,1)}}" alt=""><div class="locked-actions"><span>×</span><span>♥</span></div></article>
+      {% endfor %}
+      {% if not liked_teasers %}
+      {% for n in range(4) %}<article class="locked-card placeholder"><div></div><div class="locked-actions"><span>×</span><span>♥</span></div></article>{% endfor %}
+      {% endif %}
+    </div>
+    <div class="reveal-bar"><div><strong>There are {{ like_count }} people who already liked you</strong><span>Reveal them and start matching.</span></div><a href="{{url_for('payment',plan='gold')}}">Reveal my likes · UGX 20,000/mo</a></div>
+  </section>
   {% elif liked_users %}
-  <div class="matches likes-grid">{% for p,kind in liked_users %}
-    <article class="match like-card">
-      <img src="{{p.photo}}" alt="{{p.name}}">
-      <h3>{{p.name}}, {{p.age}} {% if p.verified %}<span class="verified">●</span>{% endif %}</h3>
-      <div class="muted">📍 {{p.city}}</div>
-      <span class="tag">{{ '⭐ Special Like' if kind=='superlike' else '♥ Liked you' }}</span>
-      <div style="margin-top:13px"><a class="btn full" href="{{ url_for('messages',user_id=p.id) }}">Say hello 💕</a></div>
-    </article>
-  {% endfor %}</div>
+  <section class="likes-open-grid">
+    {% for p,kind in liked_users %}
+    <article class="open-like-card"><img src="{{photo_url(p,1)}}" alt="{{p.name}}"><div><strong>{{p.name}}, {{p.age}}</strong><span>{{p.city}}</span></div><div class="like-row"><a href="{{url_for('view_member_profile',user_id=p.id)}}">View</a><form onsubmit="likeBack(event,{{p.id}})"><button type="submit">♥</button></form></div></article>
+    {% endfor %}
+  </section>
   {% else %}
-  <div class="empty"><div class="empty-heart">♡</div><h2>Your likes will appear here</h2><p class="muted">Keep your profile warm and genuine. Someone special may be looking at you.</p><a class="btn" href="{{ url_for('encounters') }}">Discover people</a></div>
+  <div class="badoo-like-empty"><div>♥</div><h2>No likes yet</h2><p>Keep discovering people and your likes will appear here.</p><a href="{{url_for('discover')}}">Discover people</a></div>
   {% endif %}
 </main>
+<style>
+.likes-badoo-page{background:#fff;min-height:calc(100vh - 86px);padding:46px 24px 110px}
+.likes-head{max-width:900px;margin:0 auto 25px}.likes-head h1{font-family:Arial,sans-serif;color:#111;margin:0;font-size:36px;letter-spacing:-1.5px}.likes-head p{max-width:650px;color:#737373;font-size:18px;line-height:1.55;margin:12px 0 0}
+.likes-tabs{display:flex;gap:38px;max-width:900px;margin:0 auto;border-bottom:1px solid #ddd;overflow:auto;white-space:nowrap}.likes-tabs button{border:0;background:none;padding:13px 0 14px;font-size:15px;font-weight:800;color:#777;position:relative}.likes-tabs button.active{color:#111}.likes-tabs button.active:after{content:"";position:absolute;left:0;right:0;bottom:-1px;height:3px;background:#111}.likes-tabs span{font-size:12px;margin-left:3px}
+.locked-likes-wrap{max-width:900px;margin:34px auto 0}.locked-grid{display:grid;grid-template-columns:repeat(2,1fr);gap:22px}.locked-card{border:1px solid #ddd;border-radius:18px;overflow:hidden;background:#fff;position:relative}.locked-card img,.locked-card.placeholder div:first-child{width:100%;aspect-ratio:1/1;object-fit:cover;display:block;filter:blur(18px);transform:scale(1.05);background:linear-gradient(135deg,#9b8f91,#d7c8b9,#748969)}.locked-actions{height:68px;display:grid;grid-template-columns:1fr 1fr;border-top:1px solid #ddd;background:#fff}.locked-actions span{display:flex;align-items:center;justify-content:center;font-size:31px;color:#111}.locked-actions span:first-child{border-right:1px solid #eee}
+.reveal-bar{position:sticky;bottom:72px;z-index:5;margin:20px auto 0;max-width:750px;border-radius:999px;background:#111;color:#fff;padding:13px 18px 13px 20px;display:flex;justify-content:space-between;align-items:center;gap:18px;box-shadow:0 12px 35px rgba(0,0,0,.23)}.reveal-bar div span{display:block;font-size:12px;color:#ccc;margin-top:3px}.reveal-bar a{background:#fff;color:#111;padding:12px 16px;border-radius:999px;font-weight:900;white-space:nowrap}
+.likes-open-grid{max-width:900px;margin:30px auto;display:grid;grid-template-columns:repeat(2,1fr);gap:18px}.open-like-card{border:1px solid #e4e4e4;border-radius:18px;overflow:hidden;background:#fff}.open-like-card>img{width:100%;aspect-ratio:1/1;object-fit:cover}.open-like-card>div:nth-child(2){padding:12px 14px 0}.open-like-card>div:nth-child(2) span{display:block;color:#888;font-size:12px;margin-top:3px}.like-row{display:flex;justify-content:space-between;align-items:center;padding:10px 14px 14px}.like-row a{font-weight:800}.like-row form{margin:0}.like-row button{border:0;width:46px;height:46px;border-radius:50%;background:#111;color:#fff;font-size:22px}
+.badoo-like-empty{text-align:center;padding:65px 15px;color:#777}.badoo-like-empty>div{font-size:55px;color:#d7295a}.badoo-like-empty h2{color:#111}.badoo-like-empty a{display:inline-flex;padding:13px 19px;background:#111;color:#fff;border-radius:999px;font-weight:800}
+@media(max-width:650px){.likes-badoo-page{padding:28px 22px 96px}.likes-head h1{font-size:30px}.likes-head p{font-size:16px}.likes-tabs{gap:30px}.locked-grid{gap:14px}.reveal-bar{left:14px;right:14px;margin-left:0;margin-right:0;bottom:73px;padding:10px 11px 10px 16px}.reveal-bar strong{font-size:12px}.reveal-bar a{padding:11px 13px;font-size:12px}.open-like-card>div:nth-child(2){padding-left:11px;padding-right:11px}.like-row{padding:8px 11px 11px}}
+</style>
+<script>
+async function likeBack(e,id){e.preventDefault();const f=new FormData();f.append('kind','like');const r=await fetch('/like/'+id,{method:'POST',body:f});const d=await r.json();if(d.match)location.href='/matches';else location.reload()}
+</script>
 {% endblock %}
