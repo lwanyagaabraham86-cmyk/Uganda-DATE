@@ -5,9 +5,9 @@
   <header class="profile-badoo-head">
   <h1>Profile</h1>
   <div class="profile-head-actions">
-    <button id="profileSettingsButton" type="button" aria-label="Open settings" title="Settings">⚙</button>
-    <button id="profileHelpButton" type="button" aria-label="Open help" title="Help">?</button>
-    <button id="profileEditButton" type="button" aria-label="Edit profile" title="Edit profile">✎</button>
+    <button id="profileSettingsButton" type="button" aria-label="Open settings" title="Settings" onclick="document.getElementById('settingsModal').hidden=false">⚙</button>
+    <button id="profileHelpButton" type="button" aria-label="Open help" title="Help" onclick="document.getElementById('helpModal').hidden=false">?</button>
+    <button id="profileEditButton" type="button" aria-label="Edit profile" title="Edit profile" onclick="document.getElementById('editProfile').open=true;document.getElementById('editProfile').scrollIntoView({behavior:'smooth',block:'start'})">✎</button>
   </div>
 </header>
 
@@ -20,7 +20,7 @@
   </section>
 
   {% if not user.religion %}
-  <button class="profile-prompt profile-prompt-button" type="button" id="religionPrompt">
+  <button class="profile-prompt profile-prompt-button" type="button" id="religionPrompt" onclick="document.getElementById('editProfile').open=true;document.getElementById('religionField').scrollIntoView({behavior:'smooth',block:'center'});document.getElementById('religionInput').focus()">
   <span class="prompt-icon">⌂</span><span>What’s your religion?</span><b>›</b>
 </button>
   {% endif %}
@@ -76,9 +76,9 @@
 
 <div class="profile-modal-backdrop" id="settingsModal" hidden>
   <section class="profile-modal" role="dialog" aria-modal="true" aria-labelledby="settingsTitle">
-    <div class="profile-modal-head"><h2 id="settingsTitle">Settings</h2><button type="button" class="profile-modal-close" data-close-modal="settingsModal" aria-label="Close settings">×</button></div>
+    <div class="profile-modal-head"><h2 id="settingsTitle">Settings</h2><button type="button" class="profile-modal-close" onclick="document.getElementById('settingsModal').hidden=true" aria-label="Close settings">×</button></div>
     <div class="profile-settings-list">
-      <button type="button" class="profile-setting-item" id="settingsEditProfile"><span>✎</span><div><strong>Edit profile</strong><small>Update your photos, bio, religion, interests and preferences.</small></div><b>›</b></button>
+      <button type="button" class="profile-setting-item" id="settingsEditProfile" onclick="document.getElementById('settingsModal').hidden=true;document.getElementById('editProfile').open=true;document.getElementById('editProfile').scrollIntoView({behavior:'smooth',block:'start'})"><span>✎</span><div><strong>Edit profile</strong><small>Update your photos, bio, religion, interests and preferences.</small></div><b>›</b></button>
       <a class="profile-setting-item" href="{{url_for('premium')}}"><span>✨</span><div><strong>Premium & credits</strong><small>Manage your plan, credits and upgrades.</small></div><b>›</b></a>
       <a class="profile-setting-item" href="{{url_for('community_guidelines')}}"><span>🛡</span><div><strong>Safety & community</strong><small>Read the rules and learn how to stay safe.</small></div><b>›</b></a>
       <a class="profile-setting-item" href="{{url_for('privacy')}}"><span>🔒</span><div><strong>Privacy</strong><small>Review how your information is handled.</small></div><b>›</b></a>
@@ -89,7 +89,7 @@
 
 <div class="profile-modal-backdrop" id="helpModal" hidden>
   <section class="profile-modal" role="dialog" aria-modal="true" aria-labelledby="helpTitle">
-    <div class="profile-modal-head"><h2 id="helpTitle">Help</h2><button type="button" class="profile-modal-close" data-close-modal="helpModal" aria-label="Close help">×</button></div>
+    <div class="profile-modal-head"><h2 id="helpTitle">Help</h2><button type="button" class="profile-modal-close" onclick="document.getElementById('helpModal').hidden=true" aria-label="Close help">×</button></div>
     <div class="profile-help-content">
       <div><strong>How profile editing works</strong><p>Tap ✎ or “Edit profile” to open your profile form. Add or replace photos, then save your changes.</p></div>
       <div><strong>Missing information</strong><p>Tap any prompt such as “What’s your religion?” and Uganda Dating will take you directly to that field.</p></div>
