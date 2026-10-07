@@ -2,7 +2,20 @@
 {% block title %}Chats — Uganda Dating{% endblock %}
 {% block content %}
 <main class="chats-badoo-page">
-  <header class="chats-head"><div><h1>Chats</h1><p>Likes, matches and conversations in one place.</p></div><div class="head-icons"><button class="icon-circle">⌁</button><button class="icon-circle">♟<i></i></button></div></header>
+  <header class="chats-head">
+  <div><h1>Chats</h1><p>Likes, matches and conversations in one place.</p></div>
+  <div class="head-icons">
+    <button id="chatSearchToggle" class="icon-circle" type="button" aria-label="Search chats" aria-expanded="false" title="Search chats">⌕</button>
+    <a class="icon-circle" href="{{url_for('discover')}}" aria-label="Start a new chat" title="Discover people">＋<i></i></a>
+  </div>
+</header>
+<div class="chat-search-panel" id="chatSearchPanel" hidden>
+  <label for="chatSearchInput">Search your conversations</label>
+  <div class="chat-search-row">
+    <input id="chatSearchInput" type="search" placeholder="Search by name or message…" autocomplete="off">
+    <button id="chatSearchClear" type="button" class="chat-tool-button" hidden>Clear</button>
+  </div>
+</div>
 
   <section class="likes-matches-strip">
     <div class="section-mini-title">Likes and matches</div>
@@ -18,7 +31,16 @@
   </section>
 
   <section class="messages-section">
-    <div class="messages-title"><h2>Messages</h2><button type="button">☷&nbsp; Sort by</button></div>
+    <div class="messages-title">
+  <h2>Messages</h2>
+  <div class="sort-wrap">
+    <button id="chatSortToggle" type="button" aria-expanded="false" aria-haspopup="true">☷&nbsp; Sort by</button>
+    <div class="sort-menu" id="chatSortMenu" hidden>
+      <button type="button" data-sort="recent">Most recent</button>
+      <button type="button" data-sort="name">Name A–Z</button>
+    </div>
+  </div>
+</div>
     {% if like_count %}
     <a class="likes-promo-row" href="{{url_for('likes')}}">
       <div class="promo-avatar">{% if like_people %}<img src="{{photo_url(like_people[0],1)}}" alt="Likes">{% endif %}<b>♥ {{'99+' if like_count>99 else like_count}}</b></div>
@@ -26,9 +48,9 @@
     </a>
     {% endif %}
     {% if conversations %}
-      <div class="conversation-list">
+      <div class="conversation-list" id="conversationList">
       {% for other,last in conversations %}
-      <a class="conversation-row" href="{{url_for('messages',user_id=other.id)}}">
+      <a class="conversation-row" href="{{url_for('messages',user_id=other.id)}}" data-name="{{other.name|lower}}" data-message="{{last.body|lower}}" data-time="{{last.created_at.timestamp() if last.created_at else 0}}">
         <div class="conversation-avatar"><img src="{{photo_url(other,1)}}" alt="{{other.name}}"></div>
         <div class="conversation-copy"><strong>{{other.name}}</strong><span>{{last.body}}</span></div>
         <span class="conversation-star">{% if last.sender_id==current_user.id %}☆{% else %}★{% endif %}</span>
@@ -39,9 +61,84 @@
       <div class="messages-empty"><strong>Your chats will appear here</strong><p>Match with someone and start a genuine conversation.</p><a href="{{url_for('discover')}}">Discover people</a></div>
     {% endif %}
   </section>
+<div class="chat-filter-empty" id="chatFilterEmpty" hidden>No conversations match your search.</div>
 </main>
 <style>
-.chats-badoo-page{background:#fff;min-height:calc(100vh - 86px);padding:28px 24px 110px;color:#111}.chats-head{max-width:980px;margin:0 auto 22px;display:flex;justify-content:space-between;align-items:center}.chats-head h1{font-family:Arial,sans-serif;font-size:36px;margin:0;letter-spacing:-1.4px}.chats-head p{margin:6px 0 0;color:#888;font-size:14px}.head-icons{display:flex;gap:11px}.icon-circle{width:40px;height:40px;border-radius:50%;border:0;background:#fff;color:#111;font-size:22px;position:relative}.icon-circle i{position:absolute;right:4px;top:2px;width:7px;height:7px;background:#e21d45;border-radius:50%}.likes-matches-strip,.messages-section{max-width:980px;margin:0 auto}.section-mini-title{font-size:20px;font-weight:800;margin-bottom:12px}.story-row{display:flex;gap:20px;overflow:auto;padding:2px 0 20px;scrollbar-width:none}.story-row::-webkit-scrollbar{display:none}.story-item{min-width:66px;text-align:center;color:#222}.story-item>span{display:block;margin-top:6px;font-size:11px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}.story-avatar{position:relative;width:62px;height:62px;border-radius:50%;border:1px solid #ededed;margin:auto;background:#fafafa;overflow:visible}.story-avatar img,.promo-avatar img{width:100%;height:100%;border-radius:50%;object-fit:cover}.likes-story{border:3px solid #d52954}.likes-story>span{display:flex;align-items:center;justify-content:center;width:100%;height:100%;font-size:25px;color:#d52954}.story-avatar b,.promo-avatar b{position:absolute;right:-5px;bottom:-3px;background:#d42145;color:#fff;border-radius:999px;padding:4px 7px;font-size:10px;border:2px solid #fff}.empty-story{background:#fff}.messages-section{padding-top:8px}.messages-title{display:flex;justify-content:space-between;align-items:center;border-bottom:0;margin-bottom:7px}.messages-title h2{margin:0;font-size:21px}.messages-title button{border:0;background:none;font-weight:800;color:#222;font-size:16px}.likes-promo-row{display:flex;gap:14px;align-items:center;padding:12px 0 15px;border-bottom:1px solid #eee}.promo-avatar{width:58px;height:58px;border-radius:50%;position:relative;flex:0 0 auto;background:#ddd;overflow:visible}.likes-promo-row strong{font-size:16px;line-height:1.25}.likes-promo-row span{display:block;color:#888;font-size:13px;margin-top:4px}.conversation-list{display:grid}.conversation-row{display:flex;align-items:center;gap:14px;padding:14px 0;border-bottom:1px solid #eee}.conversation-avatar{width:58px;height:58px;flex:0 0 auto}.conversation-avatar img{width:100%;height:100%;object-fit:cover;border-radius:50%}.conversation-copy{min-width:0;flex:1}.conversation-copy strong{display:block;font-size:17px}.conversation-copy span{display:block;color:#888;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;margin-top:4px;font-size:14px}.conversation-star{font-size:21px;color:#666}.messages-empty{text-align:center;padding:50px 10px;color:#777}.messages-empty strong{color:#222;font-size:18px}.messages-empty p{margin:6px 0 18px}.messages-empty a{display:inline-flex;padding:12px 18px;border-radius:999px;background:#111;color:#fff;font-weight:800}
+.chats-badoo-page{background:#fff;min-height:calc(100vh - 86px);padding:28px 24px 110px;color:#111}.chats-head{max-width:980px;margin:0 auto 22px;display:flex;justify-content:space-between;align-items:center}.chats-head h1{font-family:Arial,sans-serif;font-size:36px;margin:0;letter-spacing:-1.4px}.chats-head p{margin:6px 0 0;color:#888;font-size:14px}.head-icons{display:flex;gap:11px;align-items:center}.icon-circle{width:40px;height:40px;border-radius:50%;border:1px solid #ece3e7;background:#fff;color:#111;font-size:22px;line-height:1;display:inline-flex;align-items:center;justify-content:center;position:relative;cursor:pointer;text-decoration:none;transition:transform .16s ease,box-shadow .16s ease,background .16s ease}.icon-circle:hover{background:#fff5f8;box-shadow:0 7px 18px rgba(74,24,48,.10);transform:translateY(-1px)}.icon-circle:active{transform:scale(.95)}.icon-circle i{position:absolute;right:3px;top:2px;width:7px;height:7px;background:#e21d45;border-radius:50%}.chat-search-panel{max-width:980px;margin:0 auto 16px;padding:14px 16px;border:1px solid #ecdde4;border-radius:17px;background:#fff8fb;box-shadow:0 10px 26px rgba(74,24,48,.06)}.chat-search-panel[hidden],.sort-menu[hidden],.chat-filter-empty[hidden]{display:none}.chat-search-panel label{display:block;font-size:12px;font-weight:800;color:#7b6872;margin-bottom:7px}.chat-search-row{display:flex;gap:8px}.chat-search-row input{width:100%;border:1px solid #e1d1d8;border-radius:13px;padding:11px 13px;background:#fff;font:inherit;outline:none}.chat-search-row input:focus{border-color:#d65b87;box-shadow:0 0 0 3px rgba(214,91,135,.10)}.chat-tool-button{border:0;border-radius:12px;padding:10px 13px;background:#f4e7ed;color:#8d345c;font-weight:800;cursor:pointer}.sort-wrap{position:relative}.messages-title button{cursor:pointer}.sort-menu{position:absolute;right:0;top:calc(100% + 8px);z-index:30;min-width:165px;padding:6px;border:1px solid #eadbe2;border-radius:14px;background:#fff;box-shadow:0 16px 34px rgba(74,24,48,.14)}.sort-menu button{display:block;width:100%;padding:10px 11px;border:0;border-radius:9px;background:transparent;text-align:left;font:inherit;font-size:13px;font-weight:800;color:#47333e;cursor:pointer}.sort-menu button:hover{background:#fff1f5;color:#a93563}.chat-filter-empty{max-width:980px;margin:10px auto;padding:18px;text-align:center;border:1px dashed #ead6de;border-radius:16px;background:#fff8fa;color:#8c7882;font-size:14px}.likes-matches-strip,.messages-section{max-width:980px;margin:0 auto}.section-mini-title{font-size:20px;font-weight:800;margin-bottom:12px}.story-row{display:flex;gap:20px;overflow:auto;padding:2px 0 20px;scrollbar-width:none}.story-row::-webkit-scrollbar{display:none}.story-item{min-width:66px;text-align:center;color:#222}.story-item>span{display:block;margin-top:6px;font-size:11px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}.story-avatar{position:relative;width:62px;height:62px;border-radius:50%;border:1px solid #ededed;margin:auto;background:#fafafa;overflow:visible}.story-avatar img,.promo-avatar img{width:100%;height:100%;border-radius:50%;object-fit:cover}.likes-story{border:3px solid #d52954}.likes-story>span{display:flex;align-items:center;justify-content:center;width:100%;height:100%;font-size:25px;color:#d52954}.story-avatar b,.promo-avatar b{position:absolute;right:-5px;bottom:-3px;background:#d42145;color:#fff;border-radius:999px;padding:4px 7px;font-size:10px;border:2px solid #fff}.empty-story{background:#fff}.messages-section{padding-top:8px}.messages-title{display:flex;justify-content:space-between;align-items:center;border-bottom:0;margin-bottom:7px}.messages-title h2{margin:0;font-size:21px}.messages-title button{border:0;background:none;font-weight:800;color:#222;font-size:16px}.likes-promo-row{display:flex;gap:14px;align-items:center;padding:12px 0 15px;border-bottom:1px solid #eee}.promo-avatar{width:58px;height:58px;border-radius:50%;position:relative;flex:0 0 auto;background:#ddd;overflow:visible}.likes-promo-row strong{font-size:16px;line-height:1.25}.likes-promo-row span{display:block;color:#888;font-size:13px;margin-top:4px}.conversation-list{display:grid}.conversation-row{display:flex;align-items:center;gap:14px;padding:14px 0;border-bottom:1px solid #eee}.conversation-avatar{width:58px;height:58px;flex:0 0 auto}.conversation-avatar img{width:100%;height:100%;object-fit:cover;border-radius:50%}.conversation-copy{min-width:0;flex:1}.conversation-copy strong{display:block;font-size:17px}.conversation-copy span{display:block;color:#888;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;margin-top:4px;font-size:14px}.conversation-star{font-size:21px;color:#666}.messages-empty{text-align:center;padding:50px 10px;color:#777}.messages-empty strong{color:#222;font-size:18px}.messages-empty p{margin:6px 0 18px}.messages-empty a{display:inline-flex;padding:12px 18px;border-radius:999px;background:#111;color:#fff;font-weight:800}
 @media(max-width:600px){.chats-badoo-page{padding:25px 22px 96px}.chats-head h1{font-size:31px}.story-row{gap:15px}.story-item{min-width:58px}.story-avatar{width:58px;height:58px}.likes-promo-row strong{font-size:15px}.conversation-row{padding:13px 0}}
 </style>
 {% endblock %}
+
+<script>
+(function(){
+  const searchToggle = document.getElementById('chatSearchToggle');
+  const searchPanel = document.getElementById('chatSearchPanel');
+  const searchInput = document.getElementById('chatSearchInput');
+  const searchClear = document.getElementById('chatSearchClear');
+  const list = document.getElementById('conversationList');
+  const empty = document.getElementById('chatFilterEmpty');
+  const sortToggle = document.getElementById('chatSortToggle');
+  const sortMenu = document.getElementById('chatSortMenu');
+
+  function setSearch(open){
+    if(!searchPanel) return;
+    searchPanel.hidden = !open;
+    if(searchToggle) searchToggle.setAttribute('aria-expanded', String(open));
+    if(open && searchInput) window.setTimeout(function(){ searchInput.focus(); }, 40);
+  }
+
+  function applySearch(){
+    if(!list) return;
+    const query = (searchInput && searchInput.value || '').trim().toLowerCase();
+    let visible = 0;
+    list.querySelectorAll('.conversation-row').forEach(function(row){
+      const haystack = (row.dataset.name || '') + ' ' + (row.dataset.message || '');
+      const match = !query || haystack.includes(query);
+      row.hidden = !match;
+      if(match) visible += 1;
+    });
+    if(searchClear) searchClear.hidden = !query;
+    if(empty) empty.hidden = visible > 0 || !query;
+  }
+
+  function setSort(open){
+    if(!sortMenu) return;
+    sortMenu.hidden = !open;
+    if(sortToggle) sortToggle.setAttribute('aria-expanded', String(open));
+  }
+
+  function sortConversations(mode){
+    if(!list) return;
+    const rows = Array.from(list.querySelectorAll('.conversation-row'));
+    rows.sort(function(a,b){
+      if(mode === 'name') return (a.dataset.name || '').localeCompare(b.dataset.name || '');
+      return Number(b.dataset.time || 0) - Number(a.dataset.time || 0);
+    });
+    rows.forEach(function(row){ list.appendChild(row); });
+    setSort(false);
+    applySearch();
+  }
+
+  if(searchToggle) searchToggle.addEventListener('click', function(){
+    const opening = searchPanel ? searchPanel.hidden : true;
+    setSearch(opening);
+  });
+  if(searchInput) searchInput.addEventListener('input', applySearch);
+  if(searchClear) searchClear.addEventListener('click', function(){
+    if(searchInput){ searchInput.value = ''; searchInput.focus(); }
+    applySearch();
+  });
+  if(sortToggle) sortToggle.addEventListener('click', function(){
+    setSort(sortMenu ? sortMenu.hidden : true);
+  });
+  if(sortMenu) sortMenu.querySelectorAll('button[data-sort]').forEach(function(button){
+    button.addEventListener('click', function(){ sortConversations(button.dataset.sort); });
+  });
+  document.addEventListener('click', function(event){
+    if(sortMenu && !sortMenu.hidden && !sortMenu.contains(event.target) && !sortToggle.contains(event.target)) setSort(false);
+  });
+  document.addEventListener('keydown', function(event){
+    if(event.key === 'Escape'){ setSearch(false); setSort(false); }
+  });
+})();
+</script>
