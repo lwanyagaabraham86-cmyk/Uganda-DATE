@@ -1,0 +1,24 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 128 128" role="img" aria-label="Uganda Dating">
+  <defs>
+    <linearGradient id="bg" x1="8" y1="4" x2="118" y2="124" gradientUnits="userSpaceOnUse">
+      <stop offset="0" stop-color="#ff14a8"/>
+      <stop offset=".48" stop-color="#ff0f72"/>
+      <stop offset="1" stop-color="#f40032"/>
+    </linearGradient>
+    <linearGradient id="heart" x1="34" y1="27" x2="96" y2="101" gradientUnits="userSpaceOnUse">
+      <stop offset="0" stop-color="#ffffff"/>
+      <stop offset=".55" stop-color="#fff2f7"/>
+      <stop offset="1" stop-color="#ffd1e0"/>
+    </linearGradient>
+    <radialGradient id="shine" cx="0" cy="0" r="1" gradientTransform="translate(35 22) rotate(45) scale(62 42)">
+      <stop offset="0" stop-color="#ffffff" stop-opacity=".55"/>
+      <stop offset="1" stop-color="#ffffff" stop-opacity="0"/>
+    </radialGradient>
+  </defs>
+  <rect width="128" height="128" rx="34" fill="url(#bg)"/>
+  <ellipse cx="34" cy="25" rx="39" ry="23" fill="url(#shine)"/>
+  <path d="M64 92C56 85 29 68 29 47c0-12 9-21 21-21 6 0 11 3 14 8 3-5 8-8 14-8 12 0 21 9 21 21 0 21-27 38-35 45z" fill="none" stroke="url(#heart)" stroke-width="8.5" stroke-linecap="round" stroke-linejoin="round"/>
+  <circle cx="50" cy="52" r="10.2" fill="url(#heart)"/>
+  <circle cx="78" cy="52" r="10.2" fill="url(#heart)"/>
+  <path d="M46 67c7 4 12 10 18 16 6-6 11-12 18-16-2 12-9 20-18 26-9-6-16-14-18-26z" fill="url(#heart)"/>
+</svg>
