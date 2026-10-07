@@ -62,7 +62,7 @@
         <div class="field"><label>Relationship status</label><select name="relationship_status"><option value="">Select one</option>{% for v in ['Single','Separated','Divorced','Widowed','It’s complicated'] %}<option value="{{v}}" {% if user.relationship_status==v %}selected{% endif %}>{{v}}</option>{% endfor %}</select></div>
         <div class="field"><label>Looking for</label><select name="relationship_goal"><option value="">Select one</option>{% for v in ['Something serious','Marriage','Long-term relationship','Something casual','Friendship first','Still figuring it out'] %}<option value="{{v}}" {% if user.relationship_goal==v %}selected{% endif %}>{{v}}</option>{% endfor %}</select></div>
         <div class="field"><label>Smoking</label><select name="smoking"><option value="">Prefer not to say</option><option value="Non-smoker" {% if user.smoking=='Non-smoker' %}selected{% endif %}>Non-smoker</option><option value="Occasionally" {% if user.smoking=='Occasionally' %}selected{% endif %}>Occasionally</option><option value="Smoker" {% if user.smoking=='Smoker' %}selected{% endif %}>Smoker</option></select></div>
-        <div class="field"><label>Religion</label><input name="religion" value="{{user.religion or ''}}"></div>
+        <div class="field" id="religionField"><label>Religion</label><input id="religionInput" name="religion" value="{{user.religion or ''}}"></div>
         <div class="field"><label>Languages</label><input name="languages" value="{{user.languages or ''}}"></div>
         <div class="field"><label>Work</label><input name="work" value="{{user.work or ''}}"></div>
         <div class="field"><label>Education</label><input name="education" value="{{user.education or ''}}"></div>
