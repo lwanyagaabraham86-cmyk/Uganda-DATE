@@ -77,6 +77,7 @@ class User(db.Model):
     credits = db.Column(db.Integer, default=0)
     referral_code = db.Column(db.String(24), unique=True, nullable=True)
     referred_by_id = db.Column(db.Integer, nullable=True)
+    founding_member = db.Column(db.Boolean, default=False)
 
 class Like(db.Model):
     id = db.Column(db.Integer, primary_key=True)
@@ -566,6 +567,10 @@ def register():
         if referrer and referrer.id == getattr(current_user(), 'id', None):
             referrer = None
 
+        real_member_count = User.query.filter(~User.email.like('%@demo.ug')).count()
+        is_founding_member = real_member_count < 100
+        founding_until = datetime.utcnow() + timedelta(days=30) if is_founding_member else None
+
         new_referral_code = uuid.uuid4().hex[:10].upper()
         while User.query.filter_by(referral_code=new_referral_code).first():
             new_referral_code = uuid.uuid4().hex[:10].upper()
@@ -578,7 +583,14 @@ def register():
             'photo1_data': photos[0], 'photo2_data': photos[1],
             'bio': 'New on Uganda Dating. Looking forward to meeting someone genuine!',
             'referred_by_id': referrer.id if referrer else None,
-            'referral_code': new_referral_code
+            'referral_code': new_referral_code,
+            'founding_member': is_founding_member,
+            'subscription_plan': 'gold' if is_founding_member else 'free',
+            'premium_until': founding_until,
+            'unlimited_until': founding_until,
+            'likes_until': founding_until,
+            'super_likes': 5 if is_founding_member else 0,
+            'credits': 10 if is_founding_member else 0
         }
         for slot, photo in enumerate(photos[2:6], start=3):
             data[f'photo{slot}_data'] = photo
@@ -1175,7 +1187,8 @@ with app.app_context():
             'photo5_data': 'TEXT',
             'photo6_data': 'TEXT',
             'referral_code': 'VARCHAR(24)',
-            'referred_by_id': 'INTEGER'
+            'referred_by_id': 'INTEGER',
+            'founding_member': 'BOOLEAN DEFAULT FALSE'
         }
         for column, sql_type in new_columns.items():
             if column not in user_columns:
@@ -1212,7 +1225,8 @@ with app.app_context():
             'photo5_data': 'TEXT',
             'photo6_data': 'TEXT',
             'referral_code': 'VARCHAR(24)',
-            'referred_by_id': 'INTEGER'
+            'referred_by_id': 'INTEGER',
+            'founding_member': 'BOOLEAN DEFAULT 0'
         }
         for column, sql_type in new_columns.items():
             if column not in user_columns:
