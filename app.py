@@ -519,6 +519,12 @@ def home():
         return redirect(url_for('discover'))
     return render_template('landing.html')
 
+@app.get('/founding100')
+def founding100():
+    real_member_count = User.query.filter(~User.email.like('%@demo.ug')).count()
+    remaining = max(0, 100 - real_member_count)
+    return render_template('founding100.html', remaining=remaining)
+
 @app.get('/invite')
 @login_required
 def invite_friends():
