@@ -1,0 +1,40 @@
+{% extends 'base.html' %}
+{% block title %}Founding 100 — Uganda Dating{% endblock %}
+{% block content %}
+<main class="founding-page">
+  <div class="founding-card">
+    <div class="founding-badge">🇺🇬 UGANDA DATING · FOUNDING 100</div>
+    <h1>Be one of the first <span>100</span>.</h1>
+    <p class="lead">The first 100 real adults who complete a Uganda Dating profile get <strong>30 days of Gold free</strong>, plus bonus credits to start connecting.</p>
+
+    <div class="count-card">
+      <strong>{{ remaining if remaining > 0 else '100+' }}</strong>
+      <span>{% if remaining > 0 %}founding places remaining{% else %}Founding 100 places filled — you can still join free{% endif %}</span>
+    </div>
+
+    <div class="benefits">
+      <div><b>✨ 30 days Gold</b><span>Unlock premium features while the community grows.</span></div>
+      <div><b>💎 10 bonus credits</b><span>Get a head start on special interactions.</span></div>
+      <div><b>❤️ Help build local dating</b><span>Join a dating community made for Uganda.</span></div>
+    </div>
+
+    <div class="actions">
+      <a class="primary" href="{{ url_for('register') }}">Create my free profile →</a>
+      <a class="secondary" target="_blank" rel="noopener" href="https://wa.me/?text={{ ('Be one of the first 100 on Uganda Dating 🇺🇬 Get 30 days Gold free and meet singles in Uganda: https://ugandadating.co.ug/founding100')|urlencode }}">Share on WhatsApp</a>
+    </div>
+
+    <p class="note">18+ only. The offer applies to the first 100 real member accounts that complete registration with at least two photos.</p>
+  </div>
+</main>
+<style>
+.founding-page{min-height:calc(100vh - 76px);padding:40px 18px 90px;background:radial-gradient(circle at 15% 10%,#ffe4ee,transparent 28%),radial-gradient(circle at 85% 20%,#eadcff,transparent 28%),#fff}
+.founding-card{max-width:800px;margin:0 auto;text-align:center;padding:52px 28px;border-radius:32px;background:#fff;border:1px solid #ead8df;box-shadow:0 24px 70px rgba(74,24,48,.12)}
+.founding-badge{display:inline-flex;padding:9px 14px;border-radius:999px;background:#f9e8ef;color:#8f214f;font-size:12px;font-weight:900;letter-spacing:.7px}
+.founding-card h1{font-family:Arial,sans-serif;color:#111;font-size:clamp(42px,7vw,72px);letter-spacing:-3px;line-height:1;margin:20px 0 14px}.founding-card h1 span{color:#c52e61}
+.lead{max-width:650px;margin:0 auto;color:#6f6870;line-height:1.7;font-size:18px}
+.count-card{width:max-content;max-width:100%;margin:26px auto;padding:16px 28px;border-radius:22px;background:#111;color:#fff}.count-card strong{display:block;font-size:42px;line-height:1}.count-card span{display:block;margin-top:5px;color:#cfcfcf;font-size:12px}
+.benefits{display:grid;grid-template-columns:repeat(3,1fr);gap:12px;margin:24px 0}.benefits div{padding:18px;border:1px solid #eee;border-radius:20px;background:#fafafa;text-align:left}.benefits b{display:block;color:#222}.benefits span{display:block;color:#777;font-size:12px;line-height:1.5;margin-top:5px}
+.actions{display:flex;justify-content:center;gap:10px;flex-wrap:wrap;margin-top:24px}.actions a{padding:14px 18px;border-radius:999px;font-weight:900;text-decoration:none}.primary{background:#111;color:#fff}.secondary{border:1px solid #ddd;color:#222;background:#fff}.note{margin:19px auto 0;max-width:650px;color:#999;font-size:11px;line-height:1.5}
+@media(max-width:650px){.founding-card{padding:34px 18px}.founding-card h1{font-size:46px}.benefits{grid-template-columns:1fr}.lead{font-size:16px}}
+</style>
+{% endblock %}
