@@ -14,6 +14,15 @@ app.config['SECRET_KEY'] = os.environ.get('SECRET_KEY', 'change-this-secret-key'
 app.config['SQLALCHEMY_DATABASE_URI'] = os.environ.get('DATABASE_URL', 'sqlite:///uganda_date.db').replace('postgres://', 'postgresql://', 1)
 app.config['SQLALCHEMY_TRACK_MODIFICATIONS'] = False
 app.config['MAX_CONTENT_LENGTH'] = 4 * 1024 * 1024
+
+# Keep members signed in on their phone after closing/reopening the installed PWA.
+# The session remains valid until logout, browser/site data is cleared, or the
+# one-year session lifetime expires.
+app.config['PERMANENT_SESSION_LIFETIME'] = timedelta(days=365)
+app.config['SESSION_REFRESH_EACH_REQUEST'] = True
+app.config['SESSION_COOKIE_HTTPONLY'] = True
+app.config['SESSION_COOKIE_SECURE'] = os.environ.get('SESSION_COOKIE_SECURE', '1') == '1'
+app.config['SESSION_COOKIE_SAMESITE'] = 'Lax'
 @app.get('/manifest.webmanifest')
 def manifest_webmanifest():
     return send_from_directory(os.path.join(app.root_path, 'static'), 'manifest.webmanifest', mimetype='application/manifest+json')
@@ -515,8 +524,11 @@ def inject_globals():
 
 @app.route('/')
 def home():
-    if session.get('user_id'):
+    # Returning members bypass the public marketing page on their phone.
+    if current_user():
         return redirect(url_for('discover'))
+    if session.get('user_id'):
+        session.clear()
     return render_template('landing.html')
 
 @app.get('/founding100')
@@ -608,15 +620,22 @@ def register():
             referrer.credits = (referrer.credits or 0) + 5
             user.credits = (user.credits or 0) + 2
         db.session.commit()
+        session.clear()
+        session.permanent = True
         session['user_id'] = user.id
         return redirect(url_for('discover'))
     return render_template('register.html')
 
 @app.route('/login', methods=['GET','POST'])
 def login():
+    # Already signed in on this device? Go straight into the app.
+    if request.method == 'GET' and current_user():
+        return redirect(url_for('discover'))
     if request.method == 'POST':
         user = User.query.filter_by(email=request.form['email'].strip().lower()).first()
         if user and check_password_hash(user.password_hash, request.form['password']):
+            session.clear()
+            session.permanent = True
             session['user_id'] = user.id
             return redirect(url_for('discover'))
         flash('Email or password is incorrect.', 'error')
